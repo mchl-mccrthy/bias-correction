@@ -35,6 +35,11 @@ D_all = sqrt((grid_x - station_lon(:)').^2 + ...
              (grid_y - station_lat(:)').^2);
 D_all(D_all == 0) = eps;  % avoid division by zero
 
+% Precompute nearest grid cell for each station
+[station_rows,station_cols] = indexofclosest2( ...
+    station_lon, station_lat, raw_lon, raw_lat);
+station_lin_inds = sub2ind(size(raw_lon),station_rows,station_cols);
+
 % Loop through time steps
 for iTimestep = 1:nTimesteps
     
@@ -43,8 +48,7 @@ for iTimestep = 1:nTimesteps
     
     % Interpolate to station locations
     nStns = length(station_lon);
-    reaVarStnTs = interp2(raw_lon,raw_lat,reaVarTs,station_lon,station_lat,...
-        'nearest');
+    reaVarStnTs = reaVarTs(station_lin_inds);
     
     % Make condition for qmf period
     if strcmp(qmf_period,'whole')
@@ -82,18 +86,13 @@ for iTimestep = 1:nTimesteps
         gridBiasesTs = gridBiasesTs(:);
         gridBiasesTs = reshape(gridBiasesTs,size(raw_lon));
     elseif strcmp(bias_interp_method,'idw')
-%         [stnX2,stnY2,stnBiasesTs2] = prepsd(station_lon,station_lat,...
-%             stnBiasesTs);
-%         gridBiasesTs = IDW(stnX2,stnY2,stnBiasesTs2,raw_lon(1,:)',...
-%             raw_lat(:,1),-2,'ng',...
-%             length(stnX2)); ***
-            valid = isfinite(stnBiasesTs);
-            D = D_all(:,valid);
-            b = stnBiasesTs(valid);
-            W = D.^-2;
-            W = W ./ sum(W,2);
-            gridBiasesTs = W * b(:);
-            gridBiasesTs = reshape(gridBiasesTs,size(raw_lon));
+        valid = isfinite(stnBiasesTs);
+        D = D_all(:,valid);
+        b = stnBiasesTs(valid);
+        W = D.^-2;
+        W = W ./ sum(W,2);
+        gridBiasesTs = W * b(:);
+        gridBiasesTs = reshape(gridBiasesTs,size(raw_lon));
     end
     
     % In case interpolation introduced sub-zero values, which shouldn't
