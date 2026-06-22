@@ -1,0 +1,22 @@
+# Data
+*.nc
+*.mat
+
+# Figures
+*.png
+*.jpg
+*.jpeg
+*.tif
+*.tiff
+
+# MATLAB
+*.asv
+
+# Folders
+input_data/
+output_data/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
