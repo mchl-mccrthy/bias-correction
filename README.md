@@ -21,7 +21,7 @@ Author: Michael McCarthy
 7. Retrend
 8. Export bias corrected gridded climate data
 
-## Repository Structure
+## Repository structure
 ```
 bias_correction/
 ├── src/
