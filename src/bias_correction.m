@@ -26,13 +26,13 @@ trend_window = 15; % days
 agg_method = 'sum'; % For yearly aggregations, 'sum' or 'mean'
 
 % Specify file paths
-file_path_station_coords = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\Armenia\interim\stations\Armenia_coordinates.csv';
-file_path_station_clim_var = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\Armenia\interim\stations\Armenia_pr.csv';
-file_path_raw_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\Armenia\raw\chelsa\pr_Armenia_1981_2020.nc';
-file_path_bc_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\Armenia\processed\key_variables\reanalysis\pr_bc_Armenia_1981_2020.nc';
+file_path_station_coords = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_coordinates.csv';
+file_path_station_clim_var = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_pr.csv';
+file_path_raw_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\raw\chelsa\pr_StLucia_1981_2020.nc';
+file_path_bc_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\processed\key_variables\reanalysis\pr_bc_StLucia_1981_2020.nc';
 
 % Specify where to save figures
-fo_figures = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\Armenia\temp\';
+fo_figures = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\temp\';
 
 % Add paths 
 addpath(genpath('src'))
@@ -185,7 +185,7 @@ for i_station = 1:n_stations
 end
 
 %% Correct reanalysis
-[bc_clim_var,grid_biases] = mapquantiles(raw_clim_var,station_lon,...
+bc_clim_var = mapquantiles(raw_clim_var,station_lon,...
     station_lat,qmfs,raw_lon,raw_lat,bias_interp_method,bc_type,...
     qmf_period,raw_time);
 
