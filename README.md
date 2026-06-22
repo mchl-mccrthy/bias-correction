@@ -21,10 +21,10 @@ A MATLAB workflow for bias correction of historical gridded climate datasets usi
 
 ## Repository Structure
 ```
-bias\_correction/
+bias_correction/
 ├── src/
-├── input\_data/
-├── output\_data/
+├── input_data/
+├── output_data/
 ├── README.md
 └── .gitignore
 ```
