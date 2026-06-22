@@ -159,12 +159,8 @@ for i_station = 1:n_stations
     station_lon_tmp = station_coords.lon(i_station);
     
     % Get raw climate data at station locations
-    for i_time_steps = 1:n_time_steps
-        raw_clim_var_tmp = raw_clim_var(:,:,i_time_steps);
-        raw_clim_var_at_station(i_time_steps) = interp2(raw_lon,raw_lat,...
-            raw_clim_var_tmp,station_lon_tmp,...
-            station_lat_tmp,'linear');
-    end
+    [row,col] = indexofclosest2(station_lon_tmp,station_lat_tmp,raw_lon,raw_lat);
+    raw_clim_var_at_station = squeeze(raw_clim_var(row,col,:));
     
     % Get quantile mapping functions
     for i_period = 1:n_periods
