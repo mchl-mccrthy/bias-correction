@@ -1,4 +1,4 @@
-# Bias Correction
+# bias-correction
 
 A MATLAB workflow for bias correction of historical gridded climate datasets using station observations and empirical quantile mapping, with option to preserve station trends.
 
