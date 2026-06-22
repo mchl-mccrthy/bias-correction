@@ -26,7 +26,9 @@ nTimesteps = size(raw_clim_var,3);
 
 % Preallocate space for downscaled, bias-corrected reanalysis variable
 bc_clim_var = nan(nRows,nCols,nTimesteps,'single');
-grid_biases = nan(nRows,nCols,nTimesteps,'single');
+if nargout > 1
+    grid_biases = nan(nRows,nCols,nTimesteps,'single');
+end
 
 % Precompute grid-station distances once***
 grid_x = raw_lon(:);
@@ -111,7 +113,9 @@ for iTimestep = 1:nTimesteps
 
     % Put timestep back in array
     bc_clim_var(:,:,iTimestep) = bcReaVarTs;
-    grid_biases(:,:,iTimestep) = gridBiasesTs;
+    if nargout > 1
+        grid_biases(:,:,iTimestep) = single(gridBiasesTs);
+    end
 end
 
 end
