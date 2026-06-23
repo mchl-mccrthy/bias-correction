@@ -2,6 +2,8 @@
 
 A MATLAB workflow for bias correction of historical gridded climate datasets using station observations and empirical quantile mapping, with option to preserve station trends.
 
+Author: Michael McCarthy
+
 ## Features
 - Empirical quantile mapping
 - Monthly, seasonal, or whole-period corrections
@@ -19,7 +21,7 @@ A MATLAB workflow for bias correction of historical gridded climate datasets usi
 7. Retrend
 8. Export bias corrected gridded climate data
 
-## Repository Structure
+## Repository structure
 ```
 bias_correction/
 ├── src/
@@ -28,6 +30,3 @@ bias_correction/
 ├── README.md
 └── .gitignore
 ```
-
-## Author
-Michael McCarthy
