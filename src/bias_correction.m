@@ -22,7 +22,7 @@ qmf_period = 'monthly'; % 'whole','seasonal', or 'monthly'
 bias_interp_method = 'idw'; 
 bc_type = 'multiplicative';
 preserve_trends = 'yes'; % Preserve station trends?
-trend_window = 15; % days
+trend_window = 365; % days
 agg_method = 'sum'; % For yearly aggregations, 'sum' or 'mean'
 
 % Specify file paths
@@ -77,41 +77,7 @@ print(gcf,[fo_figures '/' clim_var_name '_station_availability.png'],...
     '-dpng','-r300');
 
 %% Load raw climate data and format
-
-% Load data
-raw_clim_var = ncread(file_path_raw_data,clim_var_name);
-raw_clim_var = single(raw_clim_var);
-raw_lat = ncread(file_path_raw_data,'lat');
-raw_lon = ncread(file_path_raw_data,'lon');
-raw_time = ncread(file_path_raw_data,'time');
-
-% Permute climate variable to lat, lon, time
-raw_clim_var = permute(raw_clim_var,[2 1 3]);
-
-% Permute lat, lon
-[raw_lon,raw_lat] = meshgrid(raw_lon,raw_lat);
-
-% Process time
-raw_time_units = ncreadatt(file_path_raw_data,'time','units');
-raw_time_units_parts = regexp(raw_time_units,...
-    '^(?<unit>\w+)\s+since\s+(?<ref>.+)$','names','once');
-try
-    raw_start_time = datetime(strtrim(raw_time_units_parts.ref), ...
-        'InputFormat','yyyy-MM-dd HH:mm:ss');
-catch
-    raw_start_time = datetime(strtrim(raw_time_units_parts.ref), ...
-        'InputFormat','yyyy-MM-dd');
-end
-switch lower(raw_time_units_parts.unit)
-    case {'day','days'}
-        raw_time = raw_start_time+days(raw_time);
-    case {'hour','hours'}
-        raw_time = raw_start_time+hours(raw_time);
-    case {'second','seconds'}
-        raw_time = raw_start_time+seconds(raw_time);
-    otherwise
-        error('Unsupported time unit: %s',raw_time_units_parts.unit)
-end
+[raw_clim_var,raw_lon,raw_lat,raw_time] = loadrawdata(file_path_raw_data,clim_var_name);
 
 %% Retime station to gridded data with NaNs
 if strcmp(preserve_trends,'yes')
@@ -192,14 +158,20 @@ if strcmp(preserve_trends,'yes')
         station_coords.lon, station_coords.lat, ...
         raw_lon, raw_lat, ...
         grid_trends,bc_type);
+    grid_trends_interp = single(grid_trends_interp);
 end
+
+%% Clear raw data to avoid OOM
+clear raw_clim_var
 
 %% Retrend 
 if strcmp(preserve_trends,'yes')
     bc_clim_var = retrend(bc_clim_var,grid_trends_interp,bc_type);
     station_clim_var{:,:} = retrend(station_clim_var{:,:},station_trends,bc_type);
-    raw_clim_var = retrend(raw_clim_var,grid_trends,bc_type);
 end
+
+%% Reload raw data
+[raw_clim_var,~,~,~] = loadrawdata(file_path_raw_data,clim_var_name);
 
 %% Get raw and bias-corrected climate variables at stations
 
@@ -235,7 +207,7 @@ raw_clim_var_station_yearly = array2table(nan(n_years,n_stations), ...
 bc_clim_var_station_yearly = array2table(nan(n_years,n_stations), ...
     'VariableNames', bc_clim_var_station.Properties.VariableNames);
 
-% 
+% Get yearly data from daily
 for i_year = 1:n_years
     ind_year = year(raw_time) == years(i_year);
     for i_station = 1:n_stations
@@ -346,6 +318,7 @@ for i_station = 1:n_stations
     if contains(clim_var_name,'pr')
         xlim([0 50])
     end
+    xlim([hist_min hist_max])
     legend('Raw','Bias corrected','Station','Location','eastoutside')
     formatfigure(gcf,4,4,4)
     print(gcf,[fo_figures '/' station_coords.station{i_station}...
