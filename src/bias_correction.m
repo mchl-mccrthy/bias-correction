@@ -162,7 +162,7 @@ if strcmp(preserve_trends,'yes')
 end
 
 %% Clear raw data to avoid OOM
-clear raw_clim_var
+clear raw_clim_var grid_trends
 
 %% Retrend 
 if strcmp(preserve_trends,'yes')
@@ -170,7 +170,8 @@ if strcmp(preserve_trends,'yes')
     station_clim_var{:,:} = retrend(station_clim_var{:,:},station_trends,bc_type);
 end
 
-%% Reload raw data
+%% Clear interpolated grid trends and reload raw data
+clear grid_trends_interp
 [raw_clim_var,~,~,~] = loadrawdata(file_path_raw_data,clim_var_name);
 
 %% Get raw and bias-corrected climate variables at stations
