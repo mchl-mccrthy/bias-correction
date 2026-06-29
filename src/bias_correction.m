@@ -37,8 +37,7 @@ addpath(genpath('src'))
 
 %% Load climate variable at station and coordinates
 [station_clim_var,station_coords,station_lat,station_lon,station_time]...
-    = loadstationdata(file_path_station_clim_var,...
-    file_path_station_coords);
+    = loadstationdata(file_path_station_clim_var,file_path_station_coords);
 
 %% Load raw climate data and format
 [raw_clim_var,raw_lon,raw_lat,raw_time] = loadrawdata(file_path_raw_data,...
