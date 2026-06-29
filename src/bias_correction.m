@@ -40,25 +40,9 @@ addpath(genpath('src'))
     n_stations] = loadstationdata(file_path_station_clim_var,...
     file_path_station_coords);
 
-% Plot stations
-figure()
-for i_station = 1:n_stations
-    scatter(station_time,...
-        station_clim_var{:,i_station}./station_clim_var...
-        {:,i_station}*i_station,'blue'); hold on
-    text(station_time(end)+calyears(1),i_station,...
-        station_coords.station{i_station},'Interpreter','none',...
-        'FontSize',7)
-end
-xlim([station_time(1) station_time(end)])
-ylim([0 n_stations+1])
-yticklabels([])
-formatfigure(gcf,5,3,4)
-print(gcf,[file_path_figures '/' clim_var_name '_station_availability.png'],...
-    '-dpng','-r300');
-
 %% Load raw climate data and format
-[raw_clim_var,raw_lon,raw_lat,raw_time] = loadrawdata(file_path_raw_data,clim_var_name);
+[raw_clim_var,raw_lon,raw_lat,raw_time] = loadrawdata(file_path_raw_data,...
+    clim_var_name);
 
 %% Retime station to gridded data with NaNs
 if strcmp(preserve_trends,'yes')
@@ -79,7 +63,8 @@ end
 %% Detrend
 if strcmp(preserve_trends,'yes')
     raw_clim_var = detrend(raw_clim_var,grid_trends,bc_type);
-    station_clim_var{:,:} = detrend(station_clim_var{:,:},station_trends,bc_type);
+    station_clim_var{:,:} = detrend(station_clim_var{:,:},station_trends,...
+        bc_type);
 end
 
 %% Loop through stations and periods getting quantiles
@@ -106,7 +91,8 @@ for i_station = 1:n_stations
     station_lon_tmp = station_coords.lon(i_station);
     
     % Get raw climate data at station locations
-    [row,col] = indexofclosest2(station_lon_tmp,station_lat_tmp,raw_lon,raw_lat);
+    [row,col] = indexofclosest2(station_lon_tmp,station_lat_tmp,raw_lon,...
+        raw_lat);
     raw_clim_var_at_station = squeeze(raw_clim_var(row,col,:));
     
     % Get quantile mapping functions
@@ -201,7 +187,7 @@ for i_year = 1:n_years
     end
 end
 
-%% Get trends
+%% Get linear trends
 
 % Preallocate
 bc_trends = nan(1,n_stations);
@@ -231,7 +217,26 @@ for i_station = 1:n_stations
     raw_trends(i_station) = raw_p(1);
 end
 
-%% Plot trends
+%% Make plots
+
+% Plot stations
+figure()
+for i_station = 1:n_stations
+    scatter(station_time,...
+        station_clim_var{:,i_station}./station_clim_var...
+        {:,i_station}*i_station,'blue'); hold on
+    text(station_time(end)+calyears(1),i_station,...
+        station_coords.station{i_station},'Interpreter','none',...
+        'FontSize',7)
+end
+xlim([station_time(1) station_time(end)])
+ylim([0 n_stations+1])
+yticklabels([])
+formatfigure(gcf,5,3,4)
+print(gcf,[file_path_figures '/' clim_var_name '_station_availability.png'],...
+    '-dpng','-r300');
+
+% Plot trends
 figure()
 scatter(station_trends,raw_trends); hold on
 scatter(station_trends,bc_trends)
@@ -242,7 +247,7 @@ ylim([min([station_trends bc_trends raw_trends 0]) max([station_trends bc_trends
 legend('Raw','Bias corrected','Location','eastoutside')
 formatfigure(gcf,4,4,4)
 
-%% Plot histograms and quantile plots of overlapping time periods
+% Plot histograms and quantile plots of overlapping time periods
 for i_station = 1:n_stations
     
     % Plot time series
@@ -332,7 +337,7 @@ for i_station = 1:n_stations
 
 end
 
-%% Make map of bias corrected data
+% Make map of bias corrected data
 figure()
 contourf(raw_lon,raw_lat,mean(bc_clim_var,3),100,'LineColor','none')
 c = colorbar;
