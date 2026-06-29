@@ -52,4 +52,6 @@ for t = 1:nt
 
 end
 
+grid_trends_out = single(grid_trends_out);
+
 end

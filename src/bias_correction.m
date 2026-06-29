@@ -15,44 +15,34 @@
 disp('Bias correcting climate data')
 
 % Specify some variables
-clim_var_name = 'pr';
-clim_var_long_name = 'Precipitation';
-clim_var_units = 'mm';
+clim_var_name = 'tas';
+clim_var_long_name = 'Temperature';
+clim_var_units = 'C';
 qmf_period = 'monthly'; % 'whole','seasonal', or 'monthly'
 bias_interp_method = 'idw'; 
-bc_type = 'multiplicative';
+bc_type = 'additive';
 preserve_trends = 'yes'; % Preserve station trends?
 trend_window = 365*5; % days
-agg_method = 'sum'; % For yearly aggregations, 'sum' or 'mean'
+agg_method = 'mean'; % For yearly aggregations, 'sum' or 'mean'
 
 % Specify file paths
 file_path_station_coords = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_coordinates.csv';
-file_path_station_clim_var = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_pr.csv';
-file_path_raw_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\raw\chelsa\pr_StLucia_1981_2020.nc';
-file_path_bc_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\processed\key_variables\reanalysis\pr_bc_StLucia_1981_2020.nc';
+file_path_station_clim_var = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_tas.csv';
+file_path_raw_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\chelsa\tas_StLucia_1981_2020.nc';
+file_path_bc_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\processed\key_variables\reanalysis\tas_bc_StLucia_1981_2020.nc';
 file_path_figures = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\temp\';
 
 % Add paths 
 addpath(genpath('src'))
 
 %% Load climate variable at station and coordinates
-[station_clim_var,station_coords,station_lat,station_lon,station_time,...
-    n_stations] = loadstationdata(file_path_station_clim_var,...
+[station_clim_var,station_coords,station_lat,station_lon,station_time]...
+    = loadstationdata(file_path_station_clim_var,...
     file_path_station_coords);
 
 %% Load raw climate data and format
 [raw_clim_var,raw_lon,raw_lat,raw_time] = loadrawdata(file_path_raw_data,...
     clim_var_name);
-
-%% Retime station to gridded data with NaNs
-if strcmp(preserve_trends,'yes')
-    T = table2timetable(station_clim_var,'RowTimes',station_time);
-    T = retime(T,raw_time);
-    T = timetable2table(T);
-    station_time = T.Time;
-    station_clim_var = removevars(T,'Time');
-    clearvars T
-end
 
 %% Get trends
 if strcmp(preserve_trends,'yes')
@@ -67,51 +57,9 @@ if strcmp(preserve_trends,'yes')
         bc_type);
 end
 
-%% Loop through stations and periods getting quantiles
-
-% Specify number of periods 
-if strcmp(qmf_period,'whole')
-    periods = 1;
-elseif strcmp(qmf_period,'seasonal')
-    periods = 1:4;
-elseif strcmp(qmf_period,'monthly')
-    periods = 1:12;
-end
-
-% Loop through stations getting station and raw climate data
-n_time_steps = length(raw_time);
-n_periods = length(periods);
-qmfs = nan(1001,n_stations,n_periods);
-raw_clim_var_at_station = nan(n_time_steps,1);
-for i_station = 1:n_stations
-
-    % Load station data
-    station_clim_var_tmp = station_clim_var.(i_station);
-    station_lat_tmp = station_coords.lat(i_station);
-    station_lon_tmp = station_coords.lon(i_station);
-    
-    % Get raw climate data at station locations
-    [row,col] = indexofclosest2(station_lon_tmp,station_lat_tmp,raw_lon,...
-        raw_lat);
-    raw_clim_var_at_station = squeeze(raw_clim_var(row,col,:));
-    
-    % Get quantile mapping functions
-    for i_period = 1:n_periods
-        if strcmp(qmf_period,'whole')
-            cond_station = ones(size(station_time));
-            cond_raw = ones(size(raw_time));
-        elseif strcmp(qmf_period,'seasonal')
-            cond_station = season(station_time) == periods(i_period);
-            cond_raw = season(raw_time) == periods(i_period);
-        elseif strcmp(qmf_period,'monthly')
-            cond_station = month(station_time) == periods(i_period);
-            cond_raw = month(raw_time) == periods(i_period);
-        end
-        qmfs(:,i_station,i_period) = getqmf(station_time(cond_station),...
-            station_clim_var_tmp(cond_station),...
-            raw_time(cond_raw),raw_clim_var_at_station(cond_raw));
-    end
-end
+%% Get quantile mapping functions
+qmfs = get_qmfs(station_clim_var,station_coords,station_time,...
+    raw_clim_var,raw_lon,raw_lat,raw_time,qmf_period);
 
 %% Correct reanalysis
 bc_clim_var = mapquantiles(raw_clim_var,station_lon,...
@@ -120,12 +68,9 @@ bc_clim_var = mapquantiles(raw_clim_var,station_lon,...
 
 %% Interpolate station trends to grid
 if strcmp(preserve_trends,'yes')  
-    grid_trends_interp = interpolate_trends( ...
-        station_trends, ...
-        station_coords.lon, station_coords.lat, ...
-        raw_lon, raw_lat, ...
+    grid_trends_interp = interpolate_trends(station_trends,...
+        station_coords.lon,station_coords.lat,raw_lon,raw_lat,...
         grid_trends,bc_type);
-    grid_trends_interp = single(grid_trends_interp);
 end
 
 %% Clear raw data to avoid OOM
@@ -134,18 +79,20 @@ clear raw_clim_var grid_trends
 %% Retrend 
 if strcmp(preserve_trends,'yes')
     bc_clim_var = retrend(bc_clim_var,grid_trends_interp,bc_type);
-    station_clim_var{:,:} = retrend(station_clim_var{:,:},station_trends,bc_type);
 end
 
-%% Clear interpolated grid trends and reload raw data
+%% Clear interpolated grid trends and reload raw and station data
 clear grid_trends_interp
 [raw_clim_var,~,~,~] = loadrawdata(file_path_raw_data,clim_var_name);
+[station_clim_var,station_coords,station_lat,station_lon,station_time,...
+    n_stations] = loadstationdata(file_path_station_clim_var,...
+    file_path_station_coords);
 
 %% Get raw and bias-corrected climate variables at stations
-raw_clim_var_station = extract_grid_at_stations( ...
-    raw_clim_var, station_lon, station_lat, raw_lon, raw_lat, station_clim_var);
-bc_clim_var_station = extract_grid_at_stations( ...
-    bc_clim_var, station_lon, station_lat, raw_lon, raw_lat, station_clim_var);
+raw_clim_var_station = extract_grid_at_stations(raw_clim_var,...
+    station_lon,station_lat,raw_lon,raw_lat,station_clim_var);
+bc_clim_var_station = extract_grid_at_stations(bc_clim_var,...
+    station_lon,station_lat,raw_lon,raw_lat,station_clim_var);
 
 %% Make yearly versions of those tables
 
@@ -349,15 +296,20 @@ formatfigure(gcf,4,4/ll_ratio,2)
 print(gcf,[file_path_figures '/' clim_var_name '_long-term_average.png'],...
     '-dpng','-r300');
 
-%% Permute back to ECMWF standard
-bc_clim_var = permute(bc_clim_var,[2 1 3]);
+%% Display averages for testing
+disp(nanmean(bc_clim_var,'all'));
+disp(nanmean(raw_clim_var,'all'));
+disp(nanmean(table2array(station_clim_var),'all'));
 
 %% Put bias corrected data in netcdf file
-
+%
+% Permute back to ECMWF standard
+%bc_clim_var = permute(bc_clim_var,[2 1 3]);
+%
 % Copy file and write new data
 %copyfile(file_path_raw_data,file_path_bc_data);
 %ncwrite(file_path_bc_data,clim_var_name,bc_clim_var);
-
+%
 % Update documentation
 %ncwriteatt(file_path_bc_data,clim_var_name,'bias_correction',...
 %    'empirical quantile mapping');
