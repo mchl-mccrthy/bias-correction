@@ -175,24 +175,10 @@ clear grid_trends_interp
 [raw_clim_var,~,~,~] = loadrawdata(file_path_raw_data,clim_var_name);
 
 %% Get raw and bias-corrected climate variables at stations
-
-% Preallocate space
-raw_clim_var_station = station_clim_var;
-bc_clim_var_station  = station_clim_var;
-raw_clim_var_station{:,:} = nan(height(station_clim_var), n_stations);
-bc_clim_var_station{:,:}  = nan(height(station_clim_var), n_stations);
-
-% Loop through stations
-for i_station = 1:n_stations
-
-    % Get row and column of station
-    [row,col] = indexofclosest2(station_lon(i_station),...
-        station_lat(i_station),raw_lon,raw_lat);
-    
-    % Get data
-    raw_clim_var_station{:,i_station} = squeeze(raw_clim_var(row,col,:));
-    bc_clim_var_station{:,i_station} = squeeze(bc_clim_var(row,col,:));
-end
+raw_clim_var_station = extract_grid_at_stations( ...
+    raw_clim_var, station_lon, station_lat, raw_lon, raw_lat, station_clim_var);
+bc_clim_var_station = extract_grid_at_stations( ...
+    bc_clim_var, station_lon, station_lat, raw_lon, raw_lat, station_clim_var);
 
 %% Make yearly versions of those tables
 
@@ -280,8 +266,8 @@ for i_station = 1:n_stations
     
     % Plot time series
     figure()
-    plot(raw_time,squeeze(raw_clim_var(row,col,:)),'g'); hold on
-    plot(raw_time,squeeze(bc_clim_var(row,col,:)),'b'); hold on
+    plot(raw_time,squeeze(raw_clim_var_station{:,i_station}),'g'); hold on
+    plot(raw_time,squeeze(bc_clim_var_station{:,i_station}),'b'); hold on
     plot(station_time,station_clim_var{:,i_station},'r')
     ylabel([clim_var_long_name ' (' clim_var_units ')'])
     xlim([min(raw_time) max(raw_time)])
@@ -293,8 +279,8 @@ for i_station = 1:n_stations
 
     % Plot histograms
     figure()
-    raw_clim_var_tmp = squeeze(raw_clim_var(row,col,:));
-    bc_clim_var_tmp = squeeze(bc_clim_var(row,col,:));
+    raw_clim_var_tmp = squeeze(raw_clim_var_station{:,i_station});
+    bc_clim_var_tmp = squeeze(bc_clim_var_station{:,i_station});
     station_clim_var_tmp = station_clim_var{:,i_station};
     [common_time,ia,ib] = intersect(raw_time,station_time);
     raw_clim_var_overlap = raw_clim_var_tmp(ia);
@@ -383,12 +369,12 @@ bc_clim_var = permute(bc_clim_var,[2 1 3]);
 %% Put bias corrected data in netcdf file
 
 % Copy file and write new data
-copyfile(file_path_raw_data,file_path_bc_data);
-ncwrite(file_path_bc_data,clim_var_name,bc_clim_var);
+%copyfile(file_path_raw_data,file_path_bc_data);
+%ncwrite(file_path_bc_data,clim_var_name,bc_clim_var);
 
 % Update documentation
-ncwriteatt(file_path_bc_data,clim_var_name,'bias_correction',...
-    'empirical quantile mapping');
-ncwriteatt(file_path_bc_data,'/','history', ...
-    sprintf('%s: replaced %s with bias-corrected data (EQM)',...
-    datestr(now,30),clim_var_name));
+%ncwriteatt(file_path_bc_data,clim_var_name,'bias_correction',...
+%    'empirical quantile mapping');
+%ncwriteatt(file_path_bc_data,'/','history', ...
+%    sprintf('%s: replaced %s with bias-corrected data (EQM)',...
+%    datestr(now,30),clim_var_name));
