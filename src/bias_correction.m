@@ -22,7 +22,7 @@ qmf_period = 'monthly'; % 'whole','seasonal', or 'monthly'
 bias_interp_method = 'idw'; 
 bc_type = 'multiplicative';
 preserve_trends = 'yes'; % Preserve station trends?
-trend_window = 365; % days
+trend_window = 365*5; % days
 agg_method = 'sum'; % For yearly aggregations, 'sum' or 'mean'
 
 % Specify file paths
@@ -30,34 +30,15 @@ file_path_station_coords = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarth
 file_path_station_clim_var = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_pr.csv';
 file_path_raw_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\raw\chelsa\pr_StLucia_1981_2020.nc';
 file_path_bc_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\processed\key_variables\reanalysis\pr_bc_StLucia_1981_2020.nc';
-
-% Specify where to save figures
-fo_figures = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\temp\';
+file_path_figures = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\temp\';
 
 % Add paths 
 addpath(genpath('src'))
 
 %% Load climate variable at station and coordinates
-
-% Load climate variable at station
-station_clim_var = readtable(file_path_station_clim_var,'VariableNamingRule','preserve');
-
-% Load coordinates of stations
-station_coords = readtable(file_path_station_coords); 
-station_lon = station_coords.lon;
-station_lat = station_coords.lat;
-
-% Make date variable
-station_time = datetime(station_clim_var.year,...
-    station_clim_var.month,station_clim_var.day);
-
-% Remove year, month, day fields
-station_clim_var.year = [];
-station_clim_var.month = [];
-station_clim_var.day = [];
-
-% Get number of stations
-n_stations = height(station_coords);
+[station_clim_var,station_coords,station_lat,station_lon,station_time,...
+    n_stations] = loadstationdata(file_path_station_clim_var,...
+    file_path_station_coords);
 
 % Plot stations
 figure()
@@ -73,7 +54,7 @@ xlim([station_time(1) station_time(end)])
 ylim([0 n_stations+1])
 yticklabels([])
 formatfigure(gcf,5,3,4)
-print(gcf,[fo_figures '/' clim_var_name '_station_availability.png'],...
+print(gcf,[file_path_figures '/' clim_var_name '_station_availability.png'],...
     '-dpng','-r300');
 
 %% Load raw climate data and format
@@ -274,7 +255,7 @@ for i_station = 1:n_stations
     title(station_coords.station{i_station})
     legend('Raw','Bias corrected','Station','Location','eastoutside')
     formatfigure(gcf,7,2,4)
-    print(gcf,[fo_figures '/' station_coords.station{i_station}...
+    print(gcf,[file_path_figures '/' station_coords.station{i_station}...
         '_' clim_var_name '_time_series.png'],'-dpng','-r300');
 
     % Plot histograms
@@ -308,7 +289,7 @@ for i_station = 1:n_stations
     xlim([hist_min hist_max])
     legend('Raw','Bias corrected','Station','Location','eastoutside')
     formatfigure(gcf,4,4,4)
-    print(gcf,[fo_figures '/' station_coords.station{i_station}...
+    print(gcf,[file_path_figures '/' station_coords.station{i_station}...
         '_' clim_var_name '_histogram.png'],'-dpng','-r300');
 
     % Make quantile-quantile plots
@@ -333,7 +314,7 @@ for i_station = 1:n_stations
     end
     legend('Raw','Bias corrected','Location','eastoutside')
     formatfigure(gcf,4,4,4)
-    print(gcf,[fo_figures '/' station_coords.station{i_station}...
+    print(gcf,[file_path_figures '/' station_coords.station{i_station}...
         '_' clim_var_name '_quantile-quantile.png'],'-dpng','-r300');
 
     % Make yearly time series
@@ -346,7 +327,7 @@ for i_station = 1:n_stations
     title(station_coords.station{i_station})
     legend('Raw','Bias corrected','Station','Location','eastoutside')
     formatfigure(gcf,7,2,4)
-    print(gcf,[fo_figures '/' station_coords.station{i_station}...
+    print(gcf,[file_path_figures '/' station_coords.station{i_station}...
         '_' clim_var_name '_time_series_yearly.png'],'-dpng','-r300');
 
 end
@@ -360,7 +341,7 @@ title('Long-term average');
 ll_ratio = (max(raw_lon,[],'all')-min(raw_lon,[],'all'))./(max(raw_lat,...
     [],'all')-min(raw_lat,[],'all'));
 formatfigure(gcf,4,4/ll_ratio,2)
-print(gcf,[fo_figures '/' clim_var_name '_long-term_average.png'],...
+print(gcf,[file_path_figures '/' clim_var_name '_long-term_average.png'],...
     '-dpng','-r300');
 
 %% Permute back to ECMWF standard
