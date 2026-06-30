@@ -11,7 +11,6 @@ grid_trends_out = zeros(nx,ny,nt);
 
 grid_at_stations = nan(1,n_stns);
 
-%***
 grid_x_vec = grid_x(:);
 grid_y_vec = grid_y(:);
 D_all = sqrt((grid_x_vec - station_x(:)').^2 + ...
@@ -34,8 +33,6 @@ for t = 1:nt
         corr_vals(~isfinite(corr_vals)) = 1;
     end
 
-    %[stnX2,stnY2,corr_vals2] = prepsd(station_x,station_y,corr_vals);
-    %corr_grid = IDW(stnX2,stnY2,corr_vals2,grid_x(1,:)',grid_y(:,1),-2,'ng',length(stnX2));***
     valid = isfinite(corr_vals);
     D = D_all(:,valid);
     b = corr_vals(valid);
