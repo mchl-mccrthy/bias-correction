@@ -24,6 +24,7 @@ for i_station = 1:n_stations
             ~isnan(raw_tmp) & ...
             ~isnan(bc_tmp);
 
+    % Only compute trends if more than two years
     if sum(valid) >= 2
 
         % Fit linear regressions

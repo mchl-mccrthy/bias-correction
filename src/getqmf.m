@@ -1,3 +1,4 @@
+% Get quantile mapping function
 function qmf = getqmf(stnDatetime,stnVar,reaDatetime,reaVar)
 
 % Make tables

@@ -1,25 +1,24 @@
 % Bias correct climate data
 
 % Notes
-% - Raw climate data need to be stored in a particular way. The dimensions
-%   of the climate variable must be: lon, lat, time. This is the standard
-%   used by ECMWF.
-% - Note that this assumes station data are in same time zone as gridded
-%   climate data.
-% - Station data should also cover the same time period as the gridded
-%   data, without any missing days. NaNs are allowed though.
+% - Raw climate data need to be stored: lon, lat, time. This is the 
+%   standard used by ECMWF.
+% - Station data are assumed to be in same time zone as gridded climate 
+%   data.
+% - Station data should cover the same time period as the gridded data, 
+%   without any missing days. NaNs are allowed.
 
 %% Add paths 
 addpath(genpath('src'))
-addpath('C:\Users\McCarthy\Desktop\misc\bias_correction\config')
+addpath(genpath('config'))
 
-%% Get config
+%% Get config struct
 cfg = config_stlucia_tas();
 
 %% Display progress
 disp('Bias correcting climate data')
 
-%% Get info from config file
+%% Get configuration from config file
 clim_var_name = cfg.clim_var_name;
 clim_var_long_name = cfg.clim_var_long_name;
 clim_var_units = cfg.clim_var_units;

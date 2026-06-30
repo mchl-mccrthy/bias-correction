@@ -1,4 +1,4 @@
-% Get quantile mapping functions at stations
+% Get quantile mapping functions at station locations
 function qmfs = getqmfs(station_clim_var,station_coords,station_time,...
     raw_clim_var,raw_lon,raw_lat,raw_time,qmf_period)
 

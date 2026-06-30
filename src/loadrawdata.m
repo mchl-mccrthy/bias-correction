@@ -1,3 +1,4 @@
+% Load raw gridded climate data
 function [raw_clim_var,raw_lon,raw_lat,raw_time] = loadrawdata(file_path_raw_data,clim_var_name)
 
 % Load data
