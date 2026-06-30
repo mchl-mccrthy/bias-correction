@@ -1,4 +1,4 @@
-function grid_trends_out = interpolate_trends(station_trends, station_x, station_y, grid_x, grid_y, grid_trends, bc_type)
+function grid_trends_out = interptrends(station_trends, station_x, station_y, grid_x, grid_y, grid_trends, bc_type)
 
 nt = size(station_trends,1);
 nx = size(grid_x,1);

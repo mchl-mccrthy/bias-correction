@@ -1,4 +1,4 @@
-function trends = get_trends(clim_data, dim, window)
+function trends = gettrends(clim_data, dim, window)
 
 sz = size(clim_data);
 
