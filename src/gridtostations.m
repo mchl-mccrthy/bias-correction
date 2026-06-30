@@ -1,5 +1,5 @@
 % Get gridded climate variable time series at stations
-function clim_var_station = extract_grid_at_stations(clim_var,station_lon,station_lat,grid_lon,grid_lat,template_table)
+function clim_var_station = gridtostations(clim_var,station_lon,station_lat,grid_lon,grid_lat,template_table)
 
 % Get number of stations and number of time steps
 n_stations = numel(station_lon);

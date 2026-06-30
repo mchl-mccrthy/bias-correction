@@ -1,13 +1,16 @@
-function clim_data_detrended = detrend(clim_data, trends, bc_type, eps_val)
+% Detrend climate data
+function clim_data_detrended = detrend(clim_data,trends,bc_type,eps_val)
 
+% Set default eps value for multiplicative variables
 if nargin < 4
-    eps_val = 0.1; % precipitation threshold/unit-dependent
+    eps_val = 0.1;
 end
 
+% Remove trends
 if strcmp(bc_type,'additive')
-    clim_data_detrended = clim_data - trends;
+    clim_data_detrended = clim_data-trends;
 else
-    clim_data_detrended = (clim_data + eps_val) ./ (trends + eps_val);
+    clim_data_detrended = (clim_data+eps_val)./(trends+eps_val);
 end
 
 end
