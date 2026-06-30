@@ -24,6 +24,8 @@ Author: Michael McCarthy
 ## Repository structure
 ```
 bias_correction/
+├── bias_correction.m
+├── config/
 ├── src/
 ├── input_data/
 ├── output_data/
