@@ -1,6 +1,4 @@
-% Function to make figures more visually appealing
-
-% Define function
+% Make figures more visually appealing
 function formatfigure(figure_handle,plot_width,plot_height,margin)
 
 % Specify line width, font size, tick length
@@ -39,4 +37,5 @@ axis_handle.LineWidth = box_line_width;
 
 % Ensure the figure is displayed correctly
 drawnow;
+
 end

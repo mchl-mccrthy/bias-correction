@@ -9,43 +9,43 @@
 % - Station data should also cover the same time period as the gridded
 %   data, without any missing days. NaNs are allowed though.
 
-%% Initiate workflow
+%% Add paths 
+addpath(genpath('src'))
+addpath('C:\Users\McCarthy\Desktop\misc\bias_correction\config')
 
-% Display progress
+%% Get config
+cfg = config_stlucia_tas();
+
+%% Display progress
 disp('Bias correcting climate data')
 
-% Specify some variables
-clim_var_name = 'tas';
-clim_var_long_name = 'Temperature';
-clim_var_units = 'K';
-qmf_period = 'monthly'; % 'whole','seasonal', or 'monthly'
-bias_interp_method = 'idw'; 
-bc_type = 'additive';
-preserve_trends = 'yes'; % Preserve station trends?
-trend_window = 365*5; % days
-agg_method = 'mean'; % For yearly aggregations, 'sum' or 'mean'
-
-% Specify file paths
-file_path_station_coords = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_coordinates.csv';
-file_path_station_clim_var = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_tas.csv';
-file_path_raw_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\chelsa\tas_StLucia_1981_2020.nc';
-file_path_bc_data = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\processed\key_variables\reanalysis\tas_bc_StLucia_1981_2020.nc';
-file_path_figures = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\temp\';
-
-% Add paths 
-addpath(genpath('src'))
+%% Get info from config file
+clim_var_name = cfg.clim_var_name;
+clim_var_long_name = cfg.clim_var_long_name;
+clim_var_units = cfg.clim_var_units;
+qmf_period = cfg.qmf_period;
+bias_interp_method = cfg.bias_interp_method;
+bc_type = cfg.bc_type;
+preserve_trends = cfg.preserve_trends;
+trend_window = cfg.trend_window;
+agg_method = cfg.agg_method;
+file_path_station_coords = cfg.file_path_station_coords;
+file_path_station_clim_var = cfg.file_path_station_clim_var;
+file_path_raw_data = cfg.file_path_raw_data;
+file_path_bc_data = cfg.file_path_bc_data;
+file_path_figures = cfg.file_path_figures;
 
 %% Load climate variable at station and coordinates
 [station_clim_var,station_coords,station_lat,station_lon,station_time]...
     = loadstationdata(...
     file_path_station_clim_var,file_path_station_coords);
 
-%% Load raw climate data and format
+%% Load raw climate data
 [raw_clim_var,raw_lon,raw_lat,raw_time]...
     = loadrawdata(...
     file_path_raw_data,clim_var_name);
 
-%% Get trends
+%% Get trends in raw and station data
 if strcmp(preserve_trends,'yes')
     grid_trends...
         = gettrends(...
@@ -55,7 +55,7 @@ if strcmp(preserve_trends,'yes')
         station_clim_var{:,:},1,trend_window);
 end
 
-%% Detrend
+%% Detrend raw data
 if strcmp(preserve_trends,'yes')
     raw_clim_var...
         = detrend(...
@@ -71,7 +71,7 @@ qmfs...
     station_clim_var,station_coords,station_time,raw_clim_var,raw_lon,...
     raw_lat,raw_time,qmf_period);
 
-%% Correct reanalysis
+%% Correct raw data to make bias corrected data
 bc_clim_var...
     = mapquantiles(...
     raw_clim_var,station_lon,station_lat,qmfs,raw_lon,raw_lat,...
@@ -88,7 +88,7 @@ end
 %% Clear raw data to avoid OOM
 clear raw_clim_var grid_trends
 
-%% Retrend 
+%% Retrend bias corrected data
 if strcmp(preserve_trends,'yes')
     bc_clim_var...
         = retrend(...
@@ -142,3 +142,6 @@ disp(nanmean(table2array(station_clim_var),'all'));
 %% Put bias corrected data in netcdf file
 % savebcdata(...
 %     bc_clim_var,file_path_raw_data,file_path_bc_data,clim_var_name)
+
+%% Display progress
+disp('Bias correction completed')
