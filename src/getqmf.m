@@ -1,34 +1,34 @@
 % Get quantile mapping function
-function qmf = getqmf(stnDatetime,stnVar,reaDatetime,reaVar)
+function qmf = getqmf(station_time,station_clim_var,raw_time,raw_clim_var)
 
 % Make tables
-stnData = table(stnDatetime,stnVar);
-reaData = table(reaDatetime,reaVar);
+station_data = table(station_time,station_clim_var);
+raw_data = table(raw_time,raw_clim_var);
 
-% Retime AWS data to reanalysis data
-reaData = table2timetable(reaData);
-stnData = table2timetable(stnData);
-stnData = retime(stnData,reaData.reaDatetime);
+% Retime station data to gridded data
+raw_data = table2timetable(raw_data);
+station_data = table2timetable(station_data);
+station_data = retime(station_data,raw_data.raw_time);
 
 % Get variable data from tables
-varAws = stnData.stnVar;
-varRea = reaData.reaVar;
+station_values = station_data.station_clim_var;
+raw_values = raw_data.raw_clim_var;
 
 % Remove NaNs from both datasets (although there should be none in the 
-% reanalysis)
-makeNan = isnan(varRea) | isnan(varAws);
-varRea(makeNan) = NaN;
-varAws(makeNan) = NaN;
+% gridded)
+make_nan = isnan(raw_values) | isnan(station_values);
+raw_values(make_nan) = NaN;
+station_values(make_nan) = NaN;
 
 % Specify number of quantiles
 nQs = 1001;
 qs = linspace(0,1,nQs);
 
 % Get quantiles
-varAwsQ = quantile(varAws,qs);
-varReaQ = quantile(varRea,qs);
+station_quantiles = quantile(station_values,qs);
+raw_quantiles = quantile(raw_values,qs);
 
 % Get mapping function
-qmf = complex(varAwsQ,varReaQ);
+qmf = complex(station_quantiles,raw_quantiles);
 
 end

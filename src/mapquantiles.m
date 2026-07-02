@@ -1,33 +1,33 @@
-function [bc_clim_var,grid_biases] = mapquantiles(raw_clim_var,station_lon,station_lat,...
+function [bc_grid_clim_var,grid_biases] = mapquantiles(raw_grid_clim_var,station_lon,station_lat,...
     qmfs,raw_lon,raw_lat,bias_interp_method,bc_type,qmf_period,raw_time)
 
 % Get quantiles
-varAwsQ = real(qmfs);
-varReaQ = imag(qmfs);
+station_quantiles = real(qmfs);
+raw_quantiles = imag(qmfs);
 
 % Get biases
 if strcmp(bc_type,'multiplicative')
 
     % Wrt precipitation, inf occurs if observation is more than zero and
-    % reanalysis is zero, which rarely happens in reality (e.g. McCarthy 
+    % raw gridded is zero, which rarely happens in reality (e.g. McCarthy 
     % et al (2022) Supplementary Information, Figure S4). NaN occurs when 
-    % both observation and reanalysis are zero, in which case multiplying
-    % the reanalysis by zero is appropriate.  
-    biases = varAwsQ./varReaQ;
+    % both observation and raw gridded are zero, in which case multiplying
+    % the raw gridded by zero is appropriate.  
+    biases = station_quantiles./raw_quantiles;
     biases(isnan(biases) | isinf(biases)) = 0;
 elseif strcmp(bc_type,'additive')
-    biases = varAwsQ-varReaQ;
+    biases = station_quantiles-raw_quantiles;
 end
 
-% Get size of downscaled reanalysis variable
-nRows = size(raw_clim_var,1);
-nCols = size(raw_clim_var,2);
-nTimesteps = size(raw_clim_var,3);
+% Get size of downscaled raw gridded variable
+n_rows = size(raw_grid_clim_var,1);
+n_cols = size(raw_grid_clim_var,2);
+n_timesteps = size(raw_grid_clim_var,3);
 
-% Preallocate space for downscaled, bias-corrected reanalysis variable
-bc_clim_var = nan(nRows,nCols,nTimesteps,'single');
+% Preallocate space for downscaled, bias-corrected gridded variable
+bc_grid_clim_var = nan(n_rows,n_cols,n_timesteps,'single');
 if nargout > 1
-    grid_biases = nan(nRows,nCols,nTimesteps,'single');
+    grid_biases = nan(n_rows,n_cols,n_timesteps,'single');
 end
 
 % Precompute grid-station distances once***
@@ -43,78 +43,78 @@ D_all(D_all == 0) = eps;  % avoid division by zero
 station_lin_inds = sub2ind(size(raw_lon),station_rows,station_cols);
 
 % Loop through time steps
-for iTimestep = 1:nTimesteps
+for i_timestep = 1:n_timesteps
     
-    % Get downscaled reanalysis variable for timestep
-    reaVarTs = raw_clim_var(:,:,iTimestep);
+    % Get downscaled raw gridded variable for timestep
+    raw_grid_clim_var_timestep = raw_grid_clim_var(:,:,i_timestep);
     
     % Interpolate to station locations
-    nStns = length(station_lon);
-    reaVarStnTs = reaVarTs(station_lin_inds);
+    n_stations = length(station_lon);
+    raw_station_clim_var_timestep = raw_grid_clim_var_timestep(station_lin_inds);
     
     % Make condition for qmf period
     if strcmp(qmf_period,'whole')
-        iPrd = 1;
+        i_period = 1;
     elseif strcmp(qmf_period,'seasonal')
-        iPrd = season(raw_time(iTimestep));
+        i_period = season(raw_time(i_timestep));
     elseif strcmp(qmf_period,'monthly')
-        iPrd = month(raw_time(iTimestep));
+        i_period = month(raw_time(i_timestep));
     end
 
     % Get biases for those stations. Here it does not matter if biases are
     % multiplicative or additive
-    stnBiasesTs = nan(1,nStns);
-    for iStn = 1:nStns
-        if sum(~isnan(varReaQ(:,iStn,iPrd))) > 0
-            [~,indQ] = min(abs(reaVarStnTs(iStn)-...
-                squeeze(varReaQ(:,iStn,iPrd))),...
+    station_biases_timestep = nan(1,n_stations);
+    for i_station = 1:n_stations
+        if sum(~isnan(raw_quantiles(:,i_station,i_period))) > 0
+            [~,quantile_index] = min(abs(raw_station_clim_var_timestep(i_station)-...
+                squeeze(raw_quantiles(:,i_station,i_period))),...
                 [],1,'includenan');
-            stnBiasesTs(iStn) = biases(indQ,iStn,iPrd);
+            station_biases_timestep(i_station) = biases(quantile_index,i_station,i_period);
         end
     end
     
     % Interpolate biases to grid  
     if strcmp(bias_interp_method,'nearest')
         [stnX2,stnY2,stnBiasesTs2] = prepsd(station_lon,station_lat,...
-            stnBiasesTs);
+            station_biases_timestep);
         surfFunBiases = fit([stnX2,stnY2],stnBiasesTs2,'nearest');
-        gridBiasesTs = surfFunBiases(raw_lon,raw_lat);
-        gridBiasesTs = reshape(gridBiasesTs,size(raw_lon));
+        grid_biases_timestep = surfFunBiases(raw_lon,raw_lat);
+        grid_biases_timestep = reshape(grid_biases_timestep,size(raw_lon));
     elseif strcmp(bias_interp_method,'tpaps')
         stnXys = rot90([station_lon(:),station_lat(:)]);
         demXys = rot90([raw_lon(:),raw_lat(:)]);
-        fnSplineStn = tpaps(stnXys,stnBiasesTs);
-        gridBiasesTs = fnval(fnSplineStn,demXys);
-        gridBiasesTs = gridBiasesTs(:);
-        gridBiasesTs = reshape(gridBiasesTs,size(raw_lon));
+        fnSplineStn = tpaps(stnXys,station_biases_timestep);
+        grid_biases_timestep = fnval(fnSplineStn,demXys);
+        grid_biases_timestep = grid_biases_timestep(:);
+        grid_biases_timestep = reshape(grid_biases_timestep,size(raw_lon));
     elseif strcmp(bias_interp_method,'idw')
-        valid = isfinite(stnBiasesTs);
+        valid = isfinite(station_biases_timestep);
         D = D_all(:,valid);
-        b = stnBiasesTs(valid);
+        b = station_biases_timestep(valid);
         W = D.^-2;
         W = W ./ sum(W,2);
-        gridBiasesTs = W * b(:);
-        gridBiasesTs = reshape(gridBiasesTs,size(raw_lon));
+        grid_biases_timestep = W * b(:);
+        grid_biases_timestep = reshape(grid_biases_timestep,size(raw_lon));
     end
     
     % In case interpolation introduced sub-zero values, which shouldn't
     % happen
     if strcmp(bc_type,'multiplicative')
-        gridBiasesTs(gridBiasesTs < 0) = 0;
+        grid_biases_timestep(grid_biases_timestep < 0) = 0;
     end
 
     % Apply biases to get downscaled, bias-corrected
-    % reanalysis variable for timestep
+    % gridded variable for timestep
     if strcmp(bc_type,'multiplicative') 
-        bcReaVarTs = gridBiasesTs.*reaVarTs;
+        bc_grid_clim_var_timestep = grid_biases_timestep.*raw_grid_clim_var_timestep;
     elseif strcmp(bc_type,'additive')
-        bcReaVarTs = gridBiasesTs+reaVarTs;
+        bc_grid_clim_var_timestep = grid_biases_timestep+raw_grid_clim_var_timestep;
     end
 
     % Put timestep back in array
-    bc_clim_var(:,:,iTimestep) = bcReaVarTs;
+    bc_grid_clim_var(:,:,i_timestep) = bc_grid_clim_var_timestep;
     if nargout > 1
-        grid_biases(:,:,iTimestep) = single(gridBiasesTs);
+        grid_biases(:,:,i_timestep) = single(grid_biases_timestep);
     end
 end
 

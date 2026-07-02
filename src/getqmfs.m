@@ -23,7 +23,7 @@ qmfs = nan(1001,n_stations,n_periods);
 % Loop through stations
 for i_station = 1:n_stations
 
-    % Load station data
+    % Get station data
     station_clim_var_tmp = station_clim_var{:,i_station};
     station_lat_tmp = station_coords.lat(i_station);
     station_lon_tmp = station_coords.lon(i_station);
@@ -31,7 +31,7 @@ for i_station = 1:n_stations
     % Get raw climate data at station location
     [row,col] = indexofclosest2(station_lon_tmp,station_lat_tmp, ...
         raw_lon,raw_lat);
-    raw_clim_var_at_station = squeeze(raw_clim_var(row,col,:));
+    raw_station_clim_var = squeeze(raw_clim_var(row,col,:));
 
     % Loop through periods
     for i_period = 1:n_periods
@@ -53,7 +53,7 @@ for i_station = 1:n_stations
             station_time(cond_station), ...
             station_clim_var_tmp(cond_station), ...
             raw_time(cond_raw), ...
-            raw_clim_var_at_station(cond_raw));
+            raw_station_clim_var(cond_raw));
     end
 end
 
