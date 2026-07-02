@@ -18,6 +18,7 @@ trend_window = cfg.trend_window;
 agg_method = cfg.agg_method;
 write_output = cfg.write_output;
 make_plots = cfg.make_plots;
+n_quantiles = cfg.n_quantiles;
 file_path_station_coords = cfg.file_path_station_coords;
 file_path_station_clim_var = cfg.file_path_station_clim_var;
 file_path_raw_data = cfg.file_path_raw_data;
@@ -58,7 +59,7 @@ end
 qmfs...
     = getqmfs(...
     station_clim_var,station_coords,station_time,raw_grid_clim_var,raw_lon,...
-    raw_lat,raw_time,qmf_period);
+    raw_lat,raw_time,qmf_period,n_quantiles);
 
 %% Correct raw data to make bias corrected data
 bc_grid_clim_var...

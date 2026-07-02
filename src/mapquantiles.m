@@ -2,8 +2,8 @@ function [bc_grid_clim_var,grid_biases] = mapquantiles(raw_grid_clim_var,station
     qmfs,raw_lon,raw_lat,bc_type,qmf_period,raw_time)
 
 % Get quantiles
-station_quantiles = real(qmfs);
-raw_quantiles = imag(qmfs);
+station_quantiles = qmfs.station_quantiles;
+raw_quantiles = qmfs.raw_quantiles;
 
 % Get biases
 if strcmp(bc_type,'multiplicative')

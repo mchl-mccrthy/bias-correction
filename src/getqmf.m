@@ -1,5 +1,5 @@
 % Get quantile mapping function
-function qmf = getqmf(station_time,station_clim_var,raw_time,raw_clim_var)
+function qmf = getqmf(station_time,station_clim_var,raw_time,raw_clim_var,n_quantiles)
 
 % Make tables
 station_data = table(station_time,station_clim_var);
@@ -20,15 +20,12 @@ make_nan = isnan(raw_values) | isnan(station_values);
 raw_values(make_nan) = NaN;
 station_values(make_nan) = NaN;
 
-% Specify number of quantiles
-nQs = 1001;
-qs = linspace(0,1,nQs);
+% Specify quantiles
+qs = linspace(0,1,n_quantiles);
 
 % Get quantiles
-station_quantiles = quantile(station_values,qs);
-raw_quantiles = quantile(raw_values,qs);
-
-% Get mapping function
-qmf = complex(station_quantiles,raw_quantiles);
+qmf.probabilities = qs;
+qmf.station_quantiles = quantile(station_values,qs);
+qmf.raw_quantiles = quantile(raw_values,qs);
 
 end

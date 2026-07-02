@@ -1,6 +1,6 @@
 % Get quantile mapping functions at stations
 function qmfs = getqmfs(station_clim_var,station_coords,station_time,...
-    raw_clim_var,raw_lon,raw_lat,raw_time,qmf_period)
+    raw_clim_var,raw_lon,raw_lat,raw_time,qmf_period,n_quantiles)
 
 % Specify periods
 if strcmp(qmf_period,'whole')
@@ -18,7 +18,9 @@ n_stations = height(station_coords);
 n_periods = length(periods);
 
 % Preallocate
-qmfs = nan(1001,n_stations,n_periods);
+qmfs.probabilities = linspace(0,1,n_quantiles);
+qmfs.station_quantiles = nan(n_quantiles,n_stations,n_periods);
+qmfs.raw_quantiles = nan(n_quantiles,n_stations,n_periods);
 
 % Loop through stations
 for i_station = 1:n_stations
@@ -49,11 +51,13 @@ for i_station = 1:n_stations
             cond_raw = month(raw_time) == periods(i_period);
         end
 
-        qmfs(:,i_station,i_period) = getqmf( ...
+        qmf = getqmf( ...
             station_time(cond_station), ...
             station_clim_var_tmp(cond_station), ...
             raw_time(cond_raw), ...
-            raw_station_clim_var(cond_raw));
+            raw_station_clim_var(cond_raw),n_quantiles);
+        qmfs.station_quantiles(:,i_station,i_period) = qmf.station_quantiles;
+        qmfs.raw_quantiles(:,i_station,i_period) = qmf.raw_quantiles;
     end
 end
 
