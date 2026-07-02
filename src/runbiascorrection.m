@@ -1,7 +1,11 @@
+% Run bias correction workflow
 function results = runbiascorrection(cfg)
 
 %% Display progress
 disp('Bias correcting climate data')
+
+%% Validate workflow configuration 
+validateconfig(cfg)
 
 %% Get configuration from config file
 clim_var_name = cfg.clim_var_name;
@@ -14,6 +18,7 @@ preserve_trends = cfg.preserve_trends;
 trend_window = cfg.trend_window;
 agg_method = cfg.agg_method;
 write_output = cfg.write_output;
+make_plots = cfg.make_plots;
 file_path_station_coords = cfg.file_path_station_coords;
 file_path_station_clim_var = cfg.file_path_station_clim_var;
 file_path_raw_data = cfg.file_path_raw_data;
@@ -112,12 +117,14 @@ bc_station_clim_var...
     bc_station_clim_var_yearly,years);
 
 %% Make diagnostic plots
-makeplots(...
-    station_clim_var,station_coords,station_time,raw_station_clim_var,...
-    bc_station_clim_var,raw_time,station_clim_var_yearly,...
-    raw_station_clim_var_yearly,bc_station_clim_var_yearly,years,...
-    station_linear_trends,raw_station_linear_trends,bc_station_linear_trends,bc_grid_clim_var,raw_lon,raw_lat,...
-    file_path_figures,clim_var_name,clim_var_long_name,clim_var_units);
+if make_plots 
+    makeplots(...
+        station_clim_var,station_coords,station_time,raw_station_clim_var,...
+        bc_station_clim_var,raw_time,station_clim_var_yearly,...
+        raw_station_clim_var_yearly,bc_station_clim_var_yearly,years,...
+        station_linear_trends,raw_station_linear_trends,bc_station_linear_trends,bc_grid_clim_var,raw_lon,raw_lat,...
+        file_path_figures,clim_var_name,clim_var_long_name,clim_var_units);
+end
 
 %% Put bias corrected data in netcdf file
 if write_output
@@ -127,6 +134,7 @@ end
 
 %% Return useful outputs
 results.write_output = cfg.write_output;
+results.make_plots = cfg.make_plots;
 results.file_path_bc_data = file_path_bc_data;
 results.mean_bc = nanmean(bc_grid_clim_var,'all');
 results.mean_raw = nanmean(raw_grid_clim_var,'all');

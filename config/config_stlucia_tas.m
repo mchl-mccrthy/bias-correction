@@ -11,6 +11,7 @@ cfg.preserve_trends = 'yes';
 cfg.trend_window = 365*5;
 cfg.agg_method = 'mean';
 cfg.write_output = false;
+cfg.make_plots = true;
 
 % File paths
 cfg.file_path_station_coords = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_coordinates.csv';
