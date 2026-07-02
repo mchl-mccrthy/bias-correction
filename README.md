@@ -8,18 +8,18 @@ Author: Michael McCarthy
 - Empirical quantile mapping
 - Monthly, seasonal, or whole-period corrections
 - Spatial interpolation of station-based corrections by inverse-distance weighting
-- Optional trend preservation
+- Optional preservation of trends in station data
 - NetCDF input/output
 
 ## Workflow
-1. Load station and raw gridded climate data
-2. Get trends
-3. Detrend
-4. Derive station-specific quantile mapping functions
-5. Spatially interpolate bias corrections
-6. Apply bias corrections to the gridded dataset
-7. Retrend
-8. Export bias corrected gridded climate data
+1. Load station and raw gridded data
+2. Get trends in station and raw gridded data
+3. Detrend station and raw gridded data
+4. Get station-specific quantile mapping functions
+5. Spatially interpolate biases to grid of raw gridded data
+6. Apply bias corrections to the detrended raw gridded data
+7. Retrend bias corrected gridded data
+8. Export bias corrected gridded data
 
 ## Repository structure
 ```
