@@ -12,7 +12,6 @@ clim_var_name = cfg.clim_var_name;
 clim_var_long_name = cfg.clim_var_long_name;
 clim_var_units = cfg.clim_var_units;
 qmf_period = cfg.qmf_period;
-bias_interp_method = cfg.bias_interp_method;
 bc_type = cfg.bc_type;
 preserve_trends = cfg.preserve_trends;
 trend_window = cfg.trend_window;
@@ -65,7 +64,7 @@ qmfs...
 bc_grid_clim_var...
     = mapquantiles(...
     raw_grid_clim_var,station_lon,station_lat,qmfs,raw_lon,raw_lat,...
-    bias_interp_method,bc_type,qmf_period,raw_time);
+    bc_type,qmf_period,raw_time);
 
 %% Interpolate station trends to grid
 if strcmp(preserve_trends,'yes')  

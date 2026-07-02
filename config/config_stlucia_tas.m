@@ -5,7 +5,6 @@ cfg.clim_var_name = 'tas';
 cfg.clim_var_long_name = 'Temperature';
 cfg.clim_var_units = 'K';
 cfg.qmf_period = 'monthly';
-cfg.bias_interp_method = 'idw';
 cfg.bc_type = 'additive';
 cfg.preserve_trends = 'yes';
 cfg.trend_window = 365*5;

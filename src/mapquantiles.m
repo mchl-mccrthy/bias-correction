@@ -1,5 +1,5 @@
 function [bc_grid_clim_var,grid_biases] = mapquantiles(raw_grid_clim_var,station_lon,station_lat,...
-    qmfs,raw_lon,raw_lat,bias_interp_method,bc_type,qmf_period,raw_time)
+    qmfs,raw_lon,raw_lat,bc_type,qmf_period,raw_time)
 
 % Get quantiles
 station_quantiles = real(qmfs);
@@ -74,28 +74,13 @@ for i_timestep = 1:n_timesteps
     end
     
     % Interpolate biases to grid  
-    if strcmp(bias_interp_method,'nearest')
-        [stnX2,stnY2,stnBiasesTs2] = prepsd(station_lon,station_lat,...
-            station_biases_timestep);
-        surfFunBiases = fit([stnX2,stnY2],stnBiasesTs2,'nearest');
-        grid_biases_timestep = surfFunBiases(raw_lon,raw_lat);
-        grid_biases_timestep = reshape(grid_biases_timestep,size(raw_lon));
-    elseif strcmp(bias_interp_method,'tpaps')
-        stnXys = rot90([station_lon(:),station_lat(:)]);
-        demXys = rot90([raw_lon(:),raw_lat(:)]);
-        fnSplineStn = tpaps(stnXys,station_biases_timestep);
-        grid_biases_timestep = fnval(fnSplineStn,demXys);
-        grid_biases_timestep = grid_biases_timestep(:);
-        grid_biases_timestep = reshape(grid_biases_timestep,size(raw_lon));
-    elseif strcmp(bias_interp_method,'idw')
-        valid = isfinite(station_biases_timestep);
-        D = D_all(:,valid);
-        b = station_biases_timestep(valid);
-        W = D.^-2;
-        W = W ./ sum(W,2);
-        grid_biases_timestep = W * b(:);
-        grid_biases_timestep = reshape(grid_biases_timestep,size(raw_lon));
-    end
+    valid = isfinite(station_biases_timestep);
+    D = D_all(:,valid);
+    b = station_biases_timestep(valid);
+    W = D.^-2;
+    W = W ./ sum(W,2);
+    grid_biases_timestep = W * b(:);
+    grid_biases_timestep = reshape(grid_biases_timestep,size(raw_lon));
     
     % In case interpolation introduced sub-zero values, which shouldn't
     % happen

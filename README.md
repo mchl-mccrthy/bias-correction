@@ -7,7 +7,7 @@ Author: Michael McCarthy
 ## Features
 - Empirical quantile mapping
 - Monthly, seasonal, or whole-period corrections
-- Spatial interpolation of station-based corrections
+- Spatial interpolation of station-based corrections by inverse-distance weighting
 - Optional trend preservation
 - NetCDF input/output
 
