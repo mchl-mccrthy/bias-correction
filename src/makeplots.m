@@ -1,10 +1,11 @@
 % Make diagnostic plots for bias correction
-function makeplots(station_clim_var, station_coords, station_time, ...
-    raw_clim_var_station, bc_clim_var_station, raw_time, ...
-    station_clim_var_yearly, raw_clim_var_station_yearly, ...
-    bc_clim_var_station_yearly, years, station_trends, raw_trends, ...
-    bc_trends, bc_clim_var, raw_lon, raw_lat, file_path_figures, ...
-    clim_var_name, clim_var_long_name, clim_var_units)
+function makeplots(station_clim_var,station_coords,station_time,...
+    raw_station_clim_var,bc_station_clim_var,raw_time,...
+    station_clim_var_yearly,raw_station_clim_var_yearly,...
+    bc_station_clim_var_yearly,years,station_linear_trends,...
+    raw_station_linear_trends,bc_station_linear_trends,bc_grid_clim_var,...
+    raw_lon,raw_lat,file_path_figures,clim_var_name,clim_var_long_name,...
+    clim_var_units)
 
 % Get number of stations
 n_stations = width(station_clim_var);
@@ -16,7 +17,6 @@ for i_station = 1:n_stations
         station_clim_var{:,i_station} ./ station_clim_var{:,i_station} ...
         * i_station, 'blue'); 
     hold on
-
     text(station_time(end)+calyears(1), i_station, ...
         station_coords.station{i_station}, ...
         'Interpreter','none', 'FontSize',7)
@@ -30,14 +30,14 @@ print(gcf, [file_path_figures '/' clim_var_name ...
 
 % Plot trends
 figure()
-scatter(station_trends, raw_trends); hold on
-scatter(station_trends, bc_trends)
+scatter(station_linear_trends, raw_station_linear_trends); hold on
+scatter(station_linear_trends, bc_station_linear_trends)
 xlabel([clim_var_long_name ' trend, stations (' ...
     clim_var_units ' year^{-1})'])
 ylabel([clim_var_long_name ' trend, gridded (' ...
     clim_var_units ' year^{-1})'])
-lims = [min([station_trends raw_trends bc_trends 0]), ...
-        max([station_trends raw_trends bc_trends 0])];
+lims = [min([station_linear_trends raw_station_linear_trends bc_station_linear_trends 0]), ...
+        max([station_linear_trends raw_station_linear_trends bc_station_linear_trends 0])];
 xlim(lims)
 ylim(lims)
 legend('Raw','Bias corrected','Location','eastoutside')
@@ -53,8 +53,8 @@ for i_station = 1:n_stations
 
     % Daily time series
     figure()
-    plot(raw_time, raw_clim_var_station{:,i_station}, 'g'); hold on
-    plot(raw_time, bc_clim_var_station{:,i_station}, 'b')
+    plot(raw_time, raw_station_clim_var{:,i_station}, 'g'); hold on
+    plot(raw_time, bc_station_clim_var{:,i_station}, 'b')
     plot(station_time, station_clim_var{:,i_station}, 'r')
     ylabel([clim_var_long_name ' (' clim_var_units ')'])
     xlim([min(raw_time) max(raw_time)])
@@ -65,8 +65,8 @@ for i_station = 1:n_stations
         clim_var_name '_time_series.png'], '-dpng','-r300');
 
     % Get overlapping valid data
-    raw_tmp = raw_clim_var_station{:,i_station};
-    bc_tmp = bc_clim_var_station{:,i_station};
+    raw_tmp = raw_station_clim_var{:,i_station};
+    bc_tmp = bc_station_clim_var{:,i_station};
     station_tmp = station_clim_var{:,i_station};
 
     [~, ia, ib] = intersect(raw_time, station_time);
@@ -140,8 +140,8 @@ for i_station = 1:n_stations
 
     % Yearly time series
     figure()
-    plot(years, raw_clim_var_station_yearly{:,i_station}, 'g'); hold on
-    plot(years, bc_clim_var_station_yearly{:,i_station}, 'b')
+    plot(years, raw_station_clim_var_yearly{:,i_station}, 'g'); hold on
+    plot(years, bc_station_clim_var_yearly{:,i_station}, 'b')
     plot(years, station_clim_var_yearly{:,i_station}, 'r')
     ylabel([clim_var_long_name ' (' clim_var_units ')'])
     xlim([min(years) max(years)])
@@ -154,7 +154,7 @@ end
 
 % Map of bias-corrected data
 figure()
-contourf(raw_lon, raw_lat, mean(bc_clim_var,3), 100, ...
+contourf(raw_lon, raw_lat, mean(bc_grid_clim_var,3), 100, ...
     'LineColor','none')
 c = colorbar;
 c.Label.String = [clim_var_long_name ' (' clim_var_units ')'];
