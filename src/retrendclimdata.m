@@ -1,5 +1,5 @@
 % Retrend climate data
-function clim_data_retrended = retrend(clim_data, trends, bc_type, eps_val)
+function clim_data_retrended = retrendclimdata(clim_data, trends, bc_type, eps_val)
 
 % Set default eps value for multiplicative variables
 if nargin < 4 || isempty(eps_val)

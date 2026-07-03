@@ -1,5 +1,5 @@
 % Detrend climate data
-function clim_data_detrended = detrend(clim_data,trends,bc_type,eps_val)
+function clim_data_detrended = detrendclimdata(clim_data,trends,bc_type,eps_val)
 
 % Set default eps value for multiplicative variables
 if nargin < 4
