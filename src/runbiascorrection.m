@@ -36,7 +36,7 @@ file_path_figures = cfg.file_path_figures;
     file_path_raw_data,clim_var_name);
 
 %% Get trends in raw and station data
-if strcmp(preserve_trends,'yes')
+if preserve_trends
     raw_grid_trends...
         = gettrends(...
         raw_grid_clim_var,3,trend_window);
@@ -46,7 +46,7 @@ if strcmp(preserve_trends,'yes')
 end
 
 %% Detrend raw and station data
-if strcmp(preserve_trends,'yes')
+if preserve_trends
     raw_grid_clim_var...
         = detrend(...
         raw_grid_clim_var,raw_grid_trends,bc_type);
@@ -68,7 +68,7 @@ bc_grid_clim_var...
     bc_type,qmf_period,raw_time);
 
 %% Interpolate station trends to grid
-if strcmp(preserve_trends,'yes')  
+if preserve_trends  
     station_grid_trends...
         = interptrends(...
         station_trends,station_coords.lon,station_coords.lat,raw_lon,...
@@ -79,7 +79,7 @@ end
 clear raw_grid_clim_var raw_grid_trends
 
 %% Retrend bias corrected data
-if strcmp(preserve_trends,'yes')
+if preserve_trends
     bc_grid_clim_var...
         = retrend(...
         bc_grid_clim_var,station_grid_trends,bc_type);

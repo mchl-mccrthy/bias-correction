@@ -27,7 +27,7 @@ formatfigure(gcf,4,4/ll_ratio,2)
 print(gcf, [file_path_figures '/' clim_var_name ...
     '_long-term_average.png'], '-dpng','-r300');
 
-% Plot map of long-term trends of bias-corrected data
+% Plot map of long-term linear trends of bias-corrected data
 figure()
 contourf(raw_lon,raw_lat,bc_grid_linear_trends,100,'LineColor','none')
 c = colorbar;
@@ -43,7 +43,7 @@ formatfigure(gcf,4,4/ll_ratio,2)
 print(gcf, [file_path_figures '/' clim_var_name ...
     '_bc_linear_trend.png'], '-dpng','-r300');
 
-% Make scatter plot of trends
+% Make scatter plot of linear trends
 figure()
 scatter(station_linear_trends, raw_station_linear_trends); hold on
 scatter(station_linear_trends, bc_station_linear_trends)
@@ -67,7 +67,6 @@ qq_min = Inf;
 qq_max = -Inf;
 h_raw = [];
 h_bc = [];
-
 for i_station = 1:n_stations
 
     raw_tmp = raw_station_clim_var{:,i_station};

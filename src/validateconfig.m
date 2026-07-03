@@ -30,7 +30,6 @@ end
 % Validate options
 mustbeoneof(cfg.qmf_period,{'whole','seasonal','monthly'},'qmf_period')
 mustbeoneof(cfg.bc_type,{'additive','multiplicative'},'bc_type')
-mustbeoneof(cfg.preserve_trends,{'yes','no'},'preserve_trends')
 mustbeoneof(cfg.agg_method,{'mean','sum'},'agg_method')
 
 % Validate numeric/logical settings
@@ -49,6 +48,10 @@ end
 if ~isscalar(cfg.n_quantiles) || cfg.n_quantiles <= 1 || ...
         cfg.n_quantiles ~= round(cfg.n_quantiles)
     error('cfg.n_quantiles must be an integer scalar greater than 1.')
+end
+
+if ~islogical(cfg.preserve_trends) || ~isscalar(cfg.preserve_trends)
+    error('cfg.preserve_trends must be a scalar logical: true or false.')
 end
 
 % Validate input files
