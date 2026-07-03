@@ -2,7 +2,7 @@
 function qmfs = getqmfs(station_clim_var,station_coords,station_time,...
     raw_clim_var,raw_lon,raw_lat,raw_time,qmf_period,n_quantiles)
 
-% Specify periods
+% Get periods
 if strcmp(qmf_period,'whole')
     periods = 1;
 elseif strcmp(qmf_period,'seasonal')
