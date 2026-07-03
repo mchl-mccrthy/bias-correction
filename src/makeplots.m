@@ -7,7 +7,10 @@ function makeplots(station_clim_var,station_coords,station_time,...
     raw_lon,raw_lat,file_path_figures,clim_var_name,clim_var_long_name,...
     clim_var_units,bc_grid_clim_var_yearly,bc_grid_linear_trends,agg_method)
 
-% Plot map of bias-corrected data
+% Get number of stations
+n_stations = width(station_clim_var);
+
+% Plot map of long-term average of bias-corrected data
 figure()
 contourf(raw_lon,raw_lat,mean(bc_grid_clim_var_yearly,3),100, ...
     'LineColor','none')
@@ -24,7 +27,7 @@ formatfigure(gcf,4,4/ll_ratio,2)
 print(gcf, [file_path_figures '/' clim_var_name ...
     '_long-term_average.png'], '-dpng','-r300');
 
-% Plot map of trends in bias-corrected data
+% Plot map of long-term trends of bias-corrected data
 figure()
 contourf(raw_lon,raw_lat,bc_grid_linear_trends,100,'LineColor','none')
 c = colorbar;
@@ -40,7 +43,7 @@ formatfigure(gcf,4,4/ll_ratio,2)
 print(gcf, [file_path_figures '/' clim_var_name ...
     '_bc_linear_trend.png'], '-dpng','-r300');
 
-% Plot trends
+% Make scatter plot of trends
 figure()
 scatter(station_linear_trends, raw_station_linear_trends); hold on
 scatter(station_linear_trends, bc_station_linear_trends)
@@ -57,8 +60,68 @@ formatfigure(gcf,4,4,4)
 print(gcf, [file_path_figures '/' clim_var_name ...
     '_trends.png'], '-dpng','-r300');
 
-% Get number of stations
-n_stations = width(station_clim_var);
+% Quantile-quantile plot for all stations
+figure()
+q = linspace(0,1,1000);
+qq_min = Inf;
+qq_max = -Inf;
+h_raw = [];
+h_bc = [];
+
+for i_station = 1:n_stations
+
+    raw_tmp = raw_station_clim_var{:,i_station};
+    bc_tmp = bc_station_clim_var{:,i_station};
+    station_tmp = station_clim_var{:,i_station};
+
+    [~, ia, ib] = intersect(raw_time, station_time);
+
+    raw_overlap = raw_tmp(ia);
+    bc_overlap = bc_tmp(ia);
+    station_overlap = station_tmp(ib);
+
+    valid = ~isnan(raw_overlap) & ...
+            ~isnan(bc_overlap) & ...
+            ~isnan(station_overlap);
+
+    raw_overlap = raw_overlap(valid);
+    bc_overlap = bc_overlap(valid);
+    station_overlap = station_overlap(valid);
+
+    if isempty(station_overlap)
+        continue
+    end
+
+    station_quantiles = quantile(station_overlap, q);
+    raw_quantiles = quantile(raw_overlap, q);
+    bc_quantiles = quantile(bc_overlap, q);
+
+    if isempty(h_raw)
+        h_raw = plot(station_quantiles, raw_quantiles, 'r'); hold on
+        h_bc = plot(station_quantiles, bc_quantiles, 'b');
+    else
+        plot(station_quantiles, raw_quantiles, 'r'); hold on
+        plot(station_quantiles, bc_quantiles, 'b')
+    end
+
+    qq_min = min([qq_min; station_quantiles(:); raw_quantiles(:); bc_quantiles(:)]);
+    qq_max = max([qq_max; station_quantiles(:); raw_quantiles(:); bc_quantiles(:)]);
+end
+grid on
+ylabel([clim_var_long_name ',' newline ...
+    'raw and bias corrected (' clim_var_units ')'])
+xlabel([clim_var_long_name ', station (' clim_var_units ')'])
+title('All stations')
+if isfinite(qq_min) && isfinite(qq_max) && qq_min < qq_max
+    xlim([qq_min qq_max])
+    ylim([qq_min qq_max])
+end
+if ~isempty(h_raw)
+    legend([h_raw h_bc],{'Raw','Bias corrected'},'Location','eastoutside')
+end
+formatfigure(gcf,4,4,4)
+print(gcf, [file_path_figures '/' clim_var_name ...
+    '_quantile-quantile_all_stations.png'], '-dpng','-r300');
 
 % Plot station availability
 figure()
@@ -129,11 +192,7 @@ for i_station = 1:n_stations
     ylabel('Count')
     xlabel([clim_var_long_name ' (' clim_var_units ')'])
     title(station_name, 'Interpreter','none')
-    if contains(clim_var_name,'pr')
-        xlim([0 50])
-    else
-        xlim([hist_min hist_max])
-    end
+    xlim([hist_min hist_max])
     legend('Raw','Bias corrected','Station','Location','eastoutside')
     formatfigure(gcf,4,4,4)
     print(gcf, [file_path_figures '/' station_name '_' ...
@@ -152,13 +211,8 @@ for i_station = 1:n_stations
         'raw and bias corrected (' clim_var_units ')'])
     xlabel([clim_var_long_name ', station (' clim_var_units ')'])
     title(station_name, 'Interpreter','none')
-    if contains(clim_var_name,'pr')
-        xlim([0 50])
-        ylim([0 50])
-    else
-        xlim([hist_min hist_max])
-        ylim([hist_min hist_max])
-    end
+    xlim([hist_min hist_max])
+    ylim([hist_min hist_max])
     legend('Raw','Bias corrected','Location','eastoutside')
     formatfigure(gcf,4,4,4)
     print(gcf, [file_path_figures '/' station_name '_' ...
