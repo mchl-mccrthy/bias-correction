@@ -15,6 +15,7 @@
 # Folders
 input_data/
 output_data/
+archive/
 
 # OS files
 .DS_Store
