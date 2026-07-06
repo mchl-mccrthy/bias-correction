@@ -3,7 +3,7 @@ function grid_linear_trends = getgridlineartrends(grid_clim_var_yearly,years)
 n_rows = size(grid_clim_var_yearly,1);
 n_cols = size(grid_clim_var_yearly,2);
 
-grid_linear_trends = nan(n_rows,n_cols,'single');
+grid_linear_trends = nan(n_rows,n_cols);
 
 for i_row = 1:n_rows
     for i_col = 1:n_cols

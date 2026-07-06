@@ -3,7 +3,6 @@ function [raw_clim_var,raw_lon,raw_lat,raw_time] = loadrawdata(file_path_raw_dat
 
 % Load data
 raw_clim_var = ncread(file_path_raw_data,clim_var_name);
-raw_clim_var = single(raw_clim_var);
 raw_lat = ncread(file_path_raw_data,'lat');
 raw_lon = ncread(file_path_raw_data,'lon');
 raw_time = ncread(file_path_raw_data,'time');
