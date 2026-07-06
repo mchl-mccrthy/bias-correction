@@ -22,8 +22,8 @@ for i_station = 1:n_stations
     title(station_name, 'Interpreter','none')
     legend('Raw','Bias corrected','Station','Location','eastoutside')
     formatfigure(gcf,7,2,4)
-    print(gcf, [file_path_figures '/' station_name '_' ...
-        clim_var_name '_time_series.png'], '-dpng','-r300');
+    print(gcf, fullfile(file_path_figures, [station_name '_' clim_var_name ...
+        '_time_series.png']), '-dpng','-r300');
 
     % Get overlapping valid data
     [station_overlap,raw_overlap,bc_overlap] = ...
@@ -52,8 +52,8 @@ for i_station = 1:n_stations
     xlim([hist_min hist_max])
     legend('Raw','Bias corrected','Station','Location','eastoutside')
     formatfigure(gcf,4,4,4)
-    print(gcf, [file_path_figures '/' station_name '_' ...
-        clim_var_name '_histogram.png'], '-dpng','-r300');
+    print(gcf, fullfile(file_path_figures, [station_name '_' clim_var_name ...
+        '_histogram.png']), '-dpng','-r300');
 
     % Quantile-quantile plot
     figure()
@@ -72,8 +72,8 @@ for i_station = 1:n_stations
     ylim([hist_min hist_max])
     legend('Raw','Bias corrected','Location','eastoutside')
     formatfigure(gcf,4,4,4)
-    print(gcf, [file_path_figures '/' station_name '_' ...
-        clim_var_name '_quantile-quantile.png'], '-dpng','-r300');
+    print(gcf, fullfile(file_path_figures, [station_name '_' clim_var_name ...
+        '_qq.png']), '-dpng','-r300');
 
     % Yearly time series
     figure()
@@ -85,8 +85,8 @@ for i_station = 1:n_stations
     title(station_name, 'Interpreter','none')
     legend('Raw','Bias corrected','Station','Location','eastoutside')
     formatfigure(gcf,7,2,4)
-    print(gcf, [file_path_figures '/' station_name '_' ...
-        clim_var_name '_time_series_yearly.png'], '-dpng','-r300');
+    print(gcf, fullfile(file_path_figures, [station_name '_' clim_var_name ...
+        '_time_series_yearly.png']), '-dpng','-r300');
 end
 
 end

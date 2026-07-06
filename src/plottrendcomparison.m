@@ -16,8 +16,8 @@ xlim(lims)
 ylim(lims)
 legend('Raw','Bias corrected','Location','eastoutside')
 formatfigure(gcf,4,4,4)
-print(gcf, [file_path_figures '/' clim_var_name ...
-    '_trends.png'], '-dpng','-r300');
+print(gcf, fullfile(file_path_figures, [clim_var_name ...
+    '_linear_trends_scatter.png']), '-dpng','-r300');
 
 end
 

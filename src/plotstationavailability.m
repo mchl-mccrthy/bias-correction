@@ -17,7 +17,7 @@ xlim([station_time(1) station_time(end)])
 ylim([0 n_stations+1])
 yticklabels([])
 formatfigure(gcf,5,3,4)
-print(gcf, [file_path_figures '/' clim_var_name ...
-    '_station_availability.png'], '-dpng','-r300');
+print(gcf, fullfile(file_path_figures, [clim_var_name ...
+    '_station_availability.png']), '-dpng','-r300');
 
 end

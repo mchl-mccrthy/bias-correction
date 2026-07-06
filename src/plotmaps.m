@@ -17,8 +17,8 @@ title('Long-term average')
 ll_ratio = (max(raw_lon,[],'all') - min(raw_lon,[],'all')) ./ ...
            (max(raw_lat,[],'all') - min(raw_lat,[],'all'));
 formatfigure(gcf,4,4/ll_ratio,2)
-print(gcf, [file_path_figures '/' clim_var_name ...
-    '_long-term_average.png'], '-dpng','-r300');
+print(gcf, fullfile(file_path_figures, [clim_var_name ...
+    '_long_term_average_map.png']), '-dpng','-r300');
 
 % Plot map of long-term linear trends of bias-corrected data
 figure()
@@ -33,7 +33,6 @@ title('Long-term trend')
 ll_ratio = (max(raw_lon,[],'all') - min(raw_lon,[],'all')) ./ ...
            (max(raw_lat,[],'all') - min(raw_lat,[],'all'));
 formatfigure(gcf,4,4/ll_ratio,2)
-print(gcf, [file_path_figures '/' clim_var_name ...
-    '_bc_linear_trend.png'], '-dpng','-r300');
-
+print(gcf, fullfile(file_path_figures, [clim_var_name ...
+    '_bc_linear_trend_map.png']), '-dpng','-r300');
 end

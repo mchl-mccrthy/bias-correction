@@ -7,15 +7,12 @@ disp('Bias correcting climate data')
 % Validate workflow configuration 
 validateconfig(cfg)
 
-% Get configuration from config file
+% Unpack config
 clim_var_name = cfg.clim_var_name;
-clim_var_long_name = cfg.clim_var_long_name;
-clim_var_units = cfg.clim_var_units;
 qmf_period = cfg.qmf_period;
 bc_type = cfg.bc_type;
 preserve_trends = cfg.preserve_trends;
 trend_window = cfg.trend_window;
-agg_method = cfg.agg_method;
 write_output = cfg.write_output;
 n_quantiles = cfg.n_quantiles;
 idw_power = cfg.idw_power;
@@ -26,7 +23,6 @@ file_path_station_coords = cfg.file_path_station_coords;
 file_path_station_clim_var = cfg.file_path_station_clim_var;
 file_path_raw_data = cfg.file_path_raw_data;
 file_path_bc_data = cfg.file_path_bc_data;
-file_path_figures = cfg.file_path_figures;
 
 % Start parallel pool if requested
 if use_parallel && isempty(gcp('nocreate'))

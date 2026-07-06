@@ -44,7 +44,7 @@ if ~isempty(h_raw)
     legend([h_raw h_bc],{'Raw','Bias corrected'},'Location','eastoutside')
 end
 formatfigure(gcf,4,4,4)
-print(gcf, [file_path_figures '/' clim_var_name ...
-    '_quantile-quantile_all_stations.png'], '-dpng','-r300');
+print(gcf,fullfile(file_path_figures, [clim_var_name ...
+    '_all_stations_qq.png']), '-dpng','-r300');
 
 end
