@@ -7,7 +7,7 @@ raw_lat = ncread(file_path_raw_data,'lat');
 raw_lon = ncread(file_path_raw_data,'lon');
 raw_time = ncread(file_path_raw_data,'time');
 
-% Permute climate variable, lat and lon
+% Permute climate variable, create lat, lon grids
 raw_clim_var = permute(raw_clim_var,[2 1 3]);
 [raw_lon,raw_lat] = meshgrid(raw_lon,raw_lat);
 

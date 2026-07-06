@@ -5,7 +5,8 @@ function savebcdata(bc_clim_var,file_path_raw_data,file_path_bc_data,...
 % Permute data back to ECMWF standard
 bc_clim_var = permute(bc_clim_var,[2 1 3]);
 
-% Copy raw data netcdf file and write new bias corrected data netcdf file
+% Copy the raw NetCDF structure and replace the climate variable with 
+% bias-corrected data
 copyfile(file_path_raw_data,file_path_bc_data);
 ncwrite(file_path_bc_data,clim_var_name,bc_clim_var);
 
