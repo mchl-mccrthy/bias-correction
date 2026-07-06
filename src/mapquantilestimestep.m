@@ -5,7 +5,8 @@ function [bc_grid_clim_var_timestep,grid_biases_timestep] = ...
 
 % Interpolate to station locations
 n_stations = numel(station_lin_inds);
-raw_station_clim_var_timestep = raw_grid_clim_var_timestep(station_lin_inds);
+raw_station_clim_var_timestep = ...
+    raw_grid_clim_var_timestep(station_lin_inds);
 
 % Make condition for qmf period
 if strcmp(qmf_period,'whole')
@@ -21,10 +22,12 @@ end
 station_biases_timestep = nan(1,n_stations);
 for i_station = 1:n_stations
     if sum(~isnan(raw_quantiles(:,i_station,i_period))) > 0
-        [~,quantile_index] = min(abs(raw_station_clim_var_timestep(i_station)-...
+        [~,quantile_index] = ...
+            min(abs(raw_station_clim_var_timestep(i_station)-...
             squeeze(raw_quantiles(:,i_station,i_period))),...
             [],1,'includenan');
-        station_biases_timestep(i_station) = biases(quantile_index,i_station,i_period);
+        station_biases_timestep(i_station) = biases(quantile_index,...
+            i_station,i_period);
     end
 end
 
@@ -46,9 +49,11 @@ end
 % Apply biases to get downscaled, bias-corrected
 % gridded variable for timestep
 if strcmp(bc_type,'multiplicative') 
-    bc_grid_clim_var_timestep = grid_biases_timestep.*raw_grid_clim_var_timestep;
+    bc_grid_clim_var_timestep = ...
+        grid_biases_timestep.*raw_grid_clim_var_timestep;
 elseif strcmp(bc_type,'additive')
-    bc_grid_clim_var_timestep = grid_biases_timestep+raw_grid_clim_var_timestep;
+    bc_grid_clim_var_timestep = ...
+        grid_biases_timestep+raw_grid_clim_var_timestep;
 end
 
 end

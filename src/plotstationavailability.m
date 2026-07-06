@@ -2,6 +2,7 @@
 function plotstationavailability(station_clim_var,station_coords,...
     station_time,file_path_figures,clim_var_name)
 
+% Make plot
 figure()
 n_stations = width(station_clim_var);
 for i_station = 1:n_stations

@@ -9,15 +9,13 @@ elseif strcmp(qmf_period,'seasonal')
     periods = 1:4;
 elseif strcmp(qmf_period,'monthly')
     periods = 1:12;
-else
-    error('qmf_period must be ''whole'', ''seasonal'', or ''monthly''.')
 end
 
 % Get dimensions
 n_stations = height(station_coords);
 n_periods = length(periods);
 
-% Preallocate
+% Preallocate space for quantiles and probabilities
 qmfs.probabilities = linspace(0,1,n_quantiles);
 qmfs.station_quantiles = nan(n_quantiles,n_stations,n_periods);
 qmfs.raw_quantiles = nan(n_quantiles,n_stations,n_periods);
@@ -47,6 +45,8 @@ for i_station = 1:n_stations
             cond_station = month(station_time) == periods(i_period);
             cond_raw = month(raw_time) == periods(i_period);
         end
+
+        % Get quantile mapping functions
         qmf = getqmf( ...
             station_time(cond_station), ...
             station_clim_var_tmp(cond_station), ...

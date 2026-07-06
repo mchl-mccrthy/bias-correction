@@ -22,7 +22,6 @@ catch
     raw_start_time = datetime(strtrim(parts.ref), ...
         'InputFormat','yyyy-MM-dd');
 end
-
 switch lower(parts.unit)
     case {'day','days'}
         raw_time = raw_start_time + days(raw_time);

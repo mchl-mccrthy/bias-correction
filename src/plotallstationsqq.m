@@ -3,6 +3,7 @@ function plotallstationsqq(station_clim_var,raw_station_clim_var,...
     bc_station_clim_var,station_time,raw_time,file_path_figures,...
     clim_var_name,clim_var_long_name,clim_var_units)
 
+% Make plot
 figure()
 q = linspace(0,1,1000);
 qq_min = Inf;
