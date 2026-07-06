@@ -1,7 +1,7 @@
 % Calculate linear trends from yearly climate data data
 function [station_trends,raw_trends,bc_trends] = getlineartrends(...
-    station_clim_var_yearly,raw_clim_var_station_yearly,...
-    bc_clim_var_station_yearly,years)
+    station_clim_var_yearly,raw_station_clim_var_yearly,...
+    bc_station_clim_var_yearly,years)
 
 % Get number of stations
 n_stations = width(station_clim_var_yearly);
@@ -16,8 +16,8 @@ for i_station = 1:n_stations
 
     % Extract data
     station_tmp = station_clim_var_yearly{:,i_station};
-    raw_tmp = raw_clim_var_station_yearly{:,i_station};
-    bc_tmp = bc_clim_var_station_yearly{:,i_station};
+    raw_tmp = raw_station_clim_var_yearly{:,i_station};
+    bc_tmp = bc_station_clim_var_yearly{:,i_station};
 
     % Keep only years where all three datasets are available
     valid = ~isnan(station_tmp) & ...
