@@ -1,5 +1,5 @@
 function [bc_grid_clim_var,grid_biases] = mapquantiles(raw_grid_clim_var,station_lon,station_lat,...
-    qmfs,raw_lon,raw_lat,bc_type,qmf_period,raw_time)
+    qmfs,raw_lon,raw_lat,bc_type,qmf_period,raw_time,idw_power)
 
 % Get quantiles
 station_quantiles = qmfs.station_quantiles;
@@ -77,7 +77,7 @@ for i_timestep = 1:n_timesteps
     valid = isfinite(station_biases_timestep);
     D = D_all(:,valid);
     b = station_biases_timestep(valid);
-    W = D.^-2;
+    W = D.^-idw_power;
     W = W ./ sum(W,2);
     grid_biases_timestep = W * b(:);
     grid_biases_timestep = reshape(grid_biases_timestep,size(raw_lon));

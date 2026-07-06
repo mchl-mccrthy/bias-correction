@@ -12,6 +12,8 @@ cfg.agg_method = 'mean';
 cfg.write_output = false;
 cfg.make_plots = true;
 cfg.n_quantiles = 1001;
+cfg.idw_power = 2;
+cfg.multiplicative_epsilon = 0.1;
 
 % File paths
 cfg.file_path_station_coords = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_coordinates.csv';

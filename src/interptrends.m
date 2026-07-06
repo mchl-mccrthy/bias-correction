@@ -1,4 +1,4 @@
-function grid_trends_out = interptrends(station_trends, station_x, station_y, grid_x, grid_y, grid_trends, bc_type)
+function grid_trends_out = interptrends(station_trends, station_x, station_y, grid_x, grid_y, grid_trends, bc_type, idw_power)
 
 nt = size(station_trends,1);
 nx = size(grid_x,1);
@@ -36,7 +36,7 @@ for t = 1:nt
     valid = isfinite(corr_vals);
     D = D_all(:,valid);
     b = corr_vals(valid);
-    W = D.^-2;
+    W = D.^-idw_power;
     W = W ./ sum(W,2);
     corr_grid = W * b(:);
     corr_grid = reshape(corr_grid,size(grid_x));

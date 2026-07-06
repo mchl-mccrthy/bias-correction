@@ -19,6 +19,8 @@ agg_method = cfg.agg_method;
 write_output = cfg.write_output;
 make_plots = cfg.make_plots;
 n_quantiles = cfg.n_quantiles;
+idw_power = cfg.idw_power;
+multiplicative_epsilon = cfg.multiplicative_epsilon;
 file_path_station_coords = cfg.file_path_station_coords;
 file_path_station_clim_var = cfg.file_path_station_clim_var;
 file_path_raw_data = cfg.file_path_raw_data;
@@ -49,10 +51,10 @@ end
 if preserve_trends
     raw_grid_clim_var...
         = detrendclimdata(...
-        raw_grid_clim_var,raw_grid_trends,bc_type);
+        raw_grid_clim_var,raw_grid_trends,bc_type,multiplicative_epsilon);
     station_clim_var{:,:}...
         = detrendclimdata(...
-        station_clim_var{:,:},station_trends,bc_type);
+        station_clim_var{:,:},station_trends,bc_type,multiplicative_epsilon);
 end
 
 %% Get quantile mapping functions
@@ -65,14 +67,14 @@ qmfs...
 bc_grid_clim_var...
     = mapquantiles(...
     raw_grid_clim_var,station_lon,station_lat,qmfs,raw_lon,raw_lat,...
-    bc_type,qmf_period,raw_time);
+    bc_type,qmf_period,raw_time,idw_power);
 
 %% Interpolate station trends to grid
 if preserve_trends  
     station_grid_trends...
         = interptrends(...
         station_trends,station_coords.lon,station_coords.lat,raw_lon,...
-        raw_lat,raw_grid_trends,bc_type);
+        raw_lat,raw_grid_trends,bc_type,idw_power);
 end
 
 %% Clear raw data to avoid OOM
@@ -82,7 +84,7 @@ clear raw_grid_clim_var raw_grid_trends
 if preserve_trends
     bc_grid_clim_var...
         = retrendclimdata(...
-        bc_grid_clim_var,station_grid_trends,bc_type);
+        bc_grid_clim_var,station_grid_trends,bc_type,multiplicative_epsilon);
 end
 
 %% Clear interpolated grid trends and reload raw and station data
