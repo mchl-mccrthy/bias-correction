@@ -37,20 +37,16 @@ for i_station = 1:n_stations
 
     % Loop through periods
     for i_period = 1:n_periods
-
         if strcmp(qmf_period,'whole')
             cond_station = true(size(station_time));
             cond_raw = true(size(raw_time));
-
         elseif strcmp(qmf_period,'seasonal')
             cond_station = season(station_time) == periods(i_period);
             cond_raw = season(raw_time) == periods(i_period);
-
         elseif strcmp(qmf_period,'monthly')
             cond_station = month(station_time) == periods(i_period);
             cond_raw = month(raw_time) == periods(i_period);
         end
-
         qmf = getqmf( ...
             station_time(cond_station), ...
             station_clim_var_tmp(cond_station), ...
