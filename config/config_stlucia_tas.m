@@ -14,6 +14,8 @@ cfg.make_plots = true;
 cfg.n_quantiles = 1001; % Number of quantiles for QMFs
 cfg.idw_power = 2; % Inverse distance weighting distance exponent
 cfg.multiplicative_epsilon = 0.1; % Offset for multiplicative detrending/retrending
+cfg.use_parallel = true;
+cfg.n_workers = 2; % [], 2, 3 ...
 
 % File paths
 cfg.file_path_station_coords = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_coordinates.csv';

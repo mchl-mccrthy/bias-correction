@@ -20,12 +20,23 @@ write_output = cfg.write_output;
 make_plots = cfg.make_plots;
 n_quantiles = cfg.n_quantiles;
 idw_power = cfg.idw_power;
+use_parallel = cfg.use_parallel;
+n_workers = cfg.n_workers;
 multiplicative_epsilon = cfg.multiplicative_epsilon;
 file_path_station_coords = cfg.file_path_station_coords;
 file_path_station_clim_var = cfg.file_path_station_clim_var;
 file_path_raw_data = cfg.file_path_raw_data;
 file_path_bc_data = cfg.file_path_bc_data;
 file_path_figures = cfg.file_path_figures;
+
+%% Start parallel pool if requested
+if use_parallel && isempty(gcp('nocreate'))
+    if isempty(n_workers)
+        parpool;
+    else
+        parpool(n_workers);
+    end
+end
 
 %% Load climate variable at station and coordinates
 [station_clim_var,station_coords,station_lat,station_lon,station_time]...
@@ -67,7 +78,7 @@ qmfs...
 bc_grid_clim_var...
     = mapquantiles(...
     raw_grid_clim_var,station_lon,station_lat,qmfs,raw_lon,raw_lat,...
-    bc_type,qmf_period,raw_time,idw_power);
+    bc_type,qmf_period,raw_time,idw_power,use_parallel);
 
 %% Interpolate station trends to grid
 if preserve_trends  
@@ -87,8 +98,10 @@ if preserve_trends
         bc_grid_clim_var,station_grid_trends,bc_type,multiplicative_epsilon);
 end
 
-%% Clear interpolated grid trends and reload raw and station data
+%% Clear station grid trends to avoid OOM
 clear station_grid_trends
+
+%% Reload raw and station data
 [raw_grid_clim_var,~,~,~]...
     = loadrawdata(...
     file_path_raw_data,clim_var_name);
