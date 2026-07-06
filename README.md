@@ -1,60 +1,112 @@
-# bias-correction
+# Bias Correction
 
-A MATLAB workflow for bias correction of historical gridded climate datasets using station observations and empirical quantile mapping, with option to preserve station trends.
+A MATLAB workflow for bias correction of historical gridded climate datasets using station observations and empirical quantile mapping, with optional preservation of observed station trends.
 
-Author: Michael McCarthy
+**Author:** Michael McCarthy
 
 ## Features
+
 - Empirical quantile mapping
 - Monthly, seasonal, or whole-period corrections
-- Additive or multiplicative correction
+- Additive or multiplicative bias correction
 - Optional preservation of station trends
-- Spatial interpolation of station-based corrections by inverse-distance weighting
+- Spatial interpolation of station-based corrections using inverse-distance weighting (IDW)
 - Optional parallel processing
-- NetCDF input/output
-- Diagnostic plots for bias-corrected data
+- NetCDF input and output
+- Diagnostic maps, trend comparisons, and quantile–quantile plots
+
+---
 
 ## Workflow
-The top-level script bias_correction.m runs three stages:
 
+The main workflow consists of three stages:
+
+```matlab
 results = runbiascorrection(cfg);
 diagnostics = makediagnostics(cfg);
 makeplots(diagnostics,cfg);
+```
 
-runbiascorrection applies the bias correction and optionally writes a bias-corrected NetCDF file.
-makediagnostics reloads the raw, station, and bias-corrected data and prepares diagnostic summaries in memory.
-makeplots creates maps, station diagnostics, trend comparisons, and quantile-quantile plots from the diagnostics struct.
+1. **`runbiascorrection`**
+   - Applies the bias correction.
+   - Optionally writes the bias-corrected dataset to a NetCDF file.
 
-makediagnostics expects the bias-corrected NetCDF file at cfg.file_path_bc_data. For a fresh end-to-end run, set cfg.write_output = true. If cfg.write_output = false, the bias-corrected file must already exist.
+2. **`makediagnostics`**
+   - Reloads the raw, station, and bias-corrected datasets.
+   - Computes diagnostic statistics and stores them in a diagnostics structure.
+
+3. **`makeplots`**
+   - Produces diagnostic figures including:
+     - spatial maps
+     - station time series
+     - trend comparisons
+     - quantile–quantile plots
+
+> **Note**
+>
+> `makediagnostics` expects the bias-corrected NetCDF file to exist at `cfg.file_path_bc_data`.
+>
+> - For a complete end-to-end run, set
+>
+>   ```matlab
+>   cfg.write_output = true;
+>   ```
+>
+> - If
+>
+>   ```matlab
+>   cfg.write_output = false;
+>   ```
+>
+>   the bias-corrected NetCDF file must already exist.
+
+---
 
 ## Configuration
-Workflow settings are defined in files under config/. The main settings are:
-- clim_var_name: variable name in the NetCDF and station files.
-- qmf_period: quantile mapping period, one of whole, seasonal, or monthly.
-- bc_type: correction type, either additive or multiplicative.
-- preserve_trends: whether to preserve station trends.
-- trend_window: moving-mean window length in time steps.
-- agg_method: yearly aggregation method, either mean or sum.
-- write_output: whether to write the bias-corrected NetCDF file.
-- n_quantiles: number of quantiles used for empirical quantile mapping.
-- idw_power: inverse-distance weighting exponent.
-- multiplicative_epsilon: offset used for multiplicative detrending/retrending.
-- use_parallel: whether to use parallel processing.
-- n_workers: number of parallel workers, or [] for the MATLAB default.
+
+Workflow settings are defined in the files under `config/`.
+
+| Setting | Description |
+|---------|-------------|
+| `clim_var_name` | Climate variable name in both the NetCDF and station files |
+| `qmf_period` | Quantile mapping period (`whole`, `seasonal`, or `monthly`) |
+| `bc_type` | Bias-correction type (`additive` or `multiplicative`) |
+| `preserve_trends` | Preserve observed station trends |
+| `trend_window` | Moving-average window length used for trend estimation |
+| `agg_method` | Annual aggregation method (`mean` or `sum`) |
+| `write_output` | Write the corrected NetCDF file |
+| `n_quantiles` | Number of empirical quantiles |
+| `idw_power` | Inverse-distance weighting exponent |
+| `multiplicative_epsilon` | Offset used for multiplicative detrending/retrending |
+| `use_parallel` | Enable parallel processing |
+| `n_workers` | Number of parallel workers (`[]` uses the MATLAB default) |
+
+---
 
 ## Data Requirements
-Raw gridded climate data should be provided as NetCDF with lon, lat, and time variables.
-Station data should cover the same period as the gridded data.
-Missing station values should be represented as NaN.
-The climate variable name should match between the station data and the NetCDF file.
+
+The workflow assumes:
+
+- Raw gridded climate data are supplied as NetCDF files containing:
+  - `lon`
+  - `lat`
+  - `time`
+- Station observations cover the same period as the gridded dataset.
+- Missing station observations are represented by `NaN`.
+- The climate variable name is consistent between the NetCDF and station datasets.
+
+---
 
 ## Repository Structure
+
+```text
 bias_correction/
-|-- bias_correction.m
-|-- config/
-|-- src/
-|-- archive/
-|-- input_data/
-|-- output_data/
-|-- README.md
-`-- .gitignore
+├── bias_correction.m
+├── config/
+├── src/
+├── archive/
+├── input_data/
+├── output_data/
+├── README.md
+└── .gitignore
+```
