@@ -7,19 +7,20 @@ Author: Michael McCarthy
 ## Features
 - Empirical quantile mapping
 - Monthly, seasonal, or whole-period corrections
+- Additive or multiplicative correction
+- Optional preservation of station trends
 - Spatial interpolation of station-based corrections by inverse-distance weighting
-- Optional preservation of trends in station data
+- Optional parallel processing
 - NetCDF input/output
+- Diagnostic plots for bias-corrected data
 
 ## Workflow
-1. Load station and raw gridded data
-2. Get trends in station and raw gridded data
-3. Detrend station and raw gridded data
-4. Get station-specific quantile mapping functions
-5. Spatially interpolate biases to grid of raw gridded data
-6. Apply bias corrections to the detrended raw gridded data
-7. Retrend bias corrected gridded data
-8. Export bias corrected gridded data
+The top-level script `bias_correction.m` runs three stages:
+
+```matlab
+results = runbiascorrection(cfg);
+diagnostics = makediagnostics(cfg);
+makeplots(diagnostics,cfg);
 
 ## Repository structure
 ```
