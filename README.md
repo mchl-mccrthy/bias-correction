@@ -13,7 +13,7 @@ A MATLAB workflow for bias correction of historical gridded climate datasets usi
 - Spatial interpolation of station-based corrections using inverse-distance weighting (IDW)
 - Optional parallel processing
 - NetCDF input and output
-- Diagnostic maps, trend comparisons, and quantile–quantile plots
+- Diagnostic maps, trend comparisons, and quantile-quantile plots
 
 ## Workflow
 
@@ -38,7 +38,7 @@ makeplots(diagnostics,cfg);
      - spatial maps
      - station time series
      - trend comparisons
-     - quantile–quantile plots
+     - quantile-quantile plots
 
 > **Note**
 >
@@ -93,12 +93,12 @@ The workflow assumes:
 
 ```text
 bias_correction/
-├── bias_correction.m
-├── config/
-├── src/
-├── archive/
-├── input_data/
-├── output_data/
-├── README.md
-└── .gitignore
+|-- bias_correction.m
+|-- config/
+|-- src/
+|-- archive/
+|-- input_data/
+|-- output_data/
+|-- README.md
+`-- .gitignore
 ```
