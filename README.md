@@ -1,4 +1,4 @@
-# Bias Correction
+# bias-correction
 
 A MATLAB workflow for bias correction of historical gridded climate datasets using station observations and empirical quantile mapping, with optional preservation of observed station trends.
 
@@ -14,8 +14,6 @@ A MATLAB workflow for bias correction of historical gridded climate datasets usi
 - Optional parallel processing
 - NetCDF input and output
 - Diagnostic maps, trend comparisons, and quantile–quantile plots
-
----
 
 ## Workflow
 
@@ -60,8 +58,6 @@ makeplots(diagnostics,cfg);
 >
 >   the bias-corrected NetCDF file must already exist.
 
----
-
 ## Configuration
 
 Workflow settings are defined in the files under `config/`.
@@ -81,9 +77,7 @@ Workflow settings are defined in the files under `config/`.
 | `use_parallel` | Enable parallel processing |
 | `n_workers` | Number of parallel workers (`[]` uses the MATLAB default) |
 
----
-
-## Data Requirements
+## Data requirements
 
 The workflow assumes:
 
@@ -95,9 +89,7 @@ The workflow assumes:
 - Missing station observations are represented by `NaN`.
 - The climate variable name is consistent between the NetCDF and station datasets.
 
----
-
-## Repository Structure
+## Repository structure
 
 ```text
 bias_correction/
