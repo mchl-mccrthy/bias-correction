@@ -1,11 +1,31 @@
 % Make diagnostic plots for bias correction
-function makeplots(station_clim_var,station_coords,station_time,...
-    raw_station_clim_var,bc_station_clim_var,raw_time,...
-    station_clim_var_yearly,raw_station_clim_var_yearly,...
-    bc_station_clim_var_yearly,years,station_linear_trends,...
-    raw_station_linear_trends,bc_station_linear_trends,...
-    raw_lon,raw_lat,file_path_figures,clim_var_name,clim_var_long_name,...
-    clim_var_units,bc_grid_clim_var_yearly,bc_grid_linear_trends,agg_method)
+function makeplots(diagnostics,cfg)
+
+% Unpack config
+clim_var_name = cfg.clim_var_name;
+clim_var_long_name = cfg.clim_var_long_name;
+clim_var_units = cfg.clim_var_units;
+agg_method = cfg.agg_method;
+file_path_figures = cfg.file_path_figures;
+
+% Unpack diagnostics
+raw_lon = diagnostics.raw_lon;
+raw_lat = diagnostics.raw_lat;
+raw_time = diagnostics.raw_time;
+station_clim_var = diagnostics.station_clim_var;
+station_coords = diagnostics.station_coords;
+station_time = diagnostics.station_time;
+raw_station_clim_var = diagnostics.raw_station_clim_var;
+bc_station_clim_var = diagnostics.bc_station_clim_var;
+station_clim_var_yearly = diagnostics.station_clim_var_yearly;
+raw_station_clim_var_yearly = diagnostics.raw_station_clim_var_yearly;
+bc_station_clim_var_yearly = diagnostics.bc_station_clim_var_yearly;
+years = diagnostics.years;
+station_linear_trends = diagnostics.station_linear_trends;
+raw_station_linear_trends = diagnostics.raw_station_linear_trends;
+bc_station_linear_trends = diagnostics.bc_station_linear_trends;
+bc_grid_clim_var_yearly = diagnostics.bc_grid_clim_var_yearly;
+bc_grid_linear_trends = diagnostics.bc_grid_linear_trends;
 
 % Make maps of long-term average and linear trends
 plotmaps(raw_lon,raw_lat,bc_grid_clim_var_yearly,...

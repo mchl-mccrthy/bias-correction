@@ -12,7 +12,6 @@ required_fields = { ...
     'trend_window', ...
     'agg_method', ...
     'write_output', ...
-    'make_plots', ...
     'n_quantiles', ...
     'idw_power', ...
     'use_parallel', ...
@@ -43,10 +42,6 @@ end
 
 if ~islogical(cfg.write_output) || ~isscalar(cfg.write_output)
     error('cfg.write_output must be a scalar logical: true or false.')
-end
-
-if ~islogical(cfg.make_plots) || ~isscalar(cfg.make_plots)
-    error('cfg.make_plots must be a scalar logical: true or false.')
 end
 
 if ~isscalar(cfg.n_quantiles) || cfg.n_quantiles <= 1 || ...
@@ -98,10 +93,8 @@ if cfg.write_output
     end
 end
 
-if cfg.make_plots
-    if ~isfolder(cfg.file_path_figures)
-        error('Figures folder not found: %s',cfg.file_path_figures)
-    end
+if ~isfolder(cfg.file_path_figures)
+    error('Figures folder not found: %s',cfg.file_path_figures)
 end
 
 % Helper function for verifying options

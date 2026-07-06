@@ -18,3 +18,9 @@ cfg = config_stlucia_tas();
 
 % Run bias correction
 results = runbiascorrection(cfg);
+
+% Make diagnostics
+diagnostics = makediagnostics(cfg);
+
+% Plot results
+makeplots(diagnostics,cfg);
