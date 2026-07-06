@@ -15,15 +15,40 @@ Author: Michael McCarthy
 - Diagnostic plots for bias-corrected data
 
 ## Workflow
-The top-level script `bias_correction.m` runs three stages:
+The top-level script bias_correction.m runs three stages:
 
-```matlab
 results = runbiascorrection(cfg);
 diagnostics = makediagnostics(cfg);
 makeplots(diagnostics,cfg);
 
-## Repository structure
-```
+runbiascorrection applies the bias correction and optionally writes a bias-corrected NetCDF file.
+makediagnostics reloads the raw, station, and bias-corrected data and prepares diagnostic summaries in memory.
+makeplots creates maps, station diagnostics, trend comparisons, and quantile-quantile plots from the diagnostics struct.
+
+makediagnostics expects the bias-corrected NetCDF file at cfg.file_path_bc_data. For a fresh end-to-end run, set cfg.write_output = true. If cfg.write_output = false, the bias-corrected file must already exist.
+
+## Configuration
+Workflow settings are defined in files under config/. The main settings are:
+- clim_var_name: variable name in the NetCDF and station files.
+- qmf_period: quantile mapping period, one of whole, seasonal, or monthly.
+- bc_type: correction type, either additive or multiplicative.
+- preserve_trends: whether to preserve station trends.
+- trend_window: moving-mean window length in time steps.
+- agg_method: yearly aggregation method, either mean or sum.
+- write_output: whether to write the bias-corrected NetCDF file.
+- n_quantiles: number of quantiles used for empirical quantile mapping.
+- idw_power: inverse-distance weighting exponent.
+- multiplicative_epsilon: offset used for multiplicative detrending/retrending.
+- use_parallel: whether to use parallel processing.
+- n_workers: number of parallel workers, or [] for the MATLAB default.
+
+## Data Requirements
+Raw gridded climate data should be provided as NetCDF with lon, lat, and time variables.
+Station data should cover the same period as the gridded data.
+Missing station values should be represented as NaN.
+The climate variable name should match between the station data and the NetCDF file.
+
+## Repository Structure
 bias_correction/
 |-- bias_correction.m
 |-- config/
@@ -33,4 +58,3 @@ bias_correction/
 |-- output_data/
 |-- README.md
 `-- .gitignore
-```
