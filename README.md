@@ -84,8 +84,8 @@ Workflow settings are defined in the files under `config/`.
 The workflow assumes:
 
 - Raw gridded climate data are supplied as NetCDF files containing:
-  - `lon`
-  - `lat`
+  - `x, lon, longitude`
+  - `y, lat, latitude`
   - `time`
 - Station observations cover the same period as the gridded dataset.
 - Missing station observations are represented by `NaN`.

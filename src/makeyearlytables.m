@@ -4,6 +4,10 @@ function [station_clim_var_yearly,raw_station_clim_var_yearly,...
     station_clim_var,raw_station_clim_var,bc_station_clim_var,...
     raw_time,agg_method)
 
+% Specify how much of a year needs to be there for yearly values to be
+% computed
+min_year_completeness = 0.90;
+
 % Get years in study period
 years = unique(year(raw_time));
 n_years = numel(years);
@@ -23,7 +27,7 @@ for i_year = 1:n_years
     for i_station = 1:n_stations
         station_tmp = station_clim_var{ind_year,i_station};
         completeness = sum(~isnan(station_tmp)) / numel(station_tmp);
-        if completeness >= 0.90
+        if completeness >= min_year_completeness
             if strcmp(agg_method,'sum')
                 station_clim_var_yearly{i_year,i_station} = ...
                     sum(station_clim_var{ind_year,i_station},'omitnan');

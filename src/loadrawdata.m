@@ -7,7 +7,7 @@ raw_clim_var = ncread(file_path_raw_data,clim_var_name);
 raw_time = ncread(file_path_raw_data,'time');
 [grid_x,grid_y] = loadgridcoords(file_path_raw_data);
 
-% Permute climate variable, create lat, lon grids
+% Permute climate variable
 raw_clim_var = permute(raw_clim_var,[2 1 3]);
 
 % Process time
