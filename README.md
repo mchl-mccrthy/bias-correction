@@ -1,6 +1,6 @@
 # bias-correction
 
-A MATLAB workflow for bias correction of historical gridded climate datasets using station observations and empirical quantile mapping, with optional preservation of observed station trends.
+A MATLAB workflow for bias correction of historical gridded climate data using station observations and empirical quantile mapping, with option to preserve station trends.
 
 **Author:** Michael McCarthy
 
@@ -35,8 +35,8 @@ makeplots(diagnostics,cfg);
 
 3. **`makeplots`**
    - Produces diagnostic figures including:
-     - spatial maps
-     - station time series
+     - maps
+     - time series at stations
      - trend comparisons
      - quantile-quantile plots
 
@@ -91,10 +91,10 @@ The workflow assumes:
 - Missing station observations are represented by `NaN`.
 - The climate variable name is consistent between the NetCDF and station datasets.
 
-## Methods notes
+## Notes
 
 - When station trend corrections are unavailable, the trend correction is set to a neutral value so the raw gridded trend is retained.
-- For geographic (lat, lon)) coordinates, IDW distances are calculated using great-circle distance. For projected coordinates, they are calculated using Euclidean distance.
+- For geographic coordinates, IDW distances are calculated using great-circle distance. For projected coordinates, they are calculated using Euclidean distance.
 
 ## Repository structure
 
