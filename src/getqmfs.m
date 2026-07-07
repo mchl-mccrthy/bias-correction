@@ -2,6 +2,11 @@
 function qmfs = getqmfs(station_clim_var,station_x,station_y,station_time,...
     raw_clim_var,raw_x,raw_y,raw_time,qmf_period,n_quantiles)
 
+% Check station time and raw time match
+if ~isequal(station_time(:),raw_time(:))
+    error('Station and grid time vectors must match exactly.')
+end
+
 % Get periods
 if strcmp(qmf_period,'whole')
     periods = 1;
@@ -36,22 +41,18 @@ for i_station = 1:n_stations
     % Loop through periods
     for i_period = 1:n_periods
         if strcmp(qmf_period,'whole')
-            cond_station = true(size(station_time));
-            cond_raw = true(size(raw_time));
+            cond = true(size(raw_time));
         elseif strcmp(qmf_period,'seasonal')
-            cond_station = season(station_time) == periods(i_period);
-            cond_raw = season(raw_time) == periods(i_period);
+            cond = season(raw_time) == periods(i_period);
         elseif strcmp(qmf_period,'monthly')
-            cond_station = month(station_time) == periods(i_period);
-            cond_raw = month(raw_time) == periods(i_period);
+            cond = month(raw_time) == periods(i_period);
         end
 
         % Get quantile mapping functions
         qmf = getqmf( ...
-            station_time(cond_station), ...
-            station_clim_var_tmp(cond_station), ...
-            raw_time(cond_raw), ...
-            raw_station_clim_var(cond_raw),n_quantiles);
+            station_clim_var_tmp(cond), ...
+            raw_station_clim_var(cond), ...
+            n_quantiles);
         qmfs.station_quantiles(:,i_station,i_period) = qmf.station_quantiles;
         qmfs.raw_quantiles(:,i_station,i_period) = qmf.raw_quantiles;
     end

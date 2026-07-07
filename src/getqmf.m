@@ -1,18 +1,9 @@
 % Get quantile mapping function
-function qmf = getqmf(station_time,station_clim_var,raw_time,raw_clim_var,n_quantiles)
+function qmf = getqmf(station_clim_var,raw_clim_var,n_quantiles)
 
-% Make tables
-station_data = table(station_time,station_clim_var);
-raw_data = table(raw_time,raw_clim_var);
-
-% Retime station data to gridded data
-raw_data = table2timetable(raw_data);
-station_data = table2timetable(station_data);
-station_data = retime(station_data,raw_data.raw_time);
-
-% Get variable data from tables
-station_values = station_data.station_clim_var;
-raw_values = raw_data.raw_clim_var;
+% Get climate values
+station_values = station_clim_var;
+raw_values = raw_clim_var;
 
 % Remove NaNs from both datasets (although there should be none in the 
 % gridded)
