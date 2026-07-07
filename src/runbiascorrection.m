@@ -19,6 +19,8 @@ idw_power = cfg.idw_power;
 use_parallel = cfg.use_parallel;
 n_workers = cfg.n_workers;
 multiplicative_epsilon = cfg.multiplicative_epsilon;
+keep_grid_biases = cfg.keep_grid_biases;
+coordinate_system = cfg.coordinate_system;
 file_path_station_coords = cfg.file_path_station_coords;
 file_path_station_clim_var = cfg.file_path_station_clim_var;
 file_path_raw_data = cfg.file_path_raw_data;
@@ -70,17 +72,24 @@ qmfs...
     raw_lat,raw_time,qmf_period,n_quantiles);
 
 % Correct raw data to make bias corrected data
-bc_grid_clim_var...
-    = mapquantiles(...
-    raw_grid_clim_var,station_lon,station_lat,qmfs,raw_lon,raw_lat,...
-    bc_type,qmf_period,raw_time,idw_power,use_parallel);
+if keep_grid_biases
+    [bc_grid_clim_var,grid_biases]...
+        = mapquantiles(...
+        raw_grid_clim_var,station_lon,station_lat,qmfs,raw_lon,raw_lat,...
+        bc_type,qmf_period,raw_time,idw_power,use_parallel,coordinate_system);
+else
+    bc_grid_clim_var...
+        = mapquantiles(...
+        raw_grid_clim_var,station_lon,station_lat,qmfs,raw_lon,raw_lat,...
+        bc_type,qmf_period,raw_time,idw_power,use_parallel,coordinate_system);
+end
 
 % Interpolate station trends to grid
 if preserve_trends  
     station_grid_trends...
         = interptrends(...
         station_trends,station_coords.lon,station_coords.lat,raw_lon,...
-        raw_lat,raw_grid_trends,bc_type,idw_power);
+        raw_lat,raw_grid_trends,bc_type,idw_power,coordinate_system);
 end
 
 % Clear raw data to save memory
@@ -106,6 +115,9 @@ end
 results.write_output = cfg.write_output;
 results.file_path_bc_data = file_path_bc_data;
 results.mean_bc_grid_clim_var = nanmean(bc_grid_clim_var,'all');
+if keep_grid_biases
+    results.grid_biases = grid_biases;
+end
 
 % Display progress
 disp('Bias correction completed')

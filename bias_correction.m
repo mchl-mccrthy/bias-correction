@@ -10,8 +10,9 @@
 % - clim_var_name should be the same in both station data and NetCDF file.
 
 % Add paths
-addpath(genpath('src'))
-addpath(genpath('config'))
+addpath('src')
+addpath(genpath(fullfile('src','third_party')))
+addpath('config')
 
 % Load configuration
 cfg = config_stlucia_tas();

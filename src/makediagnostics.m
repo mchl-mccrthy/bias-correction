@@ -57,7 +57,6 @@ bc_grid_linear_trends = getgridlineartrends( ...
     bc_grid_clim_var_yearly,grid_years);
 
 % Make struct of diagnostics
-diagnostics.raw_grid_clim_var = raw_grid_clim_var;
 diagnostics.station_clim_var = station_clim_var;
 diagnostics.station_coords = station_coords;
 diagnostics.station_lat = station_lat;

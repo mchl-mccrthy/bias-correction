@@ -15,6 +15,8 @@ cfg.idw_power = 2; % Inverse distance weighting distance exponent
 cfg.multiplicative_epsilon = 0.1; % Offset for multiplicative detrending/retrending
 cfg.use_parallel = false;
 cfg.n_workers = []; % [], 2, 3 ...
+cfg.keep_grid_biases = false;
+cfg.coordinate_system = 'geographic'; % 'geographic' or 'projected'
 
 % File paths
 cfg.file_path_station_coords = '\\wsl.localhost\Ubuntu\home\mccarthy\storage\mccarthy\climate_pipeline\StLucia\interim\stations\StLucia_coordinates.csv';

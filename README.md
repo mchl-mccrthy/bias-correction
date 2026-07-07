@@ -76,6 +76,8 @@ Workflow settings are defined in the files under `config/`.
 | `multiplicative_epsilon` | Offset used for multiplicative detrending/retrending |
 | `use_parallel` | Enable parallel processing |
 | `n_workers` | Number of parallel workers (`[]` uses the MATLAB default) |
+| `keep_grid_biases` | Keep interpolated quantile-mapping bias grids in results |
+| `coordinate_system` | Coordinate type for IDW distances (`geographic` or `projected`) |
 
 ## Data requirements
 
@@ -88,6 +90,11 @@ The workflow assumes:
 - Station observations cover the same period as the gridded dataset.
 - Missing station observations are represented by `NaN`.
 - The climate variable name is consistent between the NetCDF and station datasets.
+
+## Methods notes
+
+- When station trend corrections are unavailable, the trend correction is set to a neutral value so the raw gridded trend is retained.
+- For geographic (lat, lon)) coordinates, IDW distances are calculated using great-circle distance. For projected coordinates, they are calculated using Euclidean distance.
 
 ## Repository structure
 
