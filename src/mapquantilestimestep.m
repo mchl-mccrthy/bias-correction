@@ -1,7 +1,7 @@
 function [bc_grid_clim_var_timestep,grid_biases_timestep] = ...
     mapquantilestimestep( ...
     raw_grid_clim_var_timestep,station_lin_inds,raw_quantiles,biases, ...
-    raw_time_timestep,qmf_period,D_all,raw_lon,bc_type,idw_power)
+    raw_time_timestep,qmf_period,D_all,grid_x,bc_type,idw_power)
 
 % Interpolate to station locations
 n_stations = numel(station_lin_inds);
@@ -38,7 +38,7 @@ b = station_biases_timestep(valid);
 W = D.^-idw_power;
 W = W ./ sum(W,2);
 grid_biases_timestep = W * b(:);
-grid_biases_timestep = reshape(grid_biases_timestep,size(raw_lon));
+grid_biases_timestep = reshape(grid_biases_timestep,size(grid_x));
 
 % In case interpolation introduced sub-zero values, which shouldn't
 % happen

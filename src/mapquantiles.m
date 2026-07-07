@@ -1,5 +1,5 @@
 function [bc_grid_clim_var,grid_biases] = mapquantiles(raw_grid_clim_var,...
-    station_lon,station_lat,qmfs,raw_lon,raw_lat,bc_type,qmf_period,...
+    station_x,station_y,qmfs,raw_x,raw_y,bc_type,qmf_period,...
     raw_time,idw_power,use_parallel,coordinate_system)
 
 % Get quantiles
@@ -29,14 +29,14 @@ n_timesteps = size(raw_grid_clim_var,3);
 bc_grid_clim_var = nan(n_rows,n_cols,n_timesteps,class(raw_grid_clim_var));
 
 % Precompute grid-station distances for IDW interpolation
-grid_x = raw_lon(:);
-grid_y = raw_lat(:);
-D_all = getdistances(grid_x,grid_y,station_lon,station_lat,coordinate_system);
+grid_x = raw_x(:);
+grid_y = raw_y(:);
+D_all = getdistances(grid_x,grid_y,station_x,station_y,coordinate_system);
 
 % Precompute nearest grid cell for each station
 [station_rows,station_cols] = indexofclosest2( ...
-    station_lon,station_lat,raw_lon,raw_lat);
-station_lin_inds = sub2ind(size(raw_lon),station_rows,station_cols);
+    station_x,station_y,raw_x,raw_y);
+station_lin_inds = sub2ind(size(raw_x),station_rows,station_cols);
 
 % Loop through time steps, preserving grid_biases if required
 if nargout > 1
@@ -48,7 +48,7 @@ if nargout > 1
                 mapquantilestimestep( ...
                 raw_grid_clim_var(:,:,i_timestep),station_lin_inds, ...
                 raw_quantiles,biases,raw_time(i_timestep),qmf_period, ...
-                D_all,raw_lon,bc_type,idw_power);
+                D_all,raw_x,bc_type,idw_power);
         end
     else
         for i_timestep = 1:n_timesteps
@@ -57,7 +57,7 @@ if nargout > 1
                 mapquantilestimestep( ...
                 raw_grid_clim_var(:,:,i_timestep),station_lin_inds, ...
                 raw_quantiles,biases,raw_time(i_timestep),qmf_period, ...
-                D_all,raw_lon,bc_type,idw_power);
+                D_all,raw_x,bc_type,idw_power);
         end
     end
 
@@ -68,7 +68,7 @@ else
                 mapquantilestimestep( ...
                 raw_grid_clim_var(:,:,i_timestep),station_lin_inds, ...
                 raw_quantiles,biases,raw_time(i_timestep),qmf_period, ...
-                D_all,raw_lon,bc_type,idw_power);
+                D_all,raw_x,bc_type,idw_power);
         end
     else
         for i_timestep = 1:n_timesteps
@@ -76,7 +76,7 @@ else
                 mapquantilestimestep( ...
                 raw_grid_clim_var(:,:,i_timestep),station_lin_inds, ...
                 raw_quantiles,biases,raw_time(i_timestep),qmf_period, ...
-                D_all,raw_lon,bc_type,idw_power);
+                D_all,raw_x,bc_type,idw_power);
         end
     end
 end

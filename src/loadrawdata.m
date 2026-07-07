@@ -1,15 +1,14 @@
 % Load raw gridded climate data
-function [raw_clim_var,raw_lon,raw_lat,raw_time] = loadrawdata(file_path_raw_data,clim_var_name)
+function [raw_clim_var,grid_x,grid_y,raw_time] = loadrawdata(...
+    file_path_raw_data,clim_var_name)
 
 % Load data
 raw_clim_var = ncread(file_path_raw_data,clim_var_name);
-raw_lat = ncread(file_path_raw_data,'lat');
-raw_lon = ncread(file_path_raw_data,'lon');
 raw_time = ncread(file_path_raw_data,'time');
+[grid_x,grid_y] = loadgridcoords(file_path_raw_data);
 
 % Permute climate variable, create lat, lon grids
 raw_clim_var = permute(raw_clim_var,[2 1 3]);
-[raw_lon,raw_lat] = meshgrid(raw_lon,raw_lat);
 
 % Process time
 raw_time_units = ncreadatt(file_path_raw_data,'time','units');

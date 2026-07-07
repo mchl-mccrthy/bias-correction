@@ -1,6 +1,6 @@
 % Plot diagnostics for each station
 function plotstationdiagnostics(station_clim_var,station_coords,...
-    station_time,raw_station_clim_var,bc_station_clim_var,raw_time,...
+    station_time,raw_station_clim_var,bc_station_clim_var,grid_time,...
     station_clim_var_yearly,raw_station_clim_var_yearly,...
     bc_station_clim_var_yearly,years,file_path_figures,...
     clim_var_name,clim_var_long_name,clim_var_units)
@@ -14,11 +14,11 @@ for i_station = 1:n_stations
 
     % Plot daily time series
     figure()
-    plot(raw_time,raw_station_clim_var{:,i_station},'g'); hold on
-    plot(raw_time,bc_station_clim_var{:,i_station},'b')
+    plot(grid_time,raw_station_clim_var{:,i_station},'g'); hold on
+    plot(grid_time,bc_station_clim_var{:,i_station},'b')
     plot(station_time,station_clim_var{:,i_station},'r')
     ylabel([clim_var_long_name ' (' clim_var_units ')'])
-    xlim([min(raw_time) max(raw_time)])
+    xlim([min(grid_time) max(grid_time)])
     title(station_name,'Interpreter','none')
     legend('Raw','Bias corrected','Station','Location','eastoutside')
     formatfigure(gcf,7,2,4)
@@ -29,7 +29,7 @@ for i_station = 1:n_stations
     [station_overlap,raw_overlap,bc_overlap] = ...
         getoverlappingstationdata( ...
         station_clim_var,raw_station_clim_var,bc_station_clim_var,...
-        station_time,raw_time,i_station);
+        station_time,grid_time,i_station);
     if isempty(station_overlap)
         continue
     end

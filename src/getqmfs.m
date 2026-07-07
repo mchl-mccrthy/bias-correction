@@ -1,6 +1,6 @@
 % Get quantile mapping functions at stations
-function qmfs = getqmfs(station_clim_var,station_coords,station_time,...
-    raw_clim_var,raw_lon,raw_lat,raw_time,qmf_period,n_quantiles)
+function qmfs = getqmfs(station_clim_var,station_x,station_y,station_time,...
+    raw_clim_var,raw_x,raw_y,raw_time,qmf_period,n_quantiles)
 
 % Get periods
 if strcmp(qmf_period,'whole')
@@ -12,7 +12,7 @@ elseif strcmp(qmf_period,'monthly')
 end
 
 % Get dimensions
-n_stations = height(station_coords);
+n_stations = numel(station_x);
 n_periods = length(periods);
 
 % Preallocate space for quantiles and probabilities
@@ -25,12 +25,12 @@ for i_station = 1:n_stations
 
     % Get station data
     station_clim_var_tmp = station_clim_var{:,i_station};
-    station_lat_tmp = station_coords.lat(i_station);
-    station_lon_tmp = station_coords.lon(i_station);
+    station_x_tmp = station_x(i_station);
+    station_y_tmp = station_y(i_station);
 
     % Get raw climate data at station location
-    [row,col] = indexofclosest2(station_lon_tmp,station_lat_tmp, ...
-        raw_lon,raw_lat);
+    [row,col] = indexofclosest2(station_x_tmp,station_y_tmp, ...
+        raw_x,raw_y);
     raw_station_clim_var = squeeze(raw_clim_var(row,col,:));
 
     % Loop through periods
