@@ -26,9 +26,11 @@ raw_station_linear_trends = diagnostics.raw_station_linear_trends;
 bc_station_linear_trends = diagnostics.bc_station_linear_trends;
 bc_grid_clim_var_yearly = diagnostics.bc_grid_clim_var_yearly;
 bc_grid_linear_trends = diagnostics.bc_grid_linear_trends;
+station_x = diagnostics.station_x;
+station_y = diagnostics.station_y;
 
 % Make maps of long-term average and linear trends
-plotmaps(grid_x,grid_y,bc_grid_clim_var_yearly,...
+plotmaps(grid_x,grid_y,station_x,station_y,bc_grid_clim_var_yearly,...
     bc_grid_linear_trends,file_path_figures,clim_var_name,...
     clim_var_long_name,clim_var_units,agg_method);
 

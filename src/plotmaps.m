@@ -1,5 +1,5 @@
 % Plot maps of long-term averages and linear trends
-function plotmaps(grid_x,grid_y,bc_grid_clim_var_yearly,...
+function plotmaps(grid_x,grid_y,station_x,station_y,bc_grid_clim_var_yearly,...
     bc_grid_linear_trends,file_path_figures,clim_var_name,...
     clim_var_long_name,clim_var_units,agg_method)
 
@@ -13,9 +13,12 @@ if strcmp(agg_method,'sum')
 elseif strcmp(agg_method,'mean')
     c.Label.String = [clim_var_long_name ' (' clim_var_units ')'];
 end
+hold on
+h_stations = scatter(station_x,station_y,'k*');
+legend(h_stations,'Stations','Location','southoutside')
 title('Long-term average')
-ll_ratio = (max(grid_x,[],'all') - min(grid_x,[],'all')) ./ ...
-           (max(grid_y,[],'all') - min(grid_y,[],'all'));
+ll_ratio = (max(grid_x,[],'all')-min(grid_x,[],'all'))./ ...
+           (max(grid_y,[],'all')-min(grid_y,[],'all'));
 formatfigure(gcf,4,4/ll_ratio,2)
 print(gcf, fullfile(file_path_figures, [clim_var_name ...
     '_long_term_average_map.png']), '-dpng','-r300');
@@ -29,9 +32,12 @@ if strcmp(agg_method,'sum')
 elseif strcmp(agg_method,'mean')
     c.Label.String = [clim_var_long_name ' trend (' clim_var_units ' year^{-1})'];
 end
+hold on
+h_stations = scatter(station_x,station_y,'k*');
+legend(h_stations,'Stations','Location','southoutside')
 title('Long-term trend')
-ll_ratio = (max(grid_x,[],'all') - min(grid_x,[],'all')) ./ ...
-           (max(grid_y,[],'all') - min(grid_y,[],'all'));
+ll_ratio = (max(grid_x,[],'all')-min(grid_x,[],'all'))./ ...
+           (max(grid_y,[],'all')-min(grid_y,[],'all'));
 formatfigure(gcf,4,4/ll_ratio,2)
 print(gcf, fullfile(file_path_figures, [clim_var_name ...
     '_bc_linear_trend_map.png']), '-dpng','-r300');
