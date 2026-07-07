@@ -8,15 +8,10 @@ if ~isequal(station_time(:),grid_time(:))
     error('Station and grid time vectors must match exactly.')
 end
 
-% Get data
-raw_tmp = raw_station_clim_var{:,i_station};
-bc_tmp = bc_station_clim_var{:,i_station};
-station_tmp = station_clim_var{:,i_station};
-
 % Get overlapping data
-raw_overlap = raw_tmp;
-bc_overlap = bc_tmp;
-station_overlap = station_tmp;
+raw_overlap = raw_station_clim_var{:,i_station};
+bc_overlap = bc_station_clim_var{:,i_station};
+station_overlap = station_clim_var{:,i_station};
 
 % Which data are valid?
 valid = ~isnan(raw_overlap) & ...
