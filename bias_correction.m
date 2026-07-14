@@ -15,7 +15,7 @@ addpath(genpath(fullfile('src','third_party')))
 addpath('config')
 
 % Load configuration
-cfg = config_andermatt_zuerich_pr();
+cfg = config_andermatt_zuerich_tas();
 
 % Run bias correction
 results = runbiascorrection(cfg);

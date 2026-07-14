@@ -18,6 +18,7 @@ lims = [min([station_linear_trends raw_station_linear_trends ...
 xlim(lims)
 ylim(lims)
 legend('Raw','Bias corrected','Location','eastoutside')
+grid on
 formatfigure(gcf,4,4,4)
 print(gcf,fullfile(file_path_figures,[clim_var_name ...
     '_linear_trends_scatter.png']),'-dpng','-r300');
