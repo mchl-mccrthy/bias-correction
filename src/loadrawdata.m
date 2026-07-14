@@ -1,11 +1,11 @@
 % Load raw gridded climate data
-function [raw_clim_var,grid_x,grid_y,raw_time] = loadrawdata(...
+function [raw_clim_var,grid_x,grid_y,grid_z,raw_time] = loadrawdata(...
     file_path_raw_data,clim_var_name)
 
 % Load data
 raw_clim_var = ncread(file_path_raw_data,clim_var_name);
 raw_time = ncread(file_path_raw_data,'time');
-[grid_x,grid_y] = loadgridcoords(file_path_raw_data);
+[grid_x,grid_y,grid_z] = loadgridcoords(file_path_raw_data);
 
 % Permute climate variable
 raw_clim_var = permute(raw_clim_var,[2 1 3]);
@@ -14,6 +14,9 @@ raw_clim_var = permute(raw_clim_var,[2 1 3]);
 raw_time_units = ncreadatt(file_path_raw_data,'time','units');
 parts = regexp(raw_time_units, ...
     '^(?<unit>\w+)\s+since\s+(?<ref>.+)$','names','once');
+if isempty(parts)
+    error('Unsupported NetCDF time units format: %s',raw_time_units)
+end
 try
     raw_start_time = datetime(strtrim(parts.ref), ...
         'InputFormat','yyyy-MM-dd HH:mm:ss');

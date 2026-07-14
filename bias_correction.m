@@ -15,7 +15,7 @@ addpath(genpath(fullfile('src','third_party')))
 addpath('config')
 
 % Load configuration
-cfg = config_stlucia_tas();
+cfg = config_andermatt_zuerich_pr();
 
 % Run bias correction
 results = runbiascorrection(cfg);

@@ -1,5 +1,5 @@
 % Load grid coordinates from NetCDF file
-function [grid_x,grid_y] = loadgridcoords(file_path_raw_data)
+function [grid_x,grid_y,grid_z] = loadgridcoords(file_path_raw_data)
 
 if hasncvar(file_path_raw_data,'lon') && hasncvar(file_path_raw_data,'lat')
     x = ncread(file_path_raw_data,'lon');
@@ -15,5 +15,21 @@ else
 end
 
 [grid_x,grid_y] = meshgrid(x,y);
+
+if hasncvar(file_path_raw_data,'z')
+    grid_z = ncread(file_path_raw_data,'z');
+elseif hasncvar(file_path_raw_data,'elevation')
+    grid_z = ncread(file_path_raw_data,'elevation');
+elseif hasncvar(file_path_raw_data,'elev')
+    grid_z = ncread(file_path_raw_data,'elev');
+elseif hasncvar(file_path_raw_data,'orog')
+    grid_z = ncread(file_path_raw_data,'orog');
+else
+    grid_z = [];
+end
+
+if ~isempty(grid_z)
+    grid_z = permute(grid_z,[2 1]);
+end
 
 end

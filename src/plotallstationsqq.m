@@ -33,8 +33,7 @@ for i_station = 1:n_stations
     qq_max = max([qq_max; station_quantiles(:); raw_quantiles(:); bc_quantiles(:)]);
 end
 grid on
-ylabel([clim_var_long_name ',' newline ...
-    'raw and bias corrected (' clim_var_units ')'])
+ylabel([clim_var_long_name ', gridded (' clim_var_units ')'])
 xlabel([clim_var_long_name ', station (' clim_var_units ')'])
 title('All stations')
 if isfinite(qq_min) && isfinite(qq_max) && qq_min < qq_max

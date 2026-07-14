@@ -1,6 +1,6 @@
 function [bc_grid_clim_var,grid_biases] = mapquantiles(raw_grid_clim_var,...
-    station_x,station_y,qmfs,raw_x,raw_y,bc_type,qmf_period,...
-    raw_time,idw_power,use_parallel,coordinate_system)
+    station_x,station_y,station_z,qmfs,raw_x,raw_y,raw_z,bc_type,qmf_period,...
+    raw_time,idw_power,use_parallel,coordinate_system,idw_method,idw_alpha)
 
 % Get quantiles
 station_quantiles = qmfs.station_quantiles;
@@ -31,7 +31,9 @@ bc_grid_clim_var = nan(n_rows,n_cols,n_timesteps,class(raw_grid_clim_var));
 % Precompute grid-station distances for IDW interpolation
 grid_x = raw_x(:);
 grid_y = raw_y(:);
-D_all = getdistances(grid_x,grid_y,station_x,station_y,coordinate_system);
+grid_z = raw_z(:);
+D_all = getdistances(grid_x,grid_y,station_x,station_y,...
+    coordinate_system,grid_z,station_z,idw_method,idw_alpha);
 
 % Precompute nearest grid cell for each station
 [station_rows,station_cols] = indexofclosest2( ...

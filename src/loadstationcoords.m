@@ -1,5 +1,5 @@
 % Load station coordinates from table
-function [station_x,station_y] = loadstationcoords(station_coords)
+function [station_x,station_y,station_z] = loadstationcoords(station_coords)
 
 coord_names = station_coords.Properties.VariableNames;
 
@@ -14,6 +14,16 @@ elseif all(ismember({'longitude','latitude'},coord_names))
     station_y = station_coords.latitude;
 else
     error('Station coordinate file must contain i) lon, lat, ii) x, y, iii) longitude, latitude coordinate variables.')
+end
+
+if any(strcmp(coord_names,'z'))
+    station_z = station_coords.z;
+elseif any(strcmp(coord_names,'elevation'))
+    station_z = station_coords.elevation;
+elseif any(strcmp(coord_names,'elev'))
+    station_z = station_coords.elev;
+else
+    station_z = [];
 end
 
 end

@@ -1,5 +1,6 @@
 function grid_trends_out = interptrends(station_trends,station_x,...
-    station_y,grid_x,grid_y,grid_trends,bc_type,idw_power,coordinate_system)
+    station_y,station_z,grid_x,grid_y,grid_z,grid_trends,bc_type,...
+    idw_power,coordinate_system,idw_method,idw_alpha)
 
 % Get sizes
 n_timesteps = size(station_trends,1);
@@ -17,7 +18,8 @@ grid_trends_out = zeros(n_cols,n_rows,n_timesteps);
 grid_at_stations = nan(1,n_stations);
 
 % Precompute distances for IDW
-D_all = getdistances(grid_x(:),grid_y(:),station_x,station_y,coordinate_system);
+D_all = getdistances(grid_x(:),grid_y(:),station_x,station_y,...
+    coordinate_system,grid_z(:),station_z,idw_method,idw_alpha);
 
 % Loop through time steps
 for i_timestep = 1:n_timesteps

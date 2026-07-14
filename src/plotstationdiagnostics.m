@@ -63,9 +63,8 @@ for i_station = 1:n_stations
     plot(station_quantiles,raw_quantiles,'r'); hold on
     plot(station_quantiles,bc_quantiles,'b')
     grid on
-    ylabel([clim_var_long_name ',' newline ...
-        'raw and bias corrected (' clim_var_units ')'])
-    xlabel([clim_var_long_name ',station (' clim_var_units ')'])
+    ylabel([clim_var_long_name ', gridded (' clim_var_units ')'])
+    xlabel([clim_var_long_name ', station (' clim_var_units ')'])
     title(station_name,'Interpreter','none')
     xlim([hist_min hist_max])
     ylim([hist_min hist_max])

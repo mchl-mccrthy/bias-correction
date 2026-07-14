@@ -78,6 +78,8 @@ Workflow settings are defined in the files under `config/`.
 | `n_workers` | Number of parallel workers (`[]` uses the MATLAB default) |
 | `keep_grid_biases` | Keep interpolated quantile-mapping bias grids in results |
 | `coordinate_system` | Coordinate type for IDW distances (`geographic` or `projected`) |
+| `idw_method` | Use normal or elevation-aware IDW distances (`horizontal` or `elevation_aware`) |
+| `idw_alpha` | Scaling parameter for elevation-aware IDW |
 
 ## Data requirements
 
@@ -95,6 +97,7 @@ The workflow assumes:
 
 - When station trend corrections are unavailable, the trend correction is set to a neutral value so the raw gridded trend is retained.
 - For geographic coordinates, IDW distances are calculated using great-circle distance. For projected coordinates, they are calculated using Euclidean distance.
+- For IDW with elevation-aware distances, projected coordinates and elevation are assumed to be in metres.
 
 ## Repository structure
 
