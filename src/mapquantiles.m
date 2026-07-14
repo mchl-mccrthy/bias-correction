@@ -62,7 +62,6 @@ if nargout > 1
                 D_all,raw_x,bc_type,idw_power);
         end
     end
-
 else
     if use_parallel
         parfor i_timestep = 1:n_timesteps

@@ -15,11 +15,11 @@ if ~isfile(file_path_bc_data)
 end
 
 % Load raw data
-[raw_grid_clim_var,grid_x,grid_y,~,grid_time] = loadrawdata( ...
+[raw_grid_clim_var,grid_x,grid_y,~,grid_time] = loadgriddata( ...
     file_path_raw_data,clim_var_name);
 
 % Load bias corrected data
-[bc_grid_clim_var,~,~,~,~] = loadrawdata( ...
+[bc_grid_clim_var,~,~,~,~] = loadgriddata( ...
     file_path_bc_data,clim_var_name);
 
 % Load station data
