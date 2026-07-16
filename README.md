@@ -51,7 +51,7 @@ python -m pip install --upgrade pip
 python -m pip install -e .
 ```
 
-The runner can then be run from the repository root:
+The example runner can then be run from the repository root:
 ```powershell
 python -m scripts.run_eqm_step
 ```
@@ -59,7 +59,7 @@ It loads a configuration file from scripts/, does the bias correction, computes
 diagnostics and plots figures.
 
 ### MATLAB
-In MATLAB, the runner can be run from the repository root:
+In MATLAB, the example runner can be run from the repository root:
 ```matlab
 run('matlab/run_eqm_step.m')
 ```
