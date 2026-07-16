@@ -24,6 +24,23 @@ The workflow has three stages:
 2. Calculate diagnostics from the station, raw gridded and bias-corrected gridded climate data.
 3. Make diagnostic plots.
 
+Example runners are provided in `matlab/run_bias_correction.m` and
+`scripts/run_bias_correction.py`.
+
+These contain calls to three functions:
+1. **`runbiascorrection`**
+   - Applies the bias correction
+   - Optionally writes the bias-corrected dataset to a NetCDF file
+2. **`makediagnostics`**
+   - Reloads the raw, station, and bias-corrected datasets
+   - Computes diagnostic statistics and stores them in a diagnostics structure
+3. **`makeplots`**
+   - Produces diagnostic figures including:
+     - Maps
+     - Time series at stations
+     - Trend comparisons
+     - Quantile-quantile plots
+
 ### Python
 In Python, run the following from the repository root:
 ```powershell
@@ -39,38 +56,6 @@ matlab/run_bias_correction.m
 ```
 This script loads a configuration file from /matlab/config, does the bias correction, computes 
 diagnostics and plots figures.
-
-```matlab
-results = runbiascorrection(cfg);
-diagnostics = makediagnostics(cfg);
-makeplots(diagnostics,cfg);
-```
-
-The Python port mirrors the same structure:
-
-```python
-results = runbiascorrection(cfg)
-diagnostics = makediagnostics(cfg)
-makeplots(diagnostics, cfg)
-```
-
-Example runners are provided in `matlab/run_bias_correction.m` and
-`scripts/run_bias_correction.py`.
-
-1. **`runbiascorrection`**
-   - Applies the bias correction.
-   - Optionally writes the bias-corrected dataset to a NetCDF file.
-
-2. **`makediagnostics`**
-   - Reloads the raw, station, and bias-corrected datasets.
-   - Computes diagnostic statistics and stores them in a diagnostics structure.
-
-3. **`makeplots`**
-   - Produces diagnostic figures including:
-     - maps
-     - time series at stations
-     - trend comparisons
-     - quantile-quantile plots
 
 > **Note**
 >
