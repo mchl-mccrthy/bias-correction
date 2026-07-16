@@ -68,8 +68,8 @@ for i_station = 1:n_stations
     xlim([hist_min hist_max])
     ylim([hist_min hist_max])
     h_eq = plot([hist_min hist_max],[hist_min hist_max],'k:',...
-        'HandleVisibility','off')
-    uistack(h_eq,'bottom')
+        'HandleVisibility','off');
+    uistack(h_eq,'bottom');
     legend('Raw','Bias-corrected','Location','eastoutside')
     formatfigure(gcf,4,4,4)
     print(gcf,fullfile(file_path_figures,[station_name '_' clim_var_name ...

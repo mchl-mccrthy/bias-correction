@@ -40,7 +40,7 @@ if isfinite(qq_min) && isfinite(qq_max) && qq_min < qq_max
     ylim([qq_min qq_max])
     h_eq = plot([qq_min qq_max],[qq_min qq_max],'k:',...
         'HandleVisibility','off');
-    uistack(h_eq,'bottom')
+    uistack(h_eq,'bottom');
 end
 if ~isempty(h_raw)
     legend([h_raw h_bc],{'Raw','Bias-corrected'},'Location','eastoutside')
