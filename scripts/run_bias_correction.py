@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from eqm_step import makediagnostics, makeplots, runbiascorrection
-from scripts.config_andermatt_zuerich_pr import config_andermatt_zuerich_pr
+from scripts.config_andermatt_zuerich_tas import config_andermatt_zuerich_tas
 
 
 def main() -> None:
-    cfg = config_andermatt_zuerich_pr()
+    cfg = config_andermatt_zuerich_tas()
 
     runbiascorrection(cfg)
     diagnostics = makediagnostics(cfg)
