@@ -99,18 +99,6 @@ if ~isfile(cfg.file_path_raw_data)
     error('Raw climate data file not found: %s',cfg.file_path_raw_data)
 end
 
-% Validate output locations
-if cfg.write_output
-    output_folder = fileparts(cfg.file_path_bc_data);
-    if ~isfolder(output_folder)
-        error('Output data folder not found: %s',output_folder)
-    end
-end
-
-if ~isfolder(cfg.file_path_figures)
-    error('Figures folder not found: %s',cfg.file_path_figures)
-end
-
 % Helper function for verifying options
 function mustbeoneof(value,allowed_values,field_name)
 

@@ -143,6 +143,7 @@ def savebcdata(
     clim_var_name: str,
 ) -> None:
     file_path_bc_data = Path(file_path_bc_data)
+    file_path_bc_data.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(file_path_raw_data, file_path_bc_data)
 
     with xr.open_dataset(file_path_bc_data, decode_times=False) as ds_open:

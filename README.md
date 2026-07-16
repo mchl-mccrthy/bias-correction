@@ -18,6 +18,16 @@ A workflow for bias correction of historical gridded climate data using station 
 ## Implementation
 There are two implementations of this workflow: one MATLAB and one Python. The Python implementation is the main implementation. It was ported from the original MATLAB implementation, against which it was validated. Validation results are documented in `docs/validation.md`.
 
+## Reproducible archive
+
+The GitHub repository is intended for source-code development and does not track
+large input or output data files. The frozen version associated with a paper
+will be archived on Zenodo as a single reproducible package containing the
+source code, configuration files, input data, and scripts used to produce the
+paper figures.
+
+The intended archive layout is described in `docs/zenodo_archive.md`.
+
 ## How to use this workflow
 
 The workflow has three stages:
@@ -55,7 +65,7 @@ The runner can then be run from the repository root:
 ```powershell
 python -m scripts.run_eqm_step
 ```
-It loads a configuration file from scripts/, does the bias correction, computes 
+It loads a configuration file from `scripts/`, runs the bias correction, computes 
 diagnostics and plots figures.
 
 ### MATLAB
@@ -63,7 +73,7 @@ In MATLAB, the runner can be run from the repository root:
 ```matlab
 run('matlab/run_eqm_step.m')
 ```
-It loads a configuration file from matlab/config/, does the bias correction, computes 
+It loads a configuration file from `matlab/config/`, runs the bias correction, computes 
 diagnostics and plots figures.
 
 The MATLAB implementation was developed and tested in MATLAB 2022a.
@@ -116,8 +126,17 @@ The workflow assumes:
 bias_correction/
 |-- docs/
 |-- eqm_step/
+|-- input_data/        # Included in Zenodo archive, ignored by GitHub
+|   `-- andermatt_zuerich_1981_2019/
+|       |-- gridded/
+|       `-- station/
 |-- matlab/
+|-- output_data/       # Generated outputs, ignored by GitHub
+|   `-- andermatt_zuerich_1981_2019/
+|       |-- figures/
+|       `-- gridded/
 |-- scripts/
+|-- CITATION.cff
 |-- README.md
 |-- pyproject.toml
 |-- LICENSE

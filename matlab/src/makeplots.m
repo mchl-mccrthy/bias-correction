@@ -8,6 +8,11 @@ clim_var_units = cfg.clim_var_units;
 agg_method = cfg.agg_method;
 file_path_figures = cfg.file_path_figures;
 
+% Create figure folder if needed
+if ~exist(file_path_figures,'dir')
+    mkdir(file_path_figures)
+end
+
 % Unpack diagnostics
 grid_x = diagnostics.grid_x;
 grid_y = diagnostics.grid_y;

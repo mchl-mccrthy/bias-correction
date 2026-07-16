@@ -1,7 +1,11 @@
+from pathlib import Path
+
 from eqm_step import BiasCorrectionConfig
 
 
 def config_andermatt_zuerich_tas() -> BiasCorrectionConfig:
+    repo_root = Path(__file__).resolve().parents[1]
+
     return BiasCorrectionConfig(
         clim_var_name="tas",
         clim_var_long_name="Temperature",
@@ -21,9 +25,9 @@ def config_andermatt_zuerich_tas() -> BiasCorrectionConfig:
         n_workers=None,
         keep_grid_biases=False,
         coordinate_system="geographic",
-        file_path_station_coords=r"N:\gebhyd\8_Him\Personal_folders\Mike\foracca\paper\input_data\meteoswiss\processed\andermatt_zuerich_coordinates.csv",
-        file_path_station_clim_var=r"N:\gebhyd\8_Him\Personal_folders\Mike\foracca\paper\input_data\meteoswiss\processed\andermatt_zuerich_tas.csv",
-        file_path_raw_data=r"N:\gebhyd\8_Him\Personal_folders\Mike\foracca\paper\input_data\chelsa\processed\andermatt_zuerich_1981_2019\tas_andermatt_zuerich_1981_2019.nc",
-        file_path_bc_data=r"N:\gebhyd\8_Him\Personal_folders\Mike\foracca\paper\output_data\andermatt_zuerich_1981_2019\tas_bc_andermatt_zuerich_1981_2019.nc",
-        file_path_figures=r"N:\gebhyd\8_Him\Personal_folders\Mike\foracca\paper\output_data\figures",
+        file_path_station_coords=repo_root / "input_data" / "andermatt_zuerich_1981_2019" / "station" / "andermatt_zuerich_coordinates.csv",
+        file_path_station_clim_var=repo_root / "input_data" / "andermatt_zuerich_1981_2019" / "station" / "andermatt_zuerich_tas.csv",
+        file_path_raw_data=repo_root / "input_data" / "andermatt_zuerich_1981_2019" / "gridded" / "tas_andermatt_zuerich_1981_2019.nc",
+        file_path_bc_data=repo_root / "output_data" / "andermatt_zuerich_1981_2019" / "gridded" / "tas_bc_andermatt_zuerich_1981_2019.nc",
+        file_path_figures=repo_root / "output_data" / "andermatt_zuerich_1981_2019" / "figures",
     )

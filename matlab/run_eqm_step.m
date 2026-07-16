@@ -17,7 +17,7 @@ addpath(fullfile(script_path,'config'))
 % Load configuration
 cfg = config_andermatt_zuerich_tas();
 
-% Run bias correction
+% Do bias correction
 results = biascorrect(cfg);
 
 % Make diagnostics

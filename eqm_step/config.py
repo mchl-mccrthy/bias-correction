@@ -60,15 +60,6 @@ def validateconfig(cfg: BiasCorrectionConfig) -> None:
         if not path.is_file():
             raise FileNotFoundError(f"{field_name} not found: {path}")
 
-    if cfg.write_output:
-        output_folder = Path(cfg.file_path_bc_data).parent
-        if not output_folder.is_dir():
-            raise FileNotFoundError(f"Output data folder not found: {output_folder}")
-
-    figure_folder = Path(cfg.file_path_figures)
-    if not figure_folder.is_dir():
-        raise FileNotFoundError(f"Figures folder not found: {figure_folder}")
-
 
 def _must_be_one_of(value: str, allowed: set[str], field_name: str) -> None:
     if value not in allowed:

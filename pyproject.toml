@@ -2,6 +2,7 @@
 name = "eqm-step"
 version = "0.1.0"
 description = "Station-informed trend-preserving empirical quantile mapping for gridded climate data."
+readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "numpy",
@@ -11,6 +12,13 @@ dependencies = [
     "matplotlib",
 ]
 license = "MIT"
+authors = [
+    { name = "Michael McCarthy" },
+]
+
+[project.urls]
+Repository = "https://github.com/mchl-mccrthy/bias-correction"
+Documentation = "https://github.com/mchl-mccrthy/bias-correction#readme"
 
 [tool.setuptools.packages.find]
 include = ["eqm_step*"]

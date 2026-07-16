@@ -1,5 +1,9 @@
 function cfg = config_andermatt_zuerich_tas()
 
+% Repository root
+config_path = fileparts(mfilename('fullpath'));
+repo_root = fileparts(fileparts(config_path));
+
 % Variable settings
 cfg.clim_var_name = 'tas';
 cfg.clim_var_long_name = 'Temperature';
@@ -21,10 +25,10 @@ cfg.keep_grid_biases = false;
 cfg.coordinate_system = 'geographic'; % 'geographic' or 'projected'
 
 % File paths
-cfg.file_path_station_coords = 'N:\gebhyd\8_Him\Personal_folders\Mike\foracca\paper\input_data\meteoswiss\processed\andermatt_zuerich_coordinates.csv';
-cfg.file_path_station_clim_var = 'N:\gebhyd\8_Him\Personal_folders\Mike\foracca\paper\input_data\meteoswiss\processed\andermatt_zuerich_tas.csv';
-cfg.file_path_raw_data = 'N:\gebhyd\8_Him\Personal_folders\Mike\foracca\paper\input_data\chelsa\processed\andermatt_zuerich_1981_2019\tas_andermatt_zuerich_1981_2019.nc';
-cfg.file_path_bc_data = 'N:\gebhyd\8_Him\Personal_folders\Mike\foracca\paper\output_data\andermatt_zuerich_1981_2019\tas_bc_andermatt_zuerich_1981_2019.nc';
-cfg.file_path_figures = 'N:\gebhyd\8_Him\Personal_folders\Mike\foracca\paper\output_data\figures\';
+cfg.file_path_station_coords = fullfile(repo_root,'input_data','andermatt_zuerich_1981_2019','station','andermatt_zuerich_coordinates.csv');
+cfg.file_path_station_clim_var = fullfile(repo_root,'input_data','andermatt_zuerich_1981_2019','station','andermatt_zuerich_tas.csv');
+cfg.file_path_raw_data = fullfile(repo_root,'input_data','andermatt_zuerich_1981_2019','gridded','tas_andermatt_zuerich_1981_2019.nc');
+cfg.file_path_bc_data = fullfile(repo_root,'output_data','andermatt_zuerich_1981_2019','gridded','tas_bc_andermatt_zuerich_1981_2019.nc');
+cfg.file_path_figures = fullfile(repo_root,'output_data','andermatt_zuerich_1981_2019','figures');
 
 end

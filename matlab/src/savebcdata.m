@@ -2,6 +2,12 @@
 function savebcdata(bc_clim_var,file_path_raw_data,file_path_bc_data,...
     clim_var_name)
 
+% Create output folder if needed
+output_folder = fileparts(file_path_bc_data);
+if ~exist(output_folder,'dir')
+    mkdir(output_folder)
+end
+
 % Permute data back to ECMWF standard
 bc_clim_var = permute(bc_clim_var,[2 1 3]);
 
