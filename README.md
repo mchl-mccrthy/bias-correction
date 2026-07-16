@@ -17,9 +17,28 @@ There are two implementations: one MATLAB and one Python. The Python implementat
 - NetCDF input and output
 - Diagnostic maps, trend comparisons, and quantile-quantile plots
 
-## Workflow
+## How to use this software
 
-The MATLAB workflow consists of three stages:
+The workflow has three stages:
+1. Bias-correct raw gridded climate data using station observations.
+2. Calculate diagnostics from the station, raw gridded and bias-corrected gridded climate data.
+3. Make diagnostic plots.
+
+### Python
+In Python, run the following from the repository root:
+```powershell
+python -m scripts.run_bias_correction
+```
+This script loads a configuration file from /scripts, does the bias correction, computes 
+diagnostics and plots figures.
+
+### MATLAB
+In MATLAB, run the following from the repository root:
+```matlab
+matlab/run_bias_correction.m
+```
+This script loads a configuration file from /matlab/config, does the bias correction, computes 
+diagnostics and plots figures.
 
 ```matlab
 results = runbiascorrection(cfg);
