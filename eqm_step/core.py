@@ -19,7 +19,7 @@ class BiasCorrectionResults:
     grid_biases: np.ndarray | None = None
 
 
-def runbiascorrection(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
+def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
     print("Bias correcting climate data")
     validateconfig(cfg)
 

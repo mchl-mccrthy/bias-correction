@@ -25,11 +25,11 @@ The workflow has three stages:
 2. Calculate diagnostics from the station, raw gridded and bias-corrected gridded climate data.
 3. Make diagnostic plots.
 
-Example runners are provided in `matlab/run_bias_correction.m` and
-`scripts/run_bias_correction.py`.
+Example runners are provided in `matlab/run_eqm_step.m` and
+`scripts/run_eqm_step.py`.
 
 These runners each contain calls to three functions:
-1. **`runbiascorrection`**
+1. **`biascorrect`**
    - Applies the bias correction
    - Optionally writes the bias-corrected dataset to a NetCDF file
 2. **`makediagnostics`**
@@ -42,7 +42,7 @@ These runners each contain calls to three functions:
 ### Python
 In Python, run the following from the repository root:
 ```powershell
-python -m scripts.run_bias_correction
+python -m scripts.run_eqm_step
 ```
 This script loads a configuration file from scripts/, does the bias correction, computes 
 diagnostics and plots figures.
@@ -50,7 +50,7 @@ diagnostics and plots figures.
 ### MATLAB
 In MATLAB, run the following from the repository root:
 ```matlab
-run('matlab/run_bias_correction.m')
+run('matlab/run_eqm_step.m')
 ```
 This script loads a configuration file from matlab/config/, does the bias correction, computes 
 diagnostics and plots figures.

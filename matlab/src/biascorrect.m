@@ -1,5 +1,5 @@
-% Run bias correction workflow
-function results = runbiascorrection(cfg)
+% Bias correct gridded climate data
+function results = biascorrect(cfg)
 
 % Display progress
 disp('Bias correcting climate data')

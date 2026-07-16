@@ -18,7 +18,7 @@ addpath(fullfile(script_path,'config'))
 cfg = config_andermatt_zuerich_tas();
 
 % Run bias correction
-results = runbiascorrection(cfg);
+results = biascorrect(cfg);
 
 % Make diagnostics
 diagnostics = makediagnostics(cfg);
