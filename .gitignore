@@ -12,6 +12,15 @@
 # MATLAB
 *.asv
 
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+build/
+dist/
+*.egg-info/
+
 # Folders
 input_data/
 output_data/

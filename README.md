@@ -1,6 +1,6 @@
 # bias-correction
 
-A MATLAB workflow for bias correction of historical gridded climate data using station observations and empirical quantile mapping, with option to preserve station trends.
+A MATLAB workflow, with an in-progress Python port, for bias correction of historical gridded climate data using station observations and empirical quantile mapping, with option to preserve station trends.
 
 **Author:** Michael McCarthy
 
@@ -17,13 +17,23 @@ A MATLAB workflow for bias correction of historical gridded climate data using s
 
 ## Workflow
 
-The main workflow consists of three stages:
+The MATLAB workflow consists of three stages:
 
 ```matlab
 results = runbiascorrection(cfg);
 diagnostics = makediagnostics(cfg);
 makeplots(diagnostics,cfg);
 ```
+
+The Python port mirrors the same structure:
+
+```python
+results = runbiascorrection(cfg)
+diagnostics = makediagnostics(cfg)
+makeplots(diagnostics, cfg)
+```
+
+An example Python runner is provided in `scripts/run_bias_correction.py`.
 
 1. **`runbiascorrection`**
    - Applies the bias correction.
@@ -105,6 +115,8 @@ The workflow assumes:
 bias_correction/
 |-- bias_correction.m
 |-- config/
+|-- eqm_step/
+|-- scripts/
 |-- src/
 |-- archive/
 |-- input_data/

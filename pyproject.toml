@@ -1,0 +1,15 @@
+[project]
+name = "eqm-step"
+version = "0.1.0"
+description = "Station-informed trend-preserving empirical quantile mapping for gridded climate data."
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "xarray",
+    "netCDF4",
+    "matplotlib",
+]
+
+[tool.setuptools.packages.find]
+include = ["eqm_step*"]
