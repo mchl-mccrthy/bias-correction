@@ -16,9 +16,9 @@ A workflow for bias correction of historical gridded climate data using station 
 - Diagnostic maps, trend comparisons, and quantile-quantile plots
 
 ## Implementation
-There are two implementations of this software: one MATLAB and one Python. The Python implementation is the main implementation. It was ported from the original MATLAB implementation, against which it was validated. Validation results are documented in `docs/validation.md`.
+There are two implementations of this workflow: one MATLAB and one Python. The Python implementation is the main implementation. It was ported from the original MATLAB implementation, against which it was validated. Validation results are documented in `docs/validation.md`.
 
-## How to use this software
+## How to use this workflow
 
 The workflow has three stages:
 1. Bias-correct raw gridded climate data using station observations.
