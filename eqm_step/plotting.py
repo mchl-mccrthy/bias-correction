@@ -25,6 +25,13 @@ STATION_COLOR = "tab:red"
 
 
 def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
+    """Create diagnostic figures for an EQM-STeP workflow run.
+
+    Figures include maps of long-term mean and trend fields, station trend
+    comparisons, all-station quantile-quantile plots, station availability,
+    and per-station diagnostic plots.
+    """
+
     figure_dir = Path(cfg.file_path_figures)
     figure_dir.mkdir(parents=True, exist_ok=True)
     _set_plot_style()

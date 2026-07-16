@@ -6,6 +6,13 @@ from pathlib import Path
 
 @dataclass
 class BiasCorrectionConfig:
+    """Configuration for an EQM-STeP bias-correction workflow.
+
+    The configuration stores variable metadata, quantile-mapping options,
+    trend-preservation settings, IDW interpolation settings, and file paths
+    used by `biascorrect`, `makediagnostics`, and `makeplots`.
+    """
+
     clim_var_name: str
     clim_var_long_name: str
     clim_var_units: str
@@ -32,6 +39,8 @@ class BiasCorrectionConfig:
 
 
 def validateconfig(cfg: BiasCorrectionConfig) -> None:
+    """Validate user-facing configuration options and required input files."""
+
     _must_be_one_of(cfg.qmf_period, {"whole", "seasonal", "monthly"}, "qmf_period")
     _must_be_one_of(cfg.bc_type, {"additive", "multiplicative"}, "bc_type")
     _must_be_one_of(cfg.agg_method, {"mean", "sum"}, "agg_method")

@@ -13,6 +13,8 @@ from .spatial import indexofclosest2
 
 @dataclass
 class Diagnostics:
+    """Diagnostic data used to evaluate and plot the bias-correction workflow."""
+
     station_clim_var: pd.DataFrame
     station_coords: pd.DataFrame
     station_x: np.ndarray
@@ -35,6 +37,13 @@ class Diagnostics:
 
 
 def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
+    """Compute diagnostic summaries from raw, station, and corrected data.
+
+    This function reloads the input and bias-corrected datasets, extracts raw
+    and corrected grid values at station locations, creates annual station and
+    grid summaries, and estimates linear trends for diagnostic plots.
+    """
+
     if not Path(cfg.file_path_bc_data).is_file():
         raise FileNotFoundError(f"Bias-corrected data file not found: {cfg.file_path_bc_data}")
 

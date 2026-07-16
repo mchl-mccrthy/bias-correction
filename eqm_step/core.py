@@ -13,6 +13,8 @@ from .trends import detrendclimdata, gettrends, interptrends, retrendclimdata
 
 @dataclass
 class BiasCorrectionResults:
+    """Summary returned by `biascorrect` after a correction run."""
+
     write_output: bool
     file_path_bc_data: str
     mean_bc_grid_clim_var: float
@@ -20,6 +22,26 @@ class BiasCorrectionResults:
 
 
 def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
+    """Bias-correct gridded climate data using station observations.
+
+    The workflow estimates empirical quantile-mapping corrections at station
+    locations, interpolates those corrections to the grid with IDW, optionally
+    preserves station trends, and optionally writes a bias-corrected NetCDF
+    file.
+
+    Parameters
+    ----------
+    cfg
+        Workflow configuration containing input paths, correction options,
+        trend settings, interpolation settings, and output paths.
+
+    Returns
+    -------
+    BiasCorrectionResults
+        Summary of the run, including the output path, the mean corrected grid
+        value, and optional interpolated bias grids.
+    """
+
     print("Bias correcting climate data")
     validateconfig(cfg)
 
@@ -123,6 +145,14 @@ def mapquantiles(
     idw_alpha: float,
     keep_grid_biases: bool = False,
 ) -> tuple[np.ndarray, np.ndarray | None]:
+    """Map station quantile corrections to every grid cell and timestep.
+
+    Station-level empirical quantile corrections are converted to timestep
+    corrections and interpolated across the grid using inverse-distance
+    weighting. Corrections are additive or multiplicative depending on
+    `bc_type`.
+    """
+
     if bc_type == "multiplicative":
         with np.errstate(divide="ignore", invalid="ignore"):
             biases = qmfs.station_quantiles / qmfs.raw_quantiles
@@ -181,6 +211,8 @@ def mapquantilestimestep(
     bc_type: str,
     idw_power: float,
 ) -> tuple[np.ndarray, np.ndarray]:
+    """Apply interpolated station quantile corrections to one grid timestep."""
+
     raw_station = raw_grid_clim_var_timestep.ravel()[station_lin_inds]
     i_period = period_index(raw_time_timestep, qmf_period)
 
