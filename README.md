@@ -42,24 +42,35 @@ These runners each contain calls to three functions:
 For a complete end-to-end run, `write_output` should be enabled in the configuration.
 
 ### Python
-In Python, run the following from the repository root:
+The Python implementation can be installed in a virtual environment using `pip`:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install --upgrade pip
+python -m pip install -e .
+```
+
+The runner can then be run from the repository root:
 ```powershell
 python -m scripts.run_eqm_step
 ```
-This script loads a configuration file from scripts/, does the bias correction, computes 
+It loads a configuration file from scripts/, does the bias correction, computes 
 diagnostics and plots figures.
 
 ### MATLAB
-In MATLAB, run the following from the repository root:
+In MATLAB, the runner can be run from the repository root:
 ```matlab
 run('matlab/run_eqm_step.m')
 ```
-This script loads a configuration file from matlab/config/, does the bias correction, computes 
+It loads a configuration file from matlab/config/, does the bias correction, computes 
 diagnostics and plots figures.
+
+The MATLAB implementation was developed and tested in MATLAB 2022a.
 
 ## Configuration
 
-Workflow settings are defined in the example configuration files under
+Workflow settings are defined in the example configuration files in
 `matlab/config/` and `scripts/`.
 
 | Setting | Description |
