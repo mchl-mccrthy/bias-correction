@@ -1,7 +1,7 @@
 # Validation
 
-This document summarises validation of the Python implementation against the 
-original MATLAB implementation.
+This document summarises the validation of the Python implementation against 
+the original MATLAB implementation of EQM-STeP.
 
 ## Purpose
 
@@ -10,10 +10,11 @@ implementation to confirm that both produce numerically equivalent
 bias-corrected outputs when run with identical input data and configuration
 settings.
 
-The MATLAB implementation is treated as the original reference workflow. The
-Python implementation is intended as the main maintained implementation.
+The MATLAB implementation is treated as the reference workflow. The
+Python implementation is treated as the main implementation, which will
+be maintained.
 
-## Test Setup
+## Test setup
 
 Validation was performed using the Andermatt-Zuerich test domain for two
 climate variables:
@@ -37,9 +38,9 @@ The Python implementation uses Hazen empirical quantiles:
 np.nanquantile(values, probabilities, method="hazen")
 ```
 
-This matches MATLAB's `quantile` behaviour for the tested workflow.
+to match MATLAB's `quantile` behaviour.
 
-## Comparison Method
+## Comparison method
 
 For each variable, the Python and MATLAB bias-corrected NetCDF outputs were
 loaded and compared grid cell by grid cell and timestep by timestep.
@@ -101,14 +102,14 @@ precision effects.
 ## Conclusion
 
 The Python and MATLAB implementations produce numerically equivalent results
-for both additive and multiplicative bias-correction workflows. Remaining
+for both additive and multiplicative workflows. Remaining
 differences are negligible for practical use and arise from floating-point
 precision and near-tie quantile selection.
 
 The Python implementation is therefore considered validated against the MATLAB
 reference implementation for the tested configurations.
 
-## Version Information
+## Version information
 
 Validation should be tied to the exact archived code version used for the
 paper. Update this section after committing and tagging the publication
