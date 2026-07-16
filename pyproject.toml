@@ -10,6 +10,7 @@ dependencies = [
     "netCDF4",
     "matplotlib",
 ]
+license = "MIT"
 
 [tool.setuptools.packages.find]
 include = ["eqm_step*"]
