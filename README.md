@@ -2,7 +2,7 @@
 
 A workflow for bias correction of historical gridded climate data using station observations and empirical quantile mapping, with the option to preserve station trends. 
 
-There are two implementations: one MATLAB and one Python. The Python implementation is the main one, which was ported from the MATLAB implementation, which is the original/reference. The Python port was validated against the MATLAB implementation.
+There are two implementations: one MATLAB and one Python. The Python implementation is the main implementation. It was ported from the original MATLAB implementation and validated against it.
 
 **Author:** Michael McCarthy
 
@@ -35,26 +35,23 @@ These contain calls to three functions:
    - Reloads the raw, station, and bias-corrected datasets
    - Computes diagnostic statistics and stores them in a diagnostics structure
 3. **`makeplots`**
-   - Produces diagnostic figures including:
-     - Maps
-     - Time series at stations
-     - Trend comparisons
-     - Quantile-quantile plots
+   - Produces diagnostic figures including maps, time series at stations, trend comparisons,
+     quantile-quantile plots.
 
 ### Python
 In Python, run the following from the repository root:
 ```powershell
 python -m scripts.run_bias_correction
 ```
-This script loads a configuration file from /scripts, does the bias correction, computes 
+This script loads a configuration file from scripts/, does the bias correction, computes 
 diagnostics and plots figures.
 
 ### MATLAB
 In MATLAB, run the following from the repository root:
 ```matlab
-matlab/run_bias_correction.m
+run('matlab/run_bias_correction.m')
 ```
-This script loads a configuration file from /matlab/config, does the bias correction, computes 
+This script loads a configuration file from matlab/config/, does the bias correction, computes 
 diagnostics and plots figures.
 
 > **Note**
