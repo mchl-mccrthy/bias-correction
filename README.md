@@ -28,7 +28,7 @@ The workflow has three stages:
 Example runners are provided in `matlab/run_bias_correction.m` and
 `scripts/run_bias_correction.py`.
 
-These runners contain calls to three functions:
+These runners each contain calls to three functions:
 1. **`runbiascorrection`**
    - Applies the bias correction
    - Optionally writes the bias-corrected dataset to a NetCDF file
