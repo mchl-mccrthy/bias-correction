@@ -2,8 +2,6 @@
 
 A workflow for bias correction of historical gridded climate data using station observations and empirical quantile mapping, with the option to preserve station trends. 
 
-There are two implementations: one MATLAB and one Python. The Python implementation is the main implementation. It was ported from the original MATLAB implementation and validated against it.
-
 **Author:** Michael McCarthy
 
 ## Features
@@ -17,6 +15,9 @@ There are two implementations: one MATLAB and one Python. The Python implementat
 - NetCDF input and output
 - Diagnostic maps, trend comparisons, and quantile-quantile plots
 
+## Implementation
+There are two implementations of this software: one MATLAB and one Python. The Python implementation is the main implementation. It was ported from the original MATLAB implementation, against which it was validated. Validation results are documented in `docs/validation.md`.
+
 ## How to use this software
 
 The workflow has three stages:
@@ -27,7 +28,7 @@ The workflow has three stages:
 Example runners are provided in `matlab/run_bias_correction.m` and
 `scripts/run_bias_correction.py`.
 
-These contain calls to three functions:
+These runners contain calls to three functions:
 1. **`runbiascorrection`**
    - Applies the bias correction
    - Optionally writes the bias-corrected dataset to a NetCDF file
