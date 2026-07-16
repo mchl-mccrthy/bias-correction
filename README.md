@@ -33,7 +33,8 @@ diagnostics = makediagnostics(cfg)
 makeplots(diagnostics, cfg)
 ```
 
-An example Python runner is provided in `scripts/run_bias_correction.py`.
+Example runners are provided in `scripts/run_bias_correction.m` and
+`scripts/run_bias_correction.py`.
 
 1. **`runbiascorrection`**
    - Applies the bias correction.
@@ -113,14 +114,13 @@ The workflow assumes:
 
 ```text
 bias_correction/
-|-- bias_correction.m
 |-- config/
+|-- docs/
 |-- eqm_step/
 |-- scripts/
 |-- src/
-|-- archive/
-|-- input_data/
-|-- output_data/
 |-- README.md
+|-- pyproject.toml
+|-- LICENSE
 `-- .gitignore
 ```

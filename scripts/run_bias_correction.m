@@ -10,8 +10,10 @@
 % - clim_var_name should be the same in both station data and NetCDF file.
 
 % Add paths
-addpath('src')
-addpath('config')
+script_path = fileparts(mfilename('fullpath'));
+repo_path = fileparts(script_path);
+addpath(fullfile(repo_path,'src'))
+addpath(fullfile(repo_path,'config'))
 
 % Load configuration
 cfg = config_andermatt_zuerich_tas();
