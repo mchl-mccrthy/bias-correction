@@ -39,6 +39,8 @@ These runners each contain calls to three functions:
    - Produces diagnostic figures including maps, time series at stations, trend comparisons,
      quantile-quantile plots.
 
+For a complete end-to-end run, `write_output` should be enabled in the configuration.
+
 ### Python
 In Python, run the following from the repository root:
 ```powershell
@@ -54,24 +56,6 @@ run('matlab/run_eqm_step.m')
 ```
 This script loads a configuration file from matlab/config/, does the bias correction, computes 
 diagnostics and plots figures.
-
-> **Note**
->
-> `makediagnostics` expects the bias-corrected NetCDF file to exist at `cfg.file_path_bc_data`.
->
-> - For a complete end-to-end run, set
->
->   ```matlab
->   cfg.write_output = true;
->   ```
->
-> - If
->
->   ```matlab
->   cfg.write_output = false;
->   ```
->
->   the bias-corrected NetCDF file must already exist.
 
 ## Configuration
 
