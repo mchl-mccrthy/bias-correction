@@ -11,9 +11,8 @@
 
 % Add paths
 script_path = fileparts(mfilename('fullpath'));
-repo_path = fileparts(script_path);
-addpath(fullfile(repo_path,'src'))
-addpath(fullfile(repo_path,'config'))
+addpath(fullfile(script_path,'src'))
+addpath(fullfile(script_path,'config'))
 
 % Load configuration
 cfg = config_andermatt_zuerich_tas();

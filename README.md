@@ -33,7 +33,7 @@ diagnostics = makediagnostics(cfg)
 makeplots(diagnostics, cfg)
 ```
 
-Example runners are provided in `scripts/run_bias_correction.m` and
+Example runners are provided in `matlab/run_bias_correction.m` and
 `scripts/run_bias_correction.py`.
 
 1. **`runbiascorrection`**
@@ -71,7 +71,8 @@ Example runners are provided in `scripts/run_bias_correction.m` and
 
 ## Configuration
 
-Workflow settings are defined in the files under `config/`.
+Workflow settings are defined in the example configuration files under
+`matlab/config/` and `scripts/`.
 
 | Setting | Description |
 |---------|-------------|
@@ -114,11 +115,10 @@ The workflow assumes:
 
 ```text
 bias_correction/
-|-- config/
 |-- docs/
 |-- eqm_step/
+|-- matlab/
 |-- scripts/
-|-- src/
 |-- README.md
 |-- pyproject.toml
 |-- LICENSE
