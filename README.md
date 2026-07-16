@@ -1,6 +1,8 @@
 # EQM-STeP v0.1.0
 
-A workflow for bias correction of historical gridded climate data using station observations and empirical quantile mapping, with the option to preserve station trends. There are two implementations: one MATLAB and one Python. The Python implementation is the main one, which was ported from the MATLAB implementation, which is the original/reference. The Python port was validated against the MATLAB implementation.
+A workflow for bias correction of historical gridded climate data using station observations and empirical quantile mapping, with the option to preserve station trends. 
+
+There are two implementations: one MATLAB and one Python. The Python implementation is the main one, which was ported from the MATLAB implementation, which is the original/reference. The Python port was validated against the MATLAB implementation.
 
 **Author:** Michael McCarthy
 
