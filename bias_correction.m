@@ -11,7 +11,6 @@
 
 % Add paths
 addpath('src')
-addpath(genpath(fullfile('src','third_party')))
 addpath('config')
 
 % Load configuration
