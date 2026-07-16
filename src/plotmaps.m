@@ -14,7 +14,8 @@ elseif strcmp(agg_method,'mean')
     c.Label.String = [clim_var_long_name ' (' clim_var_units ')'];
 end
 hold on
-h_stations = scatter(station_x,station_y,'k*');
+h_stations = scatter(station_x,station_y,36,'o', ...
+    'MarkerFaceColor','w','MarkerEdgeColor','k');
 legend(h_stations,'Stations','Location','southoutside')
 title('Long-term average')
 ll_ratio = (max(grid_x,[],'all')-min(grid_x,[],'all'))./ ...
@@ -33,7 +34,8 @@ elseif strcmp(agg_method,'mean')
     c.Label.String = [clim_var_long_name ' trend (' clim_var_units ' year^{-1})'];
 end
 hold on
-h_stations = scatter(station_x,station_y,'k*');
+h_stations = scatter(station_x,station_y,36,'o', ...
+    'MarkerFaceColor','w','MarkerEdgeColor','k');
 legend(h_stations,'Stations','Location','southoutside')
 title('Long-term trend')
 ll_ratio = (max(grid_x,[],'all')-min(grid_x,[],'all'))./ ...

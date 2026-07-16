@@ -20,7 +20,7 @@ for i_station = 1:n_stations
     ylabel([clim_var_long_name ' (' clim_var_units ')'])
     xlim([min(grid_time) max(grid_time)])
     title(station_name,'Interpreter','none')
-    legend('Raw','Bias corrected','Station','Location','eastoutside')
+    legend('Raw','Bias-corrected','Station','Location','eastoutside')
     formatfigure(gcf,7,2,4)
     print(gcf,fullfile(file_path_figures,[station_name '_' clim_var_name ...
         '_time_series.png']),'-dpng','-r300');
@@ -49,7 +49,7 @@ for i_station = 1:n_stations
     xlabel([clim_var_long_name ' (' clim_var_units ')'])
     title(station_name,'Interpreter','none')
     xlim([hist_min hist_max])
-    legend('Raw','Bias corrected','Station','Location','eastoutside')
+    legend('Raw','Bias-corrected','Station','Location','eastoutside')
     formatfigure(gcf,4,4,4)
     print(gcf,fullfile(file_path_figures,[station_name '_' clim_var_name ...
         '_histogram.png']),'-dpng','-r300');
@@ -62,13 +62,15 @@ for i_station = 1:n_stations
     bc_quantiles = quantile(bc_overlap,q);
     plot(station_quantiles,raw_quantiles,'r'); hold on
     plot(station_quantiles,bc_quantiles,'b')
-    grid on
     ylabel([clim_var_long_name ', gridded (' clim_var_units ')'])
     xlabel([clim_var_long_name ', station (' clim_var_units ')'])
     title(station_name,'Interpreter','none')
     xlim([hist_min hist_max])
     ylim([hist_min hist_max])
-    legend('Raw','Bias corrected','Location','eastoutside')
+    h_eq = plot([hist_min hist_max],[hist_min hist_max],'k:',...
+        'HandleVisibility','off')
+    uistack(h_eq,'bottom')
+    legend('Raw','Bias-corrected','Location','eastoutside')
     formatfigure(gcf,4,4,4)
     print(gcf,fullfile(file_path_figures,[station_name '_' clim_var_name ...
         '_qq.png']),'-dpng','-r300');
@@ -81,7 +83,7 @@ for i_station = 1:n_stations
     ylabel([clim_var_long_name ' (' clim_var_units ')'])
     xlim([min(years) max(years)])
     title(station_name,'Interpreter','none')
-    legend('Raw','Bias corrected','Station','Location','eastoutside')
+    legend('Raw','Bias-corrected','Station','Location','eastoutside')
     formatfigure(gcf,7,2,4)
     print(gcf,fullfile(file_path_figures,[station_name '_' clim_var_name ...
         '_time_series_yearly.png']),'-dpng','-r300');

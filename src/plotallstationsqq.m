@@ -32,16 +32,18 @@ for i_station = 1:n_stations
     qq_min = min([qq_min; station_quantiles(:); raw_quantiles(:); bc_quantiles(:)]);
     qq_max = max([qq_max; station_quantiles(:); raw_quantiles(:); bc_quantiles(:)]);
 end
-grid on
 ylabel([clim_var_long_name ', gridded (' clim_var_units ')'])
 xlabel([clim_var_long_name ', station (' clim_var_units ')'])
 title('All stations')
 if isfinite(qq_min) && isfinite(qq_max) && qq_min < qq_max
     xlim([qq_min qq_max])
     ylim([qq_min qq_max])
+    h_eq = plot([qq_min qq_max],[qq_min qq_max],'k:',...
+        'HandleVisibility','off');
+    uistack(h_eq,'bottom')
 end
 if ~isempty(h_raw)
-    legend([h_raw h_bc],{'Raw','Bias corrected'},'Location','eastoutside')
+    legend([h_raw h_bc],{'Raw','Bias-corrected'},'Location','eastoutside')
 end
 formatfigure(gcf,4,4,4)
 print(gcf,fullfile(file_path_figures, [clim_var_name ...

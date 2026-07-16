@@ -35,6 +35,10 @@ set(axis_lines,'LineWidth',line_width);
 % Set the box line width
 axis_handle.LineWidth = box_line_width;
 
+% Remove legend boxes
+legend_handles = findobj(figure_handle,'Type','Legend');
+set(legend_handles,'Box','off');
+
 % Ensure the figure is displayed correctly
 drawnow;
 
