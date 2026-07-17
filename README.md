@@ -68,6 +68,13 @@ python -m scripts.run_eqm_step
 It loads a configuration file from `scripts/`, runs the bias correction, computes 
 diagnostics and plots figures.
 
+To reproduce the paper experiments with temperature and precipitation, both
+with and without trend preservation, run:
+
+```powershell
+python -m scripts.run_paper_experiments
+```
+
 ### MATLAB
 In MATLAB, the example runner can be run from the repository root:
 ```matlab
@@ -133,8 +140,12 @@ bias_correction/
 |-- matlab/
 |-- output_data/       # Generated outputs, ignored by GitHub
 |   `-- andermatt_zuerich_1981_2019/
-|       |-- figures/
-|       `-- gridded/
+|       |-- trends_off/
+|       |   |-- figures/
+|       |   `-- gridded/
+|       `-- trends_on/
+|           |-- figures/
+|           `-- gridded/
 |-- scripts/
 |-- CITATION.cff
 |-- README.md

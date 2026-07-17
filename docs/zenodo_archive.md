@@ -19,8 +19,12 @@ eqm-step-v1.0.0/
 |       `-- station/
 |-- output_data/
 |   `-- andermatt_zuerich_1981_2019/
-|       |-- figures/
-|       `-- gridded/
+|       |-- trends_off/
+|       |   |-- figures/
+|       |   `-- gridded/
+|       `-- trends_on/
+|           |-- figures/
+|           `-- gridded/
 |-- paper_figures/
 |-- README.md
 |-- pyproject.toml
@@ -37,8 +41,11 @@ eqm-step-v1.0.0/
 - Place gridded inputs in `input_data/andermatt_zuerich_1981_2019/gridded/`
   and station inputs in `input_data/andermatt_zuerich_1981_2019/station/`.
 - Write bias-corrected gridded outputs to
-  `output_data/andermatt_zuerich_1981_2019/gridded/` and figures to
-  `output_data/andermatt_zuerich_1981_2019/figures/`.
+  `output_data/andermatt_zuerich_1981_2019/trends_on/gridded/` and
+  `output_data/andermatt_zuerich_1981_2019/trends_off/gridded/`.
+- Write diagnostic figures to
+  `output_data/andermatt_zuerich_1981_2019/trends_on/figures/` and
+  `output_data/andermatt_zuerich_1981_2019/trends_off/figures/`.
 - Include scripts used to create the paper figures.
 - Include either generated reference outputs or instructions for recreating
   them from the input data.
@@ -67,15 +74,21 @@ These files can still be included in the final Zenodo archive.
    python -m scripts.run_eqm_step
    ```
 
-2. Confirm that the MATLAB runner works from the archive root:
+2. Confirm that the Python paper experiments runner works from the archive root:
+
+   ```powershell
+   python -m scripts.run_paper_experiments
+   ```
+
+3. Confirm that the MATLAB runner works from the archive root:
 
    ```matlab
    run('matlab/run_eqm_step.m')
    ```
 
-3. Confirm that paper figure scripts run from the archive root.
-4. Confirm that no configuration files contain private absolute paths.
-5. Confirm that the version number in `README.md`, `pyproject.toml`, and
+4. Confirm that paper figure scripts run from the archive root.
+5. Confirm that no configuration files contain private absolute paths.
+6. Confirm that the version number in `README.md`, `pyproject.toml`, and
    `CITATION.cff` matches the Git tag and Zenodo version.
-6. Confirm that the archive includes `LICENSE` and the code licence is stated
+7. Confirm that the archive includes `LICENSE` and the code licence is stated
    in the paper.
