@@ -25,6 +25,8 @@ dist/
 input_data/
 output_data/
 archive/
+cluster/
+paper_figures/corel_draw/
 
 # OS files
 .DS_Store
