@@ -12,7 +12,7 @@ for i_station = 1:n_stations
     % Get station name
     station_name = station_coords.station{i_station};
 
-    % Plot daily time series
+    % Plot timestep time series
     figure()
     plot(grid_time,raw_station_clim_var{:,i_station},'g'); hold on
     plot(grid_time,bc_station_clim_var{:,i_station},'b')

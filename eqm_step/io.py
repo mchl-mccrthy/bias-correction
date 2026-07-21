@@ -48,7 +48,12 @@ def loadgriddata(file_path_grid_data: str | Path, clim_var_name: str) -> GridDat
 
     if time_name not in da.dims:
         raise ValueError(f"{clim_var_name} must have a time dimension.")
-    grid_clim_var = da.transpose(y_name, x_name, time_name).values
+    if x_name not in da.dims or y_name not in da.dims:
+        raise ValueError(f"{clim_var_name} must have x and y dimensions.")
+
+    native_clim_var = da.values
+    axis_order = [da.dims.index(y_name), da.dims.index(x_name), da.dims.index(time_name)]
+    grid_clim_var = np.transpose(native_clim_var, axis_order)
     grid_time = _decode_time(ds[time_name])
 
     return GridData(

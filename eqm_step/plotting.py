@@ -45,12 +45,12 @@ def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
 def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     mean_grid = np.nanmean(diagnostics.bc_grid_clim_var_yearly, axis=2)
     units = _format_units(cfg.clim_var_units)
+    trend_units = _trend_units(cfg)
     if cfg.agg_method == "sum":
         mean_label = f"{cfg.clim_var_long_name} ({units} year$^{{-1}}$)"
-        trend_label = f"{cfg.clim_var_long_name} trend ({units} year$^{{-2}}$)"
     else:
         mean_label = f"{cfg.clim_var_long_name} ({units})"
-        trend_label = f"{cfg.clim_var_long_name} trend ({units} year$^{{-1}}$)"
+    trend_label = f"{cfg.clim_var_long_name} trend ({trend_units})"
 
     _map_figure(
         diagnostics.grid_x,
@@ -76,11 +76,11 @@ def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Pa
 
 def plottrendcomparison(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     fig, ax = _new_figure(4, 4, 4)
-    units = _format_units(cfg.clim_var_units)
+    units = _trend_units(cfg)
     ax.scatter(diagnostics.station_linear_trends, diagnostics.raw_station_linear_trends, label="Raw")
     ax.scatter(diagnostics.station_linear_trends, diagnostics.bc_station_linear_trends, label="Bias-corrected")
-    ax.set_xlabel(f"{cfg.clim_var_long_name} trend, stations ({units} year$^{{-1}}$)")
-    ax.set_ylabel(f"{cfg.clim_var_long_name} trend, gridded ({units} year$^{{-1}}$)")
+    ax.set_xlabel(f"{cfg.clim_var_long_name} trend, stations ({units})")
+    ax.set_ylabel(f"{cfg.clim_var_long_name} trend, gridded ({units})")
 
     values = np.concatenate(
         [
@@ -138,7 +138,7 @@ def plotallstationsqq(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figur
         _add_equality_line(ax, [qq_min, qq_max])
     ax.set_xlabel(f"{cfg.clim_var_long_name}, station ({units})")
     ax.set_ylabel(f"{cfg.clim_var_long_name}, gridded ({units})")
-    ax.set_title("All stations")
+    ax.set_title("Quantile-quantile")
     if raw_handle is not None and bc_handle is not None:
         ax.legend(
             [raw_handle, bc_handle],
@@ -180,7 +180,7 @@ def plotstationavailability(diagnostics: Diagnostics, cfg: BiasCorrectionConfig,
 def plotstationdiagnostics(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     station_names = _station_names(diagnostics)
     for i_station, station_name in enumerate(station_names):
-        _plot_station_daily_timeseries(diagnostics, cfg, figure_dir, i_station, station_name)
+        _plot_station_timestep_timeseries(diagnostics, cfg, figure_dir, i_station, station_name)
 
         station_overlap, raw_overlap, bc_overlap = getoverlappingstationdata(
             diagnostics.station_clim_var,
@@ -207,7 +207,7 @@ def plotstationdiagnostics(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, 
         _plot_station_yearly_timeseries(diagnostics, cfg, figure_dir, i_station, station_name)
 
 
-def _plot_station_daily_timeseries(
+def _plot_station_timestep_timeseries(
     diagnostics: Diagnostics,
     cfg: BiasCorrectionConfig,
     figure_dir: Path,
@@ -297,7 +297,7 @@ def _plot_station_yearly_timeseries(
     station_name: str,
 ) -> None:
     fig, ax = _new_figure(7, 2, 4)
-    units = _format_units(cfg.clim_var_units)
+    units = _yearly_units(cfg)
     ax.plot(
         diagnostics.years,
         diagnostics.raw_station_clim_var_yearly.iloc[:, i_station],
@@ -374,6 +374,20 @@ def _station_names(diagnostics: Diagnostics) -> list[str]:
 
 def _format_units(units: str) -> str:
     return units.replace("degC", "\N{DEGREE SIGN}C")
+
+
+def _yearly_units(cfg: BiasCorrectionConfig) -> str:
+    units = _format_units(cfg.clim_var_units)
+    if cfg.agg_method == "sum":
+        return f"{units} year$^{{-1}}$"
+    return units
+
+
+def _trend_units(cfg: BiasCorrectionConfig) -> str:
+    units = _format_units(cfg.clim_var_units)
+    if cfg.agg_method == "sum":
+        return f"{units} year$^{{-2}}$"
+    return f"{units} year$^{{-1}}$"
 
 
 def _add_equality_line(ax: plt.Axes, lims: list[float] | tuple[float, float]) -> None:

@@ -10,6 +10,7 @@ dependencies = [
     "xarray",
     "netCDF4",
     "matplotlib",
+    "geopandas",
 ]
 license = "MIT"
 authors = [

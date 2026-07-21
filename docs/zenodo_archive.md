@@ -14,6 +14,7 @@ eqm-step-v1.0.0/
 |-- scripts/
 |-- docs/
 |-- input_data/
+|   |-- boundaries/
 |   `-- andermatt_zuerich_1981_2019/
 |       |-- gridded/
 |       `-- station/
@@ -36,6 +37,7 @@ eqm-step-v1.0.0/
 
 - Include the exact source code version used in the paper.
 - Include the Andermatt-Zurich input data used for the published examples.
+- Include the Natural Earth Switzerland boundary file used for the locator map.
 - Include the configuration files used to run the examples.
 - Use relative paths in all archived configuration files.
 - Place gridded inputs in `input_data/andermatt_zuerich_1981_2019/gridded/`

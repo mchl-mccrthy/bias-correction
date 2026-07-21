@@ -120,6 +120,10 @@ The workflow assumes:
 - Station observations cover the same period as the gridded dataset.
 - Missing station observations are represented by `NaN`.
 - The climate variable name is consistent between the NetCDF and station datasets.
+- For variables using `agg_method = "sum"`, `clim_var_units` should describe
+  the amount per timestep, not a rate. Annual diagnostic values are labelled as
+  `clim_var_units year^-1`, and trends in those annual totals are labelled as
+  `clim_var_units year^-2`.
 
 ## Notes
 
