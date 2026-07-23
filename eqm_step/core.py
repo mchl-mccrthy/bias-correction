@@ -94,6 +94,7 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
         cfg.idw_alpha,
         keep_grid_biases=cfg.keep_grid_biases,
     )
+    del raw_grid_clim_var
 
     if cfg.preserve_trends:
         station_grid_trends = interptrends(
@@ -111,9 +112,11 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
             cfg.idw_method,
             cfg.idw_alpha,
         )
+        del raw_grid_trends
         bc_grid_clim_var = retrendclimdata(
             bc_grid_clim_var, station_grid_trends, cfg.bc_type, cfg.multiplicative_epsilon
         )
+        del station_grid_trends
 
     if cfg.write_output:
         savebcdata(bc_grid_clim_var, cfg.file_path_raw_data, cfg.file_path_bc_data, cfg.clim_var_name)
