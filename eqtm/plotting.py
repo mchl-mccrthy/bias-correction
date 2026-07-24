@@ -19,9 +19,9 @@ BOX_LINE_WIDTH = 0.5
 TICK_LENGTH_POINTS = 2
 MIN_TICKS = 3
 MAX_TICKS = 6
-RAW_COLOR = "tab:green"
-BC_COLOR = "tab:blue"
-STATION_COLOR = "tab:red"
+RAW_COLOR = "0.45"
+BC_COLOR = "red"
+STATION_COLOR = "black"
 
 
 def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
@@ -77,8 +77,18 @@ def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Pa
 def plottrendcomparison(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     fig, ax = _new_figure(4, 4, 4)
     units = _trend_units(cfg)
-    ax.scatter(diagnostics.station_linear_trends, diagnostics.raw_station_linear_trends, label="Raw")
-    ax.scatter(diagnostics.station_linear_trends, diagnostics.bc_station_linear_trends, label="Bias-corrected")
+    ax.scatter(
+        diagnostics.station_linear_trends,
+        diagnostics.raw_station_linear_trends,
+        color=RAW_COLOR,
+        label="Raw",
+    )
+    ax.scatter(
+        diagnostics.station_linear_trends,
+        diagnostics.bc_station_linear_trends,
+        color=BC_COLOR,
+        label="Bias-corrected",
+    )
     ax.set_xlabel(f"{cfg.clim_var_long_name} trend, stations ({units})")
     ax.set_ylabel(f"{cfg.clim_var_long_name} trend, gridded ({units})")
 
@@ -92,7 +102,7 @@ def plottrendcomparison(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, fig
     )
     values = values[np.isfinite(values)]
     if values.size:
-        lims = [np.min(values), np.max(values)]
+        lims = _padded_equal_lims(np.min(values), np.max(values))
         ax.set_xlim(lims)
         ax.set_ylim(lims)
         _add_equality_line(ax, lims)
@@ -125,17 +135,18 @@ def plotallstationsqq(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figur
         station_q = np.nanquantile(station_overlap, qs, method="hazen")
         raw_q = np.nanquantile(raw_overlap, qs, method="hazen")
         bc_q = np.nanquantile(bc_overlap, qs, method="hazen")
-        raw_line = ax.plot(station_q, raw_q, color="r", linewidth=1)[0]
-        bc_line = ax.plot(station_q, bc_q, color="b", linewidth=1)[0]
+        raw_line = ax.plot(station_q, raw_q, color=RAW_COLOR, linewidth=1)[0]
+        bc_line = ax.plot(station_q, bc_q, color=BC_COLOR, linewidth=1)[0]
         raw_handle = raw_handle or raw_line
         bc_handle = bc_handle or bc_line
         qq_min = min(qq_min, np.nanmin(station_q), np.nanmin(raw_q), np.nanmin(bc_q))
         qq_max = max(qq_max, np.nanmax(station_q), np.nanmax(raw_q), np.nanmax(bc_q))
 
     if np.isfinite(qq_min) and np.isfinite(qq_max) and qq_min < qq_max:
-        ax.set_xlim(qq_min, qq_max)
-        ax.set_ylim(qq_min, qq_max)
-        _add_equality_line(ax, [qq_min, qq_max])
+        lims = _padded_equal_lims(qq_min, qq_max)
+        ax.set_xlim(lims)
+        ax.set_ylim(lims)
+        _add_equality_line(ax, lims)
     ax.set_xlabel(f"{cfg.clim_var_long_name}, station ({units})")
     ax.set_ylabel(f"{cfg.clim_var_long_name}, gridded ({units})")
     ax.set_title("Quantile-quantile")
@@ -277,14 +288,15 @@ def _plot_station_qq(
     station_q = np.nanquantile(station_overlap, q, method="hazen")
     raw_q = np.nanquantile(raw_overlap, q, method="hazen")
     bc_q = np.nanquantile(bc_overlap, q, method="hazen")
-    ax.plot(station_q, raw_q, color="r", label="Raw")
-    ax.plot(station_q, bc_q, color="b", label="Bias-corrected")
+    ax.plot(station_q, raw_q, color=RAW_COLOR, label="Raw")
+    ax.plot(station_q, bc_q, color=BC_COLOR, label="Bias-corrected")
     ax.set_ylabel(f"{cfg.clim_var_long_name}, gridded ({units})")
     ax.set_xlabel(f"{cfg.clim_var_long_name}, station ({units})")
     ax.set_title(station_name)
-    ax.set_xlim(hist_min, hist_max)
-    ax.set_ylim(hist_min, hist_max)
-    _add_equality_line(ax, [hist_min, hist_max])
+    lims = _padded_equal_lims(hist_min, hist_max)
+    ax.set_xlim(lims)
+    ax.set_ylim(lims)
+    _add_equality_line(ax, lims)
     ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), borderaxespad=0)
     _save_figure(fig, figure_dir / f"{station_name}_{cfg.clim_var_name}_qq.png")
 
@@ -392,6 +404,15 @@ def _trend_units(cfg: BiasCorrectionConfig) -> str:
 
 def _add_equality_line(ax: plt.Axes, lims: list[float] | tuple[float, float]) -> None:
     ax.plot(lims, lims, color="k", linestyle=":", linewidth=LINE_WIDTH, label="_nolegend_", zorder=0)
+
+
+def _padded_equal_lims(lim_min: float, lim_max: float) -> list[float]:
+    span = lim_max - lim_min
+    if not np.isfinite(span) or span <= 0:
+        pad = 0.5 if lim_min == 0 else abs(lim_min) * 0.05
+    else:
+        pad = 0.05 * span
+    return [lim_min - pad, lim_max + pad]
 
 
 def _set_plot_style() -> None:

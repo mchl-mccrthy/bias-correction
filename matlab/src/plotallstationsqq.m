@@ -23,11 +23,13 @@ for i_station = 1:n_stations
     raw_quantiles = quantile(raw_overlap, q);
     bc_quantiles = quantile(bc_overlap, q);
     if isempty(h_raw)
-        h_raw = plot(station_quantiles, raw_quantiles, 'r'); hold on
-        h_bc = plot(station_quantiles, bc_quantiles, 'b');
+        h_raw = plot(station_quantiles, raw_quantiles, ...
+            'Color',[0.45 0.45 0.45]); hold on
+        h_bc = plot(station_quantiles, bc_quantiles, 'r');
     else
-        plot(station_quantiles, raw_quantiles, 'r'); hold on
-        plot(station_quantiles, bc_quantiles, 'b')
+        plot(station_quantiles, raw_quantiles, ...
+            'Color',[0.45 0.45 0.45]); hold on
+        plot(station_quantiles, bc_quantiles, 'r')
     end
     qq_min = min([qq_min; station_quantiles(:); raw_quantiles(:); bc_quantiles(:)]);
     qq_max = max([qq_max; station_quantiles(:); raw_quantiles(:); bc_quantiles(:)]);

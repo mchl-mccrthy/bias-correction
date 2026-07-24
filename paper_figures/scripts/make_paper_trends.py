@@ -8,7 +8,14 @@ import numpy as np
 from eqtm import makediagnostics
 from eqtm.config import BiasCorrectionConfig
 from eqtm.diagnostics import Diagnostics
-from eqtm.plotting import _add_equality_line, _new_figure, _save_figure, _set_plot_style, _trend_units
+from eqtm.plotting import (
+    _add_equality_line,
+    _new_figure,
+    _padded_equal_lims,
+    _save_figure,
+    _set_plot_style,
+    _trend_units,
+)
 from paper_figures.scripts.make_paper_qq import OFF_COLOR, ON_COLOR, RAW_COLOR
 from scripts.config_andermatt_zuerich_pr_trends_off import config_andermatt_zuerich_pr_trends_off
 from scripts.config_andermatt_zuerich_pr_trends_on import config_andermatt_zuerich_pr_trends_on
@@ -76,7 +83,7 @@ def _paper_trends(
     )
     values = values[np.isfinite(values)]
     if values.size:
-        lims = [np.min(values), np.max(values)]
+        lims = _padded_equal_lims(np.min(values), np.max(values))
         ax.set_xlim(lims)
         ax.set_ylim(lims)
         _add_equality_line(ax, lims)

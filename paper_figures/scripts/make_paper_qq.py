@@ -12,6 +12,7 @@ from eqtm.plotting import (
     _add_equality_line,
     _format_units,
     _new_figure,
+    _padded_equal_lims,
     _save_figure,
     _set_plot_style,
 )
@@ -22,8 +23,8 @@ from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuer
 
 
 RAW_COLOR = "0.45"
-ON_COLOR = "#0072B2"
-OFF_COLOR = "#D55E00"
+ON_COLOR = "red"
+OFF_COLOR = "blue"
 
 
 def main() -> None:
@@ -94,9 +95,10 @@ def _paper_qq(
         )
 
     if np.isfinite(qq_min) and np.isfinite(qq_max) and qq_min < qq_max:
-        ax.set_xlim(qq_min, qq_max)
-        ax.set_ylim(qq_min, qq_max)
-        _add_equality_line(ax, [qq_min, qq_max])
+        lims = _padded_equal_lims(qq_min, qq_max)
+        ax.set_xlim(lims)
+        ax.set_ylim(lims)
+        _add_equality_line(ax, lims)
 
     ax.set_xlabel(f"{cfg_on.clim_var_long_name}, station ({units})")
     ax.set_ylabel(f"{cfg_on.clim_var_long_name}, gridded ({units})")
