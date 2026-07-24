@@ -40,7 +40,7 @@ mustbeoneof(cfg.bc_type,{'additive','multiplicative'},'bc_type')
 mustbeoneof(cfg.agg_method,{'mean','sum'},'agg_method')
 mustbeoneof(cfg.coordinate_system,{'geographic','projected'},'coordinate_system')
 mustbeoneof(cfg.idw_method,{'horizontal','elevation_aware'},'idw_method')
-mustbeoneof(cfg.trend_method,{'none','grid','station'},'trend_method')
+mustbeoneof(cfg.trend_method,{'none','station'},'trend_method')
 
 if ~isscalar(cfg.idw_alpha) || cfg.idw_alpha <= 0
     error('cfg.idw_alpha must be a positive scalar.')

@@ -1,6 +1,6 @@
-# EQTM v0.1.0
+# EQTM v0.2.0
 
-A workflow for bias correction of historical gridded climate data using station observations, empirical quantile mapping, and optional trend mapping.
+A workflow for bias correction of historical gridded climate data using station observations, empirical quantile mapping, and optional station trend mapping.
 
 **Author:** Michael McCarthy
 
@@ -9,7 +9,7 @@ A workflow for bias correction of historical gridded climate data using station 
 - Empirical quantile mapping
 - Monthly, seasonal, or whole-period corrections
 - Additive or multiplicative bias correction
-- Optional grid or station trend mapping
+- Optional station trend mapping
 - Spatial interpolation of station-based corrections using inverse-distance weighting (IDW)
 - Optional parallel processing
 - NetCDF input and output
@@ -68,8 +68,8 @@ python -m scripts.run_eqtm
 It loads a configuration file from `scripts/`, runs the bias correction, computes 
 diagnostics and plots figures.
 
-To reproduce the paper experiments with temperature and precipitation, both
-with and without station trend mapping, run:
+To reproduce the paper experiments with temperature and precipitation, with
+and without station trend mapping, run:
 
 ```powershell
 python -m scripts.run_paper_experiments
@@ -95,7 +95,7 @@ Workflow settings are defined in the example configuration files in
 | `clim_var_name` | Climate variable name in both the NetCDF and station files |
 | `qmf_period` | Quantile mapping period (`whole`, `seasonal`, or `monthly`) |
 | `bc_type` | Bias-correction type (`additive` or `multiplicative`) |
-| `trend_method` | Trend treatment (`none`, `grid`, or `station`) |
+| `trend_method` | Trend treatment (`none` or `station`) |
 | `trend_window` | Moving-average window length used for trend estimation |
 | `agg_method` | Annual aggregation method (`mean` or `sum`) |
 | `write_output` | Write the corrected NetCDF file |

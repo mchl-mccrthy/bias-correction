@@ -41,7 +41,7 @@ class BiasCorrectionConfig:
 def validateconfig(cfg: BiasCorrectionConfig) -> None:
     """Validate user-facing configuration options and required input files."""
 
-    _must_be_one_of(cfg.trend_method, {"none", "grid", "station"}, "trend_method")
+    _must_be_one_of(cfg.trend_method, {"none", "station"}, "trend_method")
     _must_be_one_of(cfg.qmf_period, {"whole", "seasonal", "monthly"}, "qmf_period")
     _must_be_one_of(cfg.bc_type, {"additive", "multiplicative"}, "bc_type")
     _must_be_one_of(cfg.agg_method, {"mean", "sum"}, "agg_method")

@@ -78,8 +78,20 @@ def _paper_qq(
         raw_handle = raw_handle or raw_line
         on_handle = on_handle or on_line
         off_handle = off_handle or off_line
-        qq_min = min(qq_min, np.nanmin(station_q), np.nanmin(raw_q), np.nanmin(bc_on_q), np.nanmin(bc_off_q))
-        qq_max = max(qq_max, np.nanmax(station_q), np.nanmax(raw_q), np.nanmax(bc_on_q), np.nanmax(bc_off_q))
+        qq_min = min(
+            qq_min,
+            np.nanmin(station_q),
+            np.nanmin(raw_q),
+            np.nanmin(bc_on_q),
+            np.nanmin(bc_off_q),
+        )
+        qq_max = max(
+            qq_max,
+            np.nanmax(station_q),
+            np.nanmax(raw_q),
+            np.nanmax(bc_on_q),
+            np.nanmax(bc_off_q),
+        )
 
     if np.isfinite(qq_min) and np.isfinite(qq_max) and qq_min < qq_max:
         ax.set_xlim(qq_min, qq_max)

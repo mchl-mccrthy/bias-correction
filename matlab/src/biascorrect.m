@@ -48,7 +48,7 @@ end
     file_path_raw_data,clim_var_name);
 
 % Get trends in raw and station data
-if any(strcmp(trend_method,{'grid','station'}))
+if strcmp(trend_method,'station')
     raw_grid_trends...
         = gettrends(...
         raw_grid_clim_var,3,trend_window);
@@ -58,16 +58,13 @@ if any(strcmp(trend_method,{'grid','station'}))
 end
 
 % Detrend raw and station data
-if any(strcmp(trend_method,{'grid','station'}))
+if strcmp(trend_method,'station')
     raw_grid_clim_var...
         = detrendclimdata(...
         raw_grid_clim_var,raw_grid_trends,bc_type,multiplicative_epsilon);
     station_clim_var{:,:}...
         = detrendclimdata(...
         station_clim_var{:,:},station_trends,bc_type,multiplicative_epsilon);
-    if strcmp(trend_method,'grid')
-        clear station_trends
-    end
 end
 
 % Get quantile mapping functions
@@ -104,11 +101,7 @@ end
 clear raw_grid_clim_var
 
 % Retrend bias corrected data
-if strcmp(trend_method,'grid')
-    bc_grid_clim_var...
-        = retrendclimdata(...
-        bc_grid_clim_var,raw_grid_trends,bc_type,multiplicative_epsilon);
-elseif strcmp(trend_method,'station')
+if strcmp(trend_method,'station')
     bc_grid_clim_var...
         = retrendclimdata(...
         bc_grid_clim_var,station_grid_trends,bc_type,multiplicative_epsilon);
