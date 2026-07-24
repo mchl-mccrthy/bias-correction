@@ -5,10 +5,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from eqm_step import makediagnostics
-from eqm_step.config import BiasCorrectionConfig
-from eqm_step.diagnostics import Diagnostics
-from eqm_step.plotting import _add_equality_line, _new_figure, _save_figure, _set_plot_style, _trend_units
+from eqtm import makediagnostics
+from eqtm.config import BiasCorrectionConfig
+from eqtm.diagnostics import Diagnostics
+from eqtm.plotting import _add_equality_line, _new_figure, _save_figure, _set_plot_style, _trend_units
 from paper_figures.scripts.make_paper_qq import OFF_COLOR, ON_COLOR, RAW_COLOR
 from scripts.config_andermatt_zuerich_pr_trends_off import config_andermatt_zuerich_pr_trends_off
 from scripts.config_andermatt_zuerich_pr_trends_on import config_andermatt_zuerich_pr_trends_on
@@ -56,13 +56,13 @@ def _paper_trends(
         diagnostics_on.station_linear_trends,
         diagnostics_on.bc_station_linear_trends,
         color=ON_COLOR,
-        label="Bias-corrected, trend preservation on",
+        label="Bias-corrected, station trend mapping",
     )
     bc_off = ax.scatter(
         diagnostics_on.station_linear_trends,
         diagnostics_off.bc_station_linear_trends,
         color=OFF_COLOR,
-        label="Bias-corrected, trend preservation off",
+        label="Bias-corrected, no trend mapping",
     )
 
     values = np.concatenate(
@@ -87,8 +87,8 @@ def _paper_trends(
         [raw, bc_on, bc_off],
         [
             "Raw",
-            "Bias-corrected, trend preservation on",
-            "Bias-corrected, trend preservation off",
+            "Bias-corrected, station trend mapping",
+            "Bias-corrected, no trend mapping",
         ],
         loc="upper center",
         bbox_to_anchor=(0.5, -0.20),

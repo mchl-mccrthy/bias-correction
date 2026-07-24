@@ -11,7 +11,7 @@ validateconfig(cfg)
 clim_var_name = cfg.clim_var_name;
 qmf_period = cfg.qmf_period;
 bc_type = cfg.bc_type;
-preserve_trends = cfg.preserve_trends;
+trend_method = char(cfg.trend_method);
 trend_window = cfg.trend_window;
 write_output = cfg.write_output;
 n_quantiles = cfg.n_quantiles;
@@ -48,7 +48,7 @@ end
     file_path_raw_data,clim_var_name);
 
 % Get trends in raw and station data
-if preserve_trends
+if any(strcmp(trend_method,{'grid','station'}))
     raw_grid_trends...
         = gettrends(...
         raw_grid_clim_var,3,trend_window);
@@ -58,13 +58,16 @@ if preserve_trends
 end
 
 % Detrend raw and station data
-if preserve_trends
+if any(strcmp(trend_method,{'grid','station'}))
     raw_grid_clim_var...
         = detrendclimdata(...
         raw_grid_clim_var,raw_grid_trends,bc_type,multiplicative_epsilon);
     station_clim_var{:,:}...
         = detrendclimdata(...
         station_clim_var{:,:},station_trends,bc_type,multiplicative_epsilon);
+    if strcmp(trend_method,'grid')
+        clear station_trends
+    end
 end
 
 % Get quantile mapping functions
@@ -89,7 +92,7 @@ else
 end
 
 % Interpolate station trends to grid
-if preserve_trends  
+if strcmp(trend_method,'station')  
     station_grid_trends...
         = interptrends(...
         station_trends,station_x,station_y,station_z,grid_x,grid_y,grid_z,...
@@ -97,15 +100,22 @@ if preserve_trends
         idw_alpha);
 end
 
-% Clear raw data to save memory
-clear raw_grid_clim_var raw_grid_trends
+% Clear raw climate data to save memory
+clear raw_grid_clim_var
 
 % Retrend bias corrected data
-if preserve_trends
+if strcmp(trend_method,'grid')
+    bc_grid_clim_var...
+        = retrendclimdata(...
+        bc_grid_clim_var,raw_grid_trends,bc_type,multiplicative_epsilon);
+elseif strcmp(trend_method,'station')
     bc_grid_clim_var...
         = retrendclimdata(...
         bc_grid_clim_var,station_grid_trends,bc_type,multiplicative_epsilon);
 end
+
+% Clear raw trends to save memory
+clear raw_grid_trends
 
 % Clear station grid trends to save memory
 clear station_grid_trends

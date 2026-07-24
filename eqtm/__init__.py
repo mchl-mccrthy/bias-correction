@@ -1,4 +1,4 @@
-"""Python port of the EQM-STeP bias-correction workflow."""
+"""Python port of the EQTM bias-correction workflow."""
 
 from .config import BiasCorrectionConfig
 from .core import biascorrect

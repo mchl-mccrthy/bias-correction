@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from eqm_step import BiasCorrectionConfig
+from eqtm import BiasCorrectionConfig
 
 
 def config_andermatt_zuerich_tas_trends_off() -> BiasCorrectionConfig:
@@ -12,7 +12,7 @@ def config_andermatt_zuerich_tas_trends_off() -> BiasCorrectionConfig:
         clim_var_units="degC",
         qmf_period="monthly",
         bc_type="additive",
-        preserve_trends=False,
+        trend_method="none",
         trend_window=365 * 5,
         agg_method="mean",
         write_output=True,

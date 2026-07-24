@@ -26,7 +26,7 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
 
     The workflow estimates empirical quantile-mapping corrections at station
     locations, interpolates those corrections to the grid with IDW, optionally
-    preserves station trends, and optionally writes a bias-corrected NetCDF
+    maps grid or station trends, and optionally writes a bias-corrected NetCDF
     file.
 
     Parameters
@@ -44,13 +44,14 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
 
     print("Bias correcting climate data")
     validateconfig(cfg)
+    trend_method = cfg.trend_method
 
     station = loadstationdata(cfg.file_path_station_clim_var, cfg.file_path_station_coords)
     raw = loadgriddata(cfg.file_path_raw_data, cfg.clim_var_name)
     raw_grid_clim_var = raw.clim_var.copy()
     station_clim_var = station.clim_var.copy()
 
-    if cfg.preserve_trends:
+    if trend_method in {"grid", "station"}:
         raw_grid_trends = gettrends(raw_grid_clim_var, axis=2, window=cfg.trend_window)
         station_trends = gettrends(station_clim_var.to_numpy(dtype=float), axis=0, window=cfg.trend_window)
         raw_grid_clim_var = detrendclimdata(
@@ -62,6 +63,8 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
             cfg.bc_type,
             cfg.multiplicative_epsilon,
         )
+        if trend_method == "grid":
+            del station_trends
 
     qmfs = getqmfs(
         station_clim_var,
@@ -96,7 +99,12 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
     )
     del raw_grid_clim_var
 
-    if cfg.preserve_trends:
+    if trend_method == "grid":
+        bc_grid_clim_var = retrendclimdata(
+            bc_grid_clim_var, raw_grid_trends, cfg.bc_type, cfg.multiplicative_epsilon
+        )
+        del raw_grid_trends
+    elif trend_method == "station":
         station_grid_trends = interptrends(
             station_trends,
             station.x,

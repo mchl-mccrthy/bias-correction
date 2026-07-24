@@ -8,7 +8,7 @@ import matplotlib.patches as mpatches
 import numpy as np
 import xarray as xr
 
-from eqm_step.plotting import BOX_LINE_WIDTH, CM_TO_IN, FONT_SIZE, _set_plot_style
+from eqtm.plotting import BOX_LINE_WIDTH, CM_TO_IN, FONT_SIZE, _set_plot_style
 from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuerich_tas_trends_on
 
 

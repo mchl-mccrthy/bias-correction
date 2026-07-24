@@ -8,8 +8,8 @@ reported workflow and figures.
 ## Intended archive contents
 
 ```text
-eqm-step-v1.0.0/
-|-- eqm_step/
+EQTM-v1.0.0/
+|-- eqtm/
 |-- matlab/
 |-- scripts/
 |-- docs/
@@ -73,7 +73,7 @@ These files can still be included in the final Zenodo archive.
 1. Confirm that the Python runner works from the archive root:
 
    ```powershell
-   python -m scripts.run_eqm_step
+   python -m scripts.run_eqtm
    ```
 
 2. Confirm that the Python paper experiments runner works from the archive root:
@@ -85,7 +85,7 @@ These files can still be included in the final Zenodo archive.
 3. Confirm that the MATLAB runner works from the archive root:
 
    ```matlab
-   run('matlab/run_eqm_step.m')
+   run('matlab/run_eqtm.m')
    ```
 
 4. Confirm that paper figure scripts run from the archive root.

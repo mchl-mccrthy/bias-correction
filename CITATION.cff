@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use EQM-STeP, please cite the archived release associated with the paper."
-title: "EQM-STeP"
+message: "If you use EQTM, please cite the archived release associated with the paper."
+title: "EQTM"
 version: "0.1.0"
 authors:
   - family-names: "McCarthy"

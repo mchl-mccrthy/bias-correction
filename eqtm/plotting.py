@@ -25,7 +25,7 @@ STATION_COLOR = "tab:red"
 
 
 def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
-    """Create diagnostic figures for an EQM-STeP workflow run.
+    """Create diagnostic figures for an EQTM workflow run.
 
     Figures include maps of long-term mean and trend fields, station trend
     comparisons, all-station quantile-quantile plots, station availability,
@@ -340,7 +340,7 @@ def _map_figure(
     ax.set_ylim(np.nanmin(grid_y), np.nanmax(grid_y))
     ax.set_aspect("equal", adjustable="box")
     cbar = fig.colorbar(contour, cax=_colorbar_axes(fig, ax))
-    cbar.ax._eqm_step_colorbar = True
+    cbar.ax._eqtm_colorbar = True
     cbar.set_label(colorbar_label)
     cbar.ax.tick_params(labelsize=FONT_SIZE, length=TICK_LENGTH_POINTS, width=BOX_LINE_WIDTH)
     cbar.ax.yaxis.label.set_size(FONT_SIZE)
@@ -439,7 +439,7 @@ def _format_axes(ax: plt.Axes) -> None:
         width=BOX_LINE_WIDTH,
     )
     _format_numeric_ticks(ax)
-    if getattr(ax, "_eqm_step_colorbar", False):
+    if getattr(ax, "_eqtm_colorbar", False):
         ax.xaxis.set_ticks([])
         ax.xaxis.set_ticklabels([])
         ax.xaxis.offsetText.set_visible(False)
@@ -481,7 +481,7 @@ def _format_date_axis(ax: plt.Axes) -> None:
 
 
 def _format_numeric_ticks(ax: plt.Axes) -> None:
-    if not getattr(ax, "_eqm_step_colorbar", False) and not _has_date_axis(ax, "x"):
+    if not getattr(ax, "_eqtm_colorbar", False) and not _has_date_axis(ax, "x"):
         ax.xaxis.set_major_locator(mticker.MaxNLocator(nbins=MAX_TICKS, min_n_ticks=MIN_TICKS))
     if not _has_date_axis(ax, "y"):
         ax.yaxis.set_major_locator(mticker.MaxNLocator(nbins=MAX_TICKS, min_n_ticks=MIN_TICKS))

@@ -1,6 +1,6 @@
-# EQM-STeP v0.1.0
+# EQTM v0.1.0
 
-A workflow for bias correction of historical gridded climate data using station observations and empirical quantile mapping, with the option to preserve station trends. 
+A workflow for bias correction of historical gridded climate data using station observations, empirical quantile mapping, and optional trend mapping.
 
 **Author:** Michael McCarthy
 
@@ -9,7 +9,7 @@ A workflow for bias correction of historical gridded climate data using station 
 - Empirical quantile mapping
 - Monthly, seasonal, or whole-period corrections
 - Additive or multiplicative bias correction
-- Optional preservation of station trends
+- Optional grid or station trend mapping
 - Spatial interpolation of station-based corrections using inverse-distance weighting (IDW)
 - Optional parallel processing
 - NetCDF input and output
@@ -35,8 +35,8 @@ The workflow has three stages:
 2. Calculate diagnostics from the station, raw gridded and bias-corrected gridded climate data.
 3. Make diagnostic plots.
 
-Example runners are provided in `matlab/run_eqm_step.m` and
-`scripts/run_eqm_step.py`.
+Example runners are provided in `matlab/run_eqtm.m` and
+`scripts/run_eqtm.py`.
 
 These runners each contain calls to three functions:
 1. **`biascorrect`**
@@ -63,13 +63,13 @@ python -m pip install -e .
 
 The example runner can then be run from the repository root:
 ```powershell
-python -m scripts.run_eqm_step
+python -m scripts.run_eqtm
 ```
 It loads a configuration file from `scripts/`, runs the bias correction, computes 
 diagnostics and plots figures.
 
 To reproduce the paper experiments with temperature and precipitation, both
-with and without trend preservation, run:
+with and without station trend mapping, run:
 
 ```powershell
 python -m scripts.run_paper_experiments
@@ -78,7 +78,7 @@ python -m scripts.run_paper_experiments
 ### MATLAB
 In MATLAB, the example runner can be run from the repository root:
 ```matlab
-run('matlab/run_eqm_step.m')
+run('matlab/run_eqtm.m')
 ```
 It loads a configuration file from `matlab/config/`, runs the bias correction, computes 
 diagnostics and plots figures.
@@ -95,7 +95,7 @@ Workflow settings are defined in the example configuration files in
 | `clim_var_name` | Climate variable name in both the NetCDF and station files |
 | `qmf_period` | Quantile mapping period (`whole`, `seasonal`, or `monthly`) |
 | `bc_type` | Bias-correction type (`additive` or `multiplicative`) |
-| `preserve_trends` | Preserve observed station trends |
+| `trend_method` | Trend treatment (`none`, `grid`, or `station`) |
 | `trend_window` | Moving-average window length used for trend estimation |
 | `agg_method` | Annual aggregation method (`mean` or `sum`) |
 | `write_output` | Write the corrected NetCDF file |
@@ -136,7 +136,7 @@ The workflow assumes:
 ```text
 bias_correction/
 |-- docs/
-|-- eqm_step/
+|-- eqtm/
 |-- input_data/        # Included in Zenodo archive, ignored by GitHub
 |   `-- andermatt_zuerich_1981_2019/
 |       |-- gridded/

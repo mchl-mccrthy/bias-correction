@@ -5,10 +5,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from eqm_step import makediagnostics
-from eqm_step.config import BiasCorrectionConfig
-from eqm_step.diagnostics import Diagnostics
-from eqm_step.plotting import (
+from eqtm import makediagnostics
+from eqtm.config import BiasCorrectionConfig
+from eqtm.diagnostics import Diagnostics
+from eqtm.plotting import (
     _add_equality_line,
     _format_units,
     _new_figure,
@@ -93,8 +93,8 @@ def _paper_qq(
             [raw_handle, on_handle, off_handle],
             [
                 "Raw",
-                "Bias-corrected, trend preservation on",
-                "Bias-corrected, trend preservation off",
+                "Bias-corrected, station trend mapping",
+                "Bias-corrected, no trend mapping",
             ],
             loc="upper center",
             bbox_to_anchor=(0.5, -0.20),
@@ -112,9 +112,9 @@ def _station_quantiles(
     qs: np.ndarray,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray] | tuple[None, None, None, None]:
     if not diagnostics_on.station_time.equals(diagnostics_off.station_time):
-        raise ValueError("Trend-preservation on/off diagnostics must use the same station time vector.")
+        raise ValueError("Trend-method diagnostics must use the same station time vector.")
     if not diagnostics_on.grid_time.equals(diagnostics_off.grid_time):
-        raise ValueError("Trend-preservation on/off diagnostics must use the same grid time vector.")
+        raise ValueError("Trend-method diagnostics must use the same grid time vector.")
     if not diagnostics_on.station_time.equals(diagnostics_on.grid_time):
         raise ValueError("Station and grid time vectors must match exactly.")
 

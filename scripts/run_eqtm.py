@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from eqm_step import biascorrect, makediagnostics, makeplots
+from eqtm import biascorrect, makediagnostics, makeplots
 from scripts.config_andermatt_zuerich_tas import config_andermatt_zuerich_tas
 
 

@@ -4,10 +4,10 @@ from pathlib import Path
 
 import numpy as np
 
-from eqm_step import makediagnostics
-from eqm_step.config import BiasCorrectionConfig
-from eqm_step.diagnostics import Diagnostics
-from eqm_step.plotting import _new_figure, _save_figure, _set_plot_style, _yearly_units
+from eqtm import makediagnostics
+from eqtm.config import BiasCorrectionConfig
+from eqtm.diagnostics import Diagnostics
+from eqtm.plotting import _new_figure, _save_figure, _set_plot_style, _yearly_units
 from paper_figures.scripts.make_paper_qq import ON_COLOR, RAW_COLOR
 from scripts.config_andermatt_zuerich_pr_trends_on import config_andermatt_zuerich_pr_trends_on
 from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuerich_tas_trends_on

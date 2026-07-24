@@ -1,7 +1,7 @@
 # Validation
 
 This document summarises the validation of the Python implementation against 
-the original MATLAB implementation of EQM-STeP.
+the original MATLAB implementation of EQTM.
 
 ## Purpose
 
@@ -30,7 +30,7 @@ Both tests used:
 - identical configuration settings
 - monthly empirical quantile mapping
 - elevation-aware inverse-distance weighting
-- trend preservation enabled
+- station trend mapping enabled
 
 The Python implementation uses Hazen empirical quantiles:
 
@@ -62,7 +62,7 @@ The following summary statistics were calculated from absolute differences:
 
 ### Temperature (`tas`)
 
-For `tas`, with additive bias correction and trend preservation enabled:
+For `tas`, with additive bias correction and station trend mapping enabled:
 
 | Statistic | Absolute difference |
 |---|---:|
@@ -84,7 +84,7 @@ difference.
 
 ### Precipitation (`pr`)
 
-For `pr`, with multiplicative bias correction and trend preservation enabled:
+For `pr`, with multiplicative bias correction and station trend mapping enabled:
 
 | Statistic | Absolute difference |
 |---|---:|

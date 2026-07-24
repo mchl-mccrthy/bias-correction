@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
 
-from eqm_step import makediagnostics
-from eqm_step.config import BiasCorrectionConfig
-from eqm_step.diagnostics import Diagnostics
-from eqm_step.plotting import (
+from eqtm import makediagnostics
+from eqtm.config import BiasCorrectionConfig
+from eqtm.diagnostics import Diagnostics
+from eqtm.plotting import (
     BOX_LINE_WIDTH,
     CM_TO_IN,
     FONT_SIZE,

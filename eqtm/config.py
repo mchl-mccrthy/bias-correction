@@ -6,10 +6,10 @@ from pathlib import Path
 
 @dataclass
 class BiasCorrectionConfig:
-    """Configuration for an EQM-STeP bias-correction workflow.
+    """Configuration for an EQTM bias-correction workflow.
 
     The configuration stores variable metadata, quantile-mapping options,
-    trend-preservation settings, IDW interpolation settings, and file paths
+    trend-method settings, IDW interpolation settings, and file paths
     used by `biascorrect`, `makediagnostics`, and `makeplots`.
     """
 
@@ -18,7 +18,7 @@ class BiasCorrectionConfig:
     clim_var_units: str
     qmf_period: str
     bc_type: str
-    preserve_trends: bool
+    trend_method: str
     trend_window: int
     agg_method: str
     write_output: bool
@@ -41,6 +41,7 @@ class BiasCorrectionConfig:
 def validateconfig(cfg: BiasCorrectionConfig) -> None:
     """Validate user-facing configuration options and required input files."""
 
+    _must_be_one_of(cfg.trend_method, {"none", "grid", "station"}, "trend_method")
     _must_be_one_of(cfg.qmf_period, {"whole", "seasonal", "monthly"}, "qmf_period")
     _must_be_one_of(cfg.bc_type, {"additive", "multiplicative"}, "bc_type")
     _must_be_one_of(cfg.agg_method, {"mean", "sum"}, "agg_method")
@@ -59,7 +60,6 @@ def validateconfig(cfg: BiasCorrectionConfig) -> None:
         raise ValueError("cfg.multiplicative_epsilon must be non-negative.")
     if cfg.n_workers is not None and cfg.n_workers <= 0:
         raise ValueError("cfg.n_workers must be None or a positive integer.")
-
     for field_name in (
         "file_path_station_coords",
         "file_path_station_clim_var",
