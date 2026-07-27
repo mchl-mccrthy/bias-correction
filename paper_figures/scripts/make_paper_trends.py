@@ -63,13 +63,13 @@ def _paper_trends(
         diagnostics_on.station_linear_trends,
         diagnostics_on.bc_station_linear_trends,
         color=ON_COLOR,
-        label="Bias-corrected, station trend mapping",
+        label="Bias-corrected, trend mapping on",
     )
     bc_off = ax.scatter(
         diagnostics_on.station_linear_trends,
         diagnostics_off.bc_station_linear_trends,
         color=OFF_COLOR,
-        label="Bias-corrected, no trend mapping",
+        label="Bias-corrected, trend mapping off",
     )
 
     values = np.concatenate(
@@ -94,8 +94,8 @@ def _paper_trends(
         [raw, bc_on, bc_off],
         [
             "Raw",
-            "Bias-corrected, station trend mapping",
-            "Bias-corrected, no trend mapping",
+            "Bias-corrected, trend mapping on",
+            "Bias-corrected, trend mapping off",
         ],
         loc="upper center",
         bbox_to_anchor=(0.5, -0.20),
@@ -103,7 +103,7 @@ def _paper_trends(
         ncol=1,
     )
 
-    _save_figure(fig, figure_dir / f"{cfg_on.clim_var_name}_paper_linear_trends_scatter.png")
+    _save_figure(fig, figure_dir / f"{cfg_on.clim_var_name}_linear_trends_scatter.png")
 
 
 if __name__ == "__main__":

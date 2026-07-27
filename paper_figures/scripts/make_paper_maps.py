@@ -54,11 +54,11 @@ def _paper_map(
     if map_type == "mean":
         values = np.nanmean(diagnostics.bc_grid_clim_var_yearly, axis=2)
         colorbar_label = _mean_label(cfg)
-        file_name = f"{cfg.clim_var_name}_paper_long_term_average_map.png"
+        file_name = f"{cfg.clim_var_name}_long_term_average_map.png"
     elif map_type == "trend":
         values = diagnostics.bc_grid_linear_trends
         colorbar_label = _trend_label(cfg)
-        file_name = f"{cfg.clim_var_name}_paper_linear_trend_map.png"
+        file_name = f"{cfg.clim_var_name}_linear_trend_map.png"
     else:
         raise ValueError("map_type must be 'mean' or 'trend'.")
 
@@ -69,6 +69,7 @@ def _paper_map(
         diagnostics.station_y,
         values,
         colorbar_label,
+        cfg.coordinate_system,
         figure_dir / file_name,
     )
 
@@ -94,11 +95,17 @@ def _map_figure(
     station_y: np.ndarray,
     values: np.ndarray,
     colorbar_label: str,
+    coordinate_system: str,
     path: Path,
 ) -> None:
-    ll_ratio = (np.nanmax(grid_x) - np.nanmin(grid_x)) / (np.nanmax(grid_y) - np.nanmin(grid_y))
+    x_range = np.nanmax(grid_x) - np.nanmin(grid_x)
+    y_range = np.nanmax(grid_y) - np.nanmin(grid_y)
+    lon_scale = 1.0
+    if coordinate_system == "geographic":
+        mean_lat = 0.5 * (np.nanmin(grid_y) + np.nanmax(grid_y))
+        lon_scale = np.cos(np.deg2rad(mean_lat))
     plot_width_cm = 3
-    plot_height_cm = plot_width_cm / ll_ratio
+    plot_height_cm = plot_width_cm * y_range / (x_range * lon_scale)
     margin_cm = 2
     colorbar_height_cm = 0.25
     colorbar_gap_cm = 0.35
@@ -125,7 +132,7 @@ def _map_figure(
     )
     ax.set_xlim(np.nanmin(grid_x), np.nanmax(grid_x))
     ax.set_ylim(np.nanmin(grid_y), np.nanmax(grid_y))
-    ax.set_aspect("equal", adjustable="box")
+    ax.set_aspect(1 / lon_scale, adjustable="box")
     ax.set_xticks([])
     ax.set_yticks([])
     ax.set_xlabel("")

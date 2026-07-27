@@ -28,8 +28,8 @@ def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
     """Create diagnostic figures for an EQTM workflow run.
 
     Figures include maps of long-term mean and trend fields, station trend
-    comparisons, all-station quantile-quantile plots, station availability,
-    and per-station diagnostic plots.
+    comparisons, all-station quantile-quantile and residual plots, station
+    availability, and per-station diagnostic plots.
     """
 
     figure_dir = Path(cfg.file_path_figures)
@@ -37,7 +37,10 @@ def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
     _set_plot_style()
     plotmaps(diagnostics, cfg, figure_dir)
     plottrendcomparison(diagnostics, cfg, figure_dir)
+    plotquantilemae(diagnostics, cfg, figure_dir)
+    plotannualmae(diagnostics, cfg, figure_dir)
     plotallstationsqq(diagnostics, cfg, figure_dir)
+    plotallstationsqmresiduals(diagnostics, cfg, figure_dir)
     plotstationavailability(diagnostics, cfg, figure_dir)
     plotstationdiagnostics(diagnostics, cfg, figure_dir)
 
@@ -60,6 +63,7 @@ def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Pa
         mean_grid,
         "Long-term average",
         mean_label,
+        cfg.coordinate_system,
         figure_dir / f"{cfg.clim_var_name}_long_term_average_map.png",
     )
     _map_figure(
@@ -70,33 +74,82 @@ def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Pa
         diagnostics.bc_grid_linear_trends,
         "Long-term trend",
         trend_label,
+        cfg.coordinate_system,
         figure_dir / f"{cfg.clim_var_name}_bc_linear_trend_map.png",
     )
 
 
 def plottrendcomparison(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
+    _trendcomparisonfigure(
+        diagnostics.station_linear_trends,
+        diagnostics.raw_station_linear_trends,
+        diagnostics.bc_station_linear_trends,
+        cfg,
+        "trend",
+        figure_dir / f"{cfg.clim_var_name}_linear_trends_scatter.png",
+    )
+
+
+def plotannualmae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
+    fig, ax = _new_figure(4, 2, 4)
+    _stripplot(
+        ax,
+        [
+            diagnostics.raw_station_annual_mae,
+            diagnostics.bc_station_annual_mae,
+        ],
+        ["Raw", "Bias-corrected"],
+        [RAW_COLOR, BC_COLOR],
+    )
+    ax.set_xlabel(f"MAE, annual {cfg.clim_var_long_name.lower()} ({_yearly_units(cfg)})")
+    _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_annual_mae_strip.png")
+
+
+def plotquantilemae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
+    fig, ax = _new_figure(4, 2, 4)
+    _stripplot(
+        ax,
+        [
+            diagnostics.raw_station_quantile_mae,
+            diagnostics.bc_station_quantile_mae,
+        ],
+        ["Raw", "Bias-corrected"],
+        [RAW_COLOR, BC_COLOR],
+    )
+    ax.set_xlabel(f"MAE, {cfg.clim_var_long_name.lower()} quantiles ({_format_units(cfg.clim_var_units)})")
+    _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_quantile_mae_strip.png")
+
+
+def _trendcomparisonfigure(
+    station_trends: np.ndarray,
+    raw_station_trends: np.ndarray,
+    bc_station_trends: np.ndarray,
+    cfg: BiasCorrectionConfig,
+    trend_label: str,
+    path: Path,
+) -> None:
     fig, ax = _new_figure(4, 4, 4)
     units = _trend_units(cfg)
     ax.scatter(
-        diagnostics.station_linear_trends,
-        diagnostics.raw_station_linear_trends,
+        station_trends,
+        raw_station_trends,
         color=RAW_COLOR,
         label="Raw",
     )
     ax.scatter(
-        diagnostics.station_linear_trends,
-        diagnostics.bc_station_linear_trends,
+        station_trends,
+        bc_station_trends,
         color=BC_COLOR,
         label="Bias-corrected",
     )
-    ax.set_xlabel(f"{cfg.clim_var_long_name} trend, stations ({units})")
-    ax.set_ylabel(f"{cfg.clim_var_long_name} trend, gridded ({units})")
+    ax.set_xlabel(f"{cfg.clim_var_long_name} {trend_label}, stations ({units})")
+    ax.set_ylabel(f"{cfg.clim_var_long_name} {trend_label}, gridded ({units})")
 
     values = np.concatenate(
         [
-            diagnostics.station_linear_trends,
-            diagnostics.raw_station_linear_trends,
-            diagnostics.bc_station_linear_trends,
+            station_trends,
+            raw_station_trends,
+            bc_station_trends,
             np.array([0.0]),
         ]
     )
@@ -108,7 +161,7 @@ def plottrendcomparison(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, fig
         _add_equality_line(ax, lims)
 
     ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), borderaxespad=0)
-    _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_linear_trends_scatter.png")
+    _save_figure(fig, path)
 
 
 def plotallstationsqq(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
@@ -159,6 +212,67 @@ def plotallstationsqq(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figur
             borderaxespad=0,
         )
     _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_all_stations_qq.png")
+
+
+def plotallstationsqmresiduals(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
+    fig, ax = _new_figure(4, 2, 4)
+    units = _format_units(cfg.clim_var_units)
+    qs = np.linspace(0, 1, 1000)
+    x_min = np.inf
+    x_max = -np.inf
+    residual_max = 0.0
+    raw_handle = None
+    bc_handle = None
+
+    for i_station in range(diagnostics.station_clim_var.shape[1]):
+        station_overlap, raw_overlap, bc_overlap = getoverlappingstationdata(
+            diagnostics.station_clim_var,
+            diagnostics.raw_station_clim_var,
+            diagnostics.bc_station_clim_var,
+            diagnostics.station_time,
+            diagnostics.grid_time,
+            i_station,
+        )
+        if len(station_overlap) == 0:
+            continue
+
+        station_q = np.nanquantile(station_overlap, qs, method="hazen")
+        raw_q = np.nanquantile(raw_overlap, qs, method="hazen")
+        bc_q = np.nanquantile(bc_overlap, qs, method="hazen")
+        raw_residual = raw_q - station_q
+        bc_residual = bc_q - station_q
+
+        raw_line = ax.plot(station_q, raw_residual, color=RAW_COLOR, linewidth=1, zorder=2)[0]
+        bc_line = ax.plot(station_q, bc_residual, color=BC_COLOR, linewidth=1, zorder=2)[0]
+        raw_handle = raw_handle or raw_line
+        bc_handle = bc_handle or bc_line
+
+        x_min = min(x_min, np.nanmin(station_q))
+        x_max = max(x_max, np.nanmax(station_q))
+        residual_max = max(
+            residual_max,
+            np.nanmax(np.abs(raw_residual)),
+            np.nanmax(np.abs(bc_residual)),
+        )
+
+    if np.isfinite(x_min) and np.isfinite(x_max) and x_min < x_max:
+        x_pad = 0.05 * (x_max - x_min)
+        ax.set_xlim(x_min - x_pad, x_max + x_pad)
+    if np.isfinite(residual_max) and residual_max > 0:
+        ax.set_ylim(-1.05 * residual_max, 1.05 * residual_max)
+    ax.axhline(0, color="k", linestyle=":", linewidth=LINE_WIDTH, zorder=0)
+
+    ax.set_xlabel(f"{cfg.clim_var_long_name}, station ({units})")
+    ax.set_ylabel(f"{cfg.clim_var_long_name} residual ({units})")
+    if raw_handle is not None and bc_handle is not None:
+        ax.legend(
+            [raw_handle, bc_handle],
+            ["Raw", "Bias-corrected"],
+            loc="center left",
+            bbox_to_anchor=(1.02, 0.5),
+            borderaxespad=0,
+        )
+    _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_all_stations_qm_residuals.png")
 
 
 def plotstationavailability(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
@@ -343,14 +457,20 @@ def _map_figure(
     values: np.ndarray,
     title: str,
     colorbar_label: str,
+    coordinate_system: str,
     path: Path,
 ) -> None:
-    ll_ratio = (np.nanmax(grid_x) - np.nanmin(grid_x)) / (np.nanmax(grid_y) - np.nanmin(grid_y))
-    fig, ax = _new_figure(4, 4 / ll_ratio, 2)
+    x_range = np.nanmax(grid_x) - np.nanmin(grid_x)
+    y_range = np.nanmax(grid_y) - np.nanmin(grid_y)
+    lon_scale = 1.0
+    if coordinate_system == "geographic":
+        mean_lat = 0.5 * (np.nanmin(grid_y) + np.nanmax(grid_y))
+        lon_scale = np.cos(np.deg2rad(mean_lat))
+    fig, ax = _new_figure(4, 4 * y_range / (x_range * lon_scale), 2)
     contour = ax.contourf(grid_x, grid_y, values, levels=100)
     ax.set_xlim(np.nanmin(grid_x), np.nanmax(grid_x))
     ax.set_ylim(np.nanmin(grid_y), np.nanmax(grid_y))
-    ax.set_aspect("equal", adjustable="box")
+    ax.set_aspect(1 / lon_scale, adjustable="box")
     cbar = fig.colorbar(contour, cax=_colorbar_axes(fig, ax))
     cbar.ax._eqtm_colorbar = True
     cbar.set_label(colorbar_label)
@@ -413,6 +533,36 @@ def _padded_equal_lims(lim_min: float, lim_max: float) -> list[float]:
     else:
         pad = 0.05 * span
     return [lim_min - pad, lim_max + pad]
+
+
+def _stripplot(
+    ax: plt.Axes,
+    values_by_group: list[np.ndarray],
+    labels: list[str],
+    colors: list[str],
+) -> None:
+    for i_group, values in enumerate(values_by_group):
+        values = np.asarray(values, dtype=float)
+        values = values[np.isfinite(values)]
+        y = np.full(values.size, i_group, dtype=float) + _deterministic_jitter(values.size)
+        ax.scatter(values, y, color=colors[i_group], zorder=2)
+        if values.size:
+            ax.plot(
+                [np.nanmedian(values), np.nanmedian(values)],
+                [i_group - 0.18, i_group + 0.18],
+                color="k",
+                linewidth=LINE_WIDTH,
+                zorder=3,
+            )
+    ax.set_yticks(np.arange(len(labels)))
+    ax.set_yticklabels(labels)
+    ax.set_ylim(-0.5, len(labels) - 0.5)
+
+
+def _deterministic_jitter(n_values: int) -> np.ndarray:
+    if n_values <= 1:
+        return np.zeros(n_values)
+    return np.linspace(-0.12, 0.12, n_values)
 
 
 def _set_plot_style() -> None:

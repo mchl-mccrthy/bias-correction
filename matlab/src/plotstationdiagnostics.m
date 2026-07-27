@@ -65,9 +65,10 @@ for i_station = 1:n_stations
     ylabel([clim_var_long_name ', gridded (' clim_var_units ')'])
     xlabel([clim_var_long_name ', station (' clim_var_units ')'])
     title(station_name,'Interpreter','none')
-    xlim([hist_min hist_max])
-    ylim([hist_min hist_max])
-    h_eq = plot([hist_min hist_max],[hist_min hist_max],'k:',...
+    lims = paddedequallims(hist_min,hist_max);
+    xlim(lims)
+    ylim(lims)
+    h_eq = plot(lims,lims,'k:',...
         'HandleVisibility','off');
     uistack(h_eq,'bottom');
     legend('Raw','Bias-corrected','Location','eastoutside')

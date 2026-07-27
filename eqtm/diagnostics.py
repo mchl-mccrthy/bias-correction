@@ -29,6 +29,11 @@ class Diagnostics:
     station_linear_trends: np.ndarray
     raw_station_linear_trends: np.ndarray
     bc_station_linear_trends: np.ndarray
+    raw_station_quantile_mae: np.ndarray
+    bc_station_quantile_mae: np.ndarray
+    raw_station_annual_mae: np.ndarray
+    bc_station_annual_mae: np.ndarray
+    summary_table: pd.DataFrame
     bc_grid_clim_var_yearly: np.ndarray
     bc_grid_linear_trends: np.ndarray
     grid_x: np.ndarray
@@ -60,6 +65,18 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
     station_trends, raw_trends, bc_trends = getlineartrends(
         station_yearly, raw_station_yearly, bc_station_yearly, years
     )
+    raw_quantile_mae, bc_quantile_mae = getquantilemae(station.clim_var, raw_station, bc_station)
+    raw_annual_mae, bc_annual_mae = getannualmae(station_yearly, raw_station_yearly, bc_station_yearly)
+    summary_table = makesummarytable(
+        cfg.clim_var_name,
+        station_trends,
+        raw_trends,
+        bc_trends,
+        raw_quantile_mae,
+        bc_quantile_mae,
+        raw_annual_mae,
+        bc_annual_mae,
+    )
     bc_grid_yearly, grid_years = makeyearlygrid(bc.clim_var, raw.time, cfg.agg_method)
     bc_grid_trends = getgridlineartrends(bc_grid_yearly, grid_years)
 
@@ -78,6 +95,11 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
         station_trends,
         raw_trends,
         bc_trends,
+        raw_quantile_mae,
+        bc_quantile_mae,
+        raw_annual_mae,
+        bc_annual_mae,
+        summary_table,
         bc_grid_yearly,
         bc_grid_trends,
         raw.x,
@@ -184,6 +206,104 @@ def getgridlineartrends(grid_clim_var_yearly: np.ndarray, years: np.ndarray) -> 
             if np.sum(valid) >= 2:
                 out[i_row, i_col] = np.polyfit(years[valid], grid_tmp[valid], 1)[0]
     return out
+
+
+def getannualmae(
+    station_clim_var_yearly: pd.DataFrame,
+    raw_station_clim_var_yearly: pd.DataFrame,
+    bc_station_clim_var_yearly: pd.DataFrame,
+) -> tuple[np.ndarray, np.ndarray]:
+    n_stations = station_clim_var_yearly.shape[1]
+    raw_mae = np.full(n_stations, np.nan)
+    bc_mae = np.full(n_stations, np.nan)
+    for i_station in range(n_stations):
+        station_tmp = station_clim_var_yearly.iloc[:, i_station].to_numpy(dtype=float)
+        raw_tmp = raw_station_clim_var_yearly.iloc[:, i_station].to_numpy(dtype=float)
+        bc_tmp = bc_station_clim_var_yearly.iloc[:, i_station].to_numpy(dtype=float)
+        valid = ~np.isnan(station_tmp) & ~np.isnan(raw_tmp) & ~np.isnan(bc_tmp)
+        if np.any(valid):
+            raw_mae[i_station] = np.nanmean(np.abs(raw_tmp[valid] - station_tmp[valid]))
+            bc_mae[i_station] = np.nanmean(np.abs(bc_tmp[valid] - station_tmp[valid]))
+    return raw_mae, bc_mae
+
+
+def getquantilemae(
+    station_clim_var: pd.DataFrame,
+    raw_station_clim_var: pd.DataFrame,
+    bc_station_clim_var: pd.DataFrame,
+) -> tuple[np.ndarray, np.ndarray]:
+    n_stations = station_clim_var.shape[1]
+    raw_mae = np.full(n_stations, np.nan)
+    bc_mae = np.full(n_stations, np.nan)
+    qs = np.linspace(0, 1, 1000)
+    for i_station in range(n_stations):
+        station_tmp = station_clim_var.iloc[:, i_station].to_numpy(dtype=float)
+        raw_tmp = raw_station_clim_var.iloc[:, i_station].to_numpy(dtype=float)
+        bc_tmp = bc_station_clim_var.iloc[:, i_station].to_numpy(dtype=float)
+        valid = ~np.isnan(station_tmp) & ~np.isnan(raw_tmp) & ~np.isnan(bc_tmp)
+        if np.any(valid):
+            station_q = np.nanquantile(station_tmp[valid], qs, method="hazen")
+            raw_q = np.nanquantile(raw_tmp[valid], qs, method="hazen")
+            bc_q = np.nanquantile(bc_tmp[valid], qs, method="hazen")
+            raw_mae[i_station] = np.nanmean(np.abs(raw_q - station_q))
+            bc_mae[i_station] = np.nanmean(np.abs(bc_q - station_q))
+    return raw_mae, bc_mae
+
+
+def makesummarytable(
+    clim_var_name: str,
+    station_trends: np.ndarray,
+    raw_station_trends: np.ndarray,
+    bc_station_trends: np.ndarray,
+    raw_quantile_mae: np.ndarray,
+    bc_quantile_mae: np.ndarray,
+    raw_annual_mae: np.ndarray,
+    bc_annual_mae: np.ndarray,
+) -> pd.DataFrame:
+    rows = [
+        _summaryrow(
+            clim_var_name,
+            "Raw",
+            station_trends,
+            raw_station_trends,
+            raw_quantile_mae,
+            raw_annual_mae,
+        ),
+        _summaryrow(
+            clim_var_name,
+            "Bias-corrected",
+            station_trends,
+            bc_station_trends,
+            bc_quantile_mae,
+            bc_annual_mae,
+        ),
+    ]
+    return pd.DataFrame(rows)
+
+
+def _summaryrow(
+    clim_var_name: str,
+    dataset: str,
+    station_trends: np.ndarray,
+    model_trends: np.ndarray,
+    quantile_mae: np.ndarray,
+    annual_mae: np.ndarray,
+) -> dict[str, float | str]:
+    return {
+        "Variable": clim_var_name,
+        "Dataset": dataset,
+        "MAE quantiles": np.nanmean(quantile_mae),
+        "MAE annual": np.nanmean(annual_mae),
+        "r2 trends": _r2(station_trends, model_trends),
+    }
+
+
+def _r2(x: np.ndarray, y: np.ndarray) -> float:
+    valid = np.isfinite(x) & np.isfinite(y)
+    if np.sum(valid) < 2:
+        return np.nan
+    corr = np.corrcoef(x[valid], y[valid])[0, 1]
+    return float(corr**2)
 
 
 def getoverlappingstationdata(

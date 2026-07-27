@@ -107,8 +107,8 @@ def _paper_qq(
             [raw_handle, on_handle, off_handle],
             [
                 "Raw",
-                "Bias-corrected, station trend mapping",
-                "Bias-corrected, no trend mapping",
+                "Bias-corrected, trend mapping on",
+                "Bias-corrected, trend mapping off",
             ],
             loc="upper center",
             bbox_to_anchor=(0.5, -0.20),
@@ -116,7 +116,7 @@ def _paper_qq(
             ncol=1,
         )
 
-    _save_figure(fig, figure_dir / f"{cfg_on.clim_var_name}_paper_all_stations_qq.png")
+    _save_figure(fig, figure_dir / f"{cfg_on.clim_var_name}_all_stations_qq.png")
 
 
 def _station_quantiles(

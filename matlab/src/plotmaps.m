@@ -1,7 +1,7 @@
 % Plot maps of long-term averages and linear trends
 function plotmaps(grid_x,grid_y,station_x,station_y,bc_grid_clim_var_yearly,...
     bc_grid_linear_trends,file_path_figures,clim_var_name,...
-    clim_var_long_name,clim_var_units,agg_method)
+    clim_var_long_name,clim_var_units,agg_method,coordinate_system)
 
 % Plot map of long-term average of bias-corrected data
 figure()
@@ -18,9 +18,9 @@ h_stations = scatter(station_x,station_y,36,'o', ...
     'MarkerFaceColor','w','MarkerEdgeColor','k');
 legend(h_stations,'Stations','Location','southoutside')
 title('Long-term average')
-ll_ratio = (max(grid_x,[],'all')-min(grid_x,[],'all'))./ ...
-           (max(grid_y,[],'all')-min(grid_y,[],'all'));
-formatfigure(gcf,4,4/ll_ratio,2)
+[plot_height,lon_scale] = mapplotheight(grid_x,grid_y,coordinate_system);
+daspect([1/lon_scale 1 1])
+formatfigure(gcf,4,plot_height,2)
 print(gcf, fullfile(file_path_figures, [clim_var_name ...
     '_long_term_average_map.png']), '-dpng','-r300');
 
@@ -38,9 +38,28 @@ h_stations = scatter(station_x,station_y,36,'o', ...
     'MarkerFaceColor','w','MarkerEdgeColor','k');
 legend(h_stations,'Stations','Location','southoutside')
 title('Long-term trend')
-ll_ratio = (max(grid_x,[],'all')-min(grid_x,[],'all'))./ ...
-           (max(grid_y,[],'all')-min(grid_y,[],'all'));
-formatfigure(gcf,4,4/ll_ratio,2)
+[plot_height,lon_scale] = mapplotheight(grid_x,grid_y,coordinate_system);
+daspect([1/lon_scale 1 1])
+formatfigure(gcf,4,plot_height,2)
 print(gcf, fullfile(file_path_figures, [clim_var_name ...
     '_bc_linear_trend_map.png']), '-dpng','-r300');
+end
+
+% Get map plot height and longitude scaling
+function [plot_height,lon_scale] = mapplotheight(grid_x,grid_y,coordinate_system)
+
+% Get coordinate ranges
+x_range = max(grid_x,[],'all') - min(grid_x,[],'all');
+y_range = max(grid_y,[],'all') - min(grid_y,[],'all');
+
+% Scale longitude distances for geographic coordinates
+lon_scale = 1;
+if strcmp(coordinate_system,'geographic')
+    mean_lat = 0.5 * (min(grid_y,[],'all') + max(grid_y,[],'all'));
+    lon_scale = cosd(mean_lat);
+end
+
+% Calculate plot height
+plot_height = 4 * y_range / (x_range * lon_scale);
+
 end

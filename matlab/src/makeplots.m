@@ -6,6 +6,7 @@ clim_var_name = cfg.clim_var_name;
 clim_var_long_name = cfg.clim_var_long_name;
 clim_var_units = cfg.clim_var_units;
 agg_method = cfg.agg_method;
+coordinate_system = cfg.coordinate_system;
 file_path_figures = cfg.file_path_figures;
 
 % Create figure folder if needed
@@ -29,6 +30,10 @@ years = diagnostics.years;
 station_linear_trends = diagnostics.station_linear_trends;
 raw_station_linear_trends = diagnostics.raw_station_linear_trends;
 bc_station_linear_trends = diagnostics.bc_station_linear_trends;
+raw_station_quantile_mae = diagnostics.raw_station_quantile_mae;
+bc_station_quantile_mae = diagnostics.bc_station_quantile_mae;
+raw_station_annual_mae = diagnostics.raw_station_annual_mae;
+bc_station_annual_mae = diagnostics.bc_station_annual_mae;
 bc_grid_clim_var_yearly = diagnostics.bc_grid_clim_var_yearly;
 bc_grid_linear_trends = diagnostics.bc_grid_linear_trends;
 station_x = diagnostics.station_x;
@@ -37,7 +42,7 @@ station_y = diagnostics.station_y;
 % Make maps of long-term average and linear trends
 plotmaps(grid_x,grid_y,station_x,station_y,bc_grid_clim_var_yearly,...
     bc_grid_linear_trends,file_path_figures,clim_var_name,...
-    clim_var_long_name,clim_var_units,agg_method);
+    clim_var_long_name,clim_var_units,agg_method,coordinate_system);
 
 % Make scatter plot of linear trends
 plottrendcomparison(station_linear_trends,...
@@ -45,8 +50,23 @@ plottrendcomparison(station_linear_trends,...
     file_path_figures,clim_var_name,clim_var_long_name,clim_var_units,...
     agg_method);
 
+% Make strip plot of quantile mean absolute errors
+plotquantilemae(raw_station_quantile_mae,bc_station_quantile_mae,...
+    file_path_figures,clim_var_name,clim_var_long_name,clim_var_units);
+
+% Make strip plot of annual mean absolute errors
+plotannualmae(raw_station_annual_mae,bc_station_annual_mae,...
+    file_path_figures,clim_var_name,clim_var_long_name,clim_var_units,...
+    agg_method);
+
 % Make quantile-quantile plots for all stations
 plotallstationsqq( ...
+    station_clim_var,raw_station_clim_var,bc_station_clim_var,...
+    station_time,grid_time,file_path_figures,clim_var_name,...
+    clim_var_long_name,clim_var_units);
+
+% Make quantile-mapping residual plots for all stations
+plotallstationsqmresiduals( ...
     station_clim_var,raw_station_clim_var,bc_station_clim_var,...
     station_time,grid_time,file_path_figures,clim_var_name,...
     clim_var_long_name,clim_var_units);

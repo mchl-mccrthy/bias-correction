@@ -130,6 +130,8 @@ The workflow assumes:
 - When station trend corrections are unavailable, the trend correction is set to a neutral value so the raw gridded trend is retained.
 - For geographic coordinates, IDW distances are calculated using great-circle distance. For projected coordinates, they are calculated using Euclidean distance.
 - For IDW with elevation-aware distances, projected coordinates and elevation are assumed to be in metres.
+- Quantile and annual MAE diagnostics compare station values with gridded
+  values extracted at station locations.
 
 ## Repository structure
 
