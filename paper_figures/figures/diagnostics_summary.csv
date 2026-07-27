@@ -1,5 +1,5 @@
 ,Temperature,Temperature,Temperature,Precipitation,Precipitation,Precipitation
-,MAE quantiles,MAE annual,r2 trends,MAE quantiles,MAE annual,r2 trends
+,MAE quantiles,MAE yearly,r2 trends,MAE quantiles,MAE yearly,r2 trends
 Raw,0.656,0.584,0.0641,1.19,279,0.627
 "Bias-corrected, trend mapping on",0.0349,0.157,0.986,0.0286,63.2,0.966
 "Bias-corrected, trend mapping off",0.0434,0.192,0.127,0.0202,69.7,0.00617

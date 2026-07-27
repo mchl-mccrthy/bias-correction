@@ -36,7 +36,7 @@ for i_station = 1:n_stations
 end
 ylabel([clim_var_long_name ', gridded (' clim_var_units ')'])
 xlabel([clim_var_long_name ', station (' clim_var_units ')'])
-title('Quantile-quantile')
+title('All stations, quantile-quantile')
 if isfinite(qq_min) && isfinite(qq_max) && qq_min < qq_max
     lims = paddedequallims(qq_min,qq_max);
     xlim(lims)

@@ -5,6 +5,7 @@ function plotstationavailability(station_clim_var,station_coords,...
 % Make plot
 figure()
 n_stations = width(station_clim_var);
+plot_height = 0.5 * n_stations;
 for i_station = 1:n_stations
     scatter(station_time, ...
         station_clim_var{:,i_station} ./ station_clim_var{:,i_station} ...
@@ -17,7 +18,8 @@ end
 xlim([station_time(1) station_time(end)])
 ylim([0 n_stations+1])
 yticklabels([])
-formatfigure(gcf,5,3,4)
+title('Station availability')
+formatfigure(gcf,5,plot_height,4)
 print(gcf, fullfile(file_path_figures, [clim_var_name ...
     '_station_availability.png']), '-dpng','-r300');
 

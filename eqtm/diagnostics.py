@@ -34,6 +34,9 @@ class Diagnostics:
     raw_station_annual_mae: np.ndarray
     bc_station_annual_mae: np.ndarray
     summary_table: pd.DataFrame
+    raw_grid_domain_mean: np.ndarray
+    bc_grid_domain_mean: np.ndarray
+    raw_grid_clim_var_yearly: np.ndarray
     bc_grid_clim_var_yearly: np.ndarray
     bc_grid_linear_trends: np.ndarray
     grid_x: np.ndarray
@@ -67,6 +70,8 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
     )
     raw_quantile_mae, bc_quantile_mae = getquantilemae(station.clim_var, raw_station, bc_station)
     raw_annual_mae, bc_annual_mae = getannualmae(station_yearly, raw_station_yearly, bc_station_yearly)
+    raw_grid_domain_mean = np.nanmean(raw.clim_var, axis=(0, 1))
+    bc_grid_domain_mean = np.nanmean(bc.clim_var, axis=(0, 1))
     summary_table = makesummarytable(
         cfg.clim_var_name,
         station_trends,
@@ -77,7 +82,8 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
         raw_annual_mae,
         bc_annual_mae,
     )
-    bc_grid_yearly, grid_years = makeyearlygrid(bc.clim_var, raw.time, cfg.agg_method)
+    raw_grid_yearly, grid_years = makeyearlygrid(raw.clim_var, raw.time, cfg.agg_method)
+    bc_grid_yearly, _ = makeyearlygrid(bc.clim_var, raw.time, cfg.agg_method)
     bc_grid_trends = getgridlineartrends(bc_grid_yearly, grid_years)
 
     return Diagnostics(
@@ -100,6 +106,9 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
         raw_annual_mae,
         bc_annual_mae,
         summary_table,
+        raw_grid_domain_mean,
+        bc_grid_domain_mean,
+        raw_grid_yearly,
         bc_grid_yearly,
         bc_grid_trends,
         raw.x,
@@ -293,7 +302,7 @@ def _summaryrow(
         "Variable": clim_var_name,
         "Dataset": dataset,
         "MAE quantiles": np.nanmean(quantile_mae),
-        "MAE annual": np.nanmean(annual_mae),
+        "MAE yearly": np.nanmean(annual_mae),
         "r2 trends": _r2(station_trends, model_trends),
     }
 

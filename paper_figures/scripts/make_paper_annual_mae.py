@@ -59,7 +59,7 @@ def _paper_annual_mae(
         ],
         [RAW_COLOR, ON_COLOR, OFF_COLOR],
     )
-    ax.set_xlabel(f"MAE, annual {cfg_on.clim_var_long_name.lower()} ({_yearly_units(cfg_on)})")
+    ax.set_xlabel(f"MAE, yearly {cfg_on.clim_var_long_name.lower()} ({_yearly_units(cfg_on)})")
     _save_figure(fig, figure_dir / f"{cfg_on.clim_var_name}_annual_mae_strip.png")
 
 

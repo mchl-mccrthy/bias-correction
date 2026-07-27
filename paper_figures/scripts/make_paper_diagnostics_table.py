@@ -14,7 +14,7 @@ from scripts.config_andermatt_zuerich_tas_trends_off import config_andermatt_zue
 from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuerich_tas_trends_on
 
 
-METRIC_COLUMNS = ["MAE quantiles", "MAE annual", "r2 trends"]
+METRIC_COLUMNS = ["MAE quantiles", "MAE yearly", "r2 trends"]
 ROW_LABELS = ["Raw", "Bias-corrected, trend mapping on", "Bias-corrected, trend mapping off"]
 
 

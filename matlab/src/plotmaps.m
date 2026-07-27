@@ -14,13 +14,13 @@ elseif strcmp(agg_method,'mean')
     c.Label.String = [clim_var_long_name ' (' clim_var_units ')'];
 end
 hold on
-h_stations = scatter(station_x,station_y,36,'o', ...
+h_stations = scatter(station_x,station_y,10,'o', ...
     'MarkerFaceColor','w','MarkerEdgeColor','k');
 legend(h_stations,'Stations','Location','southoutside')
-title('Long-term average')
-[plot_height,lon_scale] = mapplotheight(grid_x,grid_y,coordinate_system);
+title('Domain temporal average')
+[plot_width,plot_height,lon_scale] = mapplotsize(grid_x,grid_y,coordinate_system);
 daspect([1/lon_scale 1 1])
-formatfigure(gcf,4,plot_height,2)
+formatfigure(gcf,plot_width,plot_height,2)
 print(gcf, fullfile(file_path_figures, [clim_var_name ...
     '_long_term_average_map.png']), '-dpng','-r300');
 
@@ -34,19 +34,19 @@ elseif strcmp(agg_method,'mean')
     c.Label.String = [clim_var_long_name ' trend (' clim_var_units ' year^{-1})'];
 end
 hold on
-h_stations = scatter(station_x,station_y,36,'o', ...
+h_stations = scatter(station_x,station_y,10,'o', ...
     'MarkerFaceColor','w','MarkerEdgeColor','k');
 legend(h_stations,'Stations','Location','southoutside')
-title('Long-term trend')
-[plot_height,lon_scale] = mapplotheight(grid_x,grid_y,coordinate_system);
+title('Domain linear trend')
+[plot_width,plot_height,lon_scale] = mapplotsize(grid_x,grid_y,coordinate_system);
 daspect([1/lon_scale 1 1])
-formatfigure(gcf,4,plot_height,2)
+formatfigure(gcf,plot_width,plot_height,2)
 print(gcf, fullfile(file_path_figures, [clim_var_name ...
     '_bc_linear_trend_map.png']), '-dpng','-r300');
 end
 
-% Get map plot height and longitude scaling
-function [plot_height,lon_scale] = mapplotheight(grid_x,grid_y,coordinate_system)
+% Get map plot size and longitude scaling
+function [plot_width,plot_height,lon_scale] = mapplotsize(grid_x,grid_y,coordinate_system)
 
 % Get coordinate ranges
 x_range = max(grid_x,[],'all') - min(grid_x,[],'all');
@@ -59,7 +59,10 @@ if strcmp(coordinate_system,'geographic')
     lon_scale = cosd(mean_lat);
 end
 
-% Calculate plot height
-plot_height = 4 * y_range / (x_range * lon_scale);
+% Calculate plot size from fixed map area
+map_area = 25;
+map_ratio = x_range * lon_scale / y_range;
+plot_width = sqrt(map_area * map_ratio);
+plot_height = sqrt(map_area / map_ratio);
 
 end

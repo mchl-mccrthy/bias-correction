@@ -13,12 +13,14 @@ clim_var_long_name_lower = lower(clim_var_long_name);
 % Make plot
 figure()
 hold on
-plotstripgroup(raw_annual_mae,1,[0.45 0.45 0.45]);
-plotstripgroup(bc_annual_mae,2,'r')
+h_raw = plotstripgroup(raw_annual_mae,1,[0.45 0.45 0.45]);
+h_bc = plotstripgroup(bc_annual_mae,2,'r');
 yticks([1 2])
 yticklabels({'Raw','Bias-corrected'})
 ylim([0.5 2.5])
-xlabel(['MAE, annual ' clim_var_long_name_lower ' (' annual_units ')'])
+xlabel(['MAE, yearly ' clim_var_long_name_lower ' (' annual_units ')'])
+title('All stations, yearly MAE')
+legend([h_raw h_bc],{'Raw','Bias-corrected'},'Location','eastoutside')
 formatfigure(gcf,4,2,4)
 print(gcf,fullfile(file_path_figures,[clim_var_name ...
     '_annual_mae_strip.png']),'-dpng','-r300');
@@ -26,13 +28,14 @@ print(gcf,fullfile(file_path_figures,[clim_var_name ...
 end
 
 % Plot one deterministic jittered strip group
-function plotstripgroup(values,y_value,color_value)
+function h_scatter = plotstripgroup(values,y_value,color_value)
 
 % Keep finite values
 values = values(isfinite(values));
 values = values(:)';
 n_values = numel(values);
 if n_values == 0
+    h_scatter = gobjects(1);
     return
 end
 
@@ -45,8 +48,8 @@ end
 
 % Plot station values and group median
 y_values = repmat(y_value,1,n_values) + jitter;
-scatter(values,y_values,'filled',...
-    'MarkerFaceColor',color_value,'MarkerEdgeColor',color_value)
+h_scatter = scatter(values,y_values,'filled',...
+    'MarkerFaceColor',color_value,'MarkerEdgeColor',color_value);
 hold on
 plot([median(values,'omitnan') median(values,'omitnan')],...
     [y_value-0.18 y_value+0.18],'k','LineWidth',1)

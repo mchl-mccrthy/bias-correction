@@ -16,7 +16,7 @@ CM_TO_IN = 1 / 2.54
 FONT_SIZE = 7
 LINE_WIDTH = 1
 BOX_LINE_WIDTH = 0.5
-TICK_LENGTH_POINTS = 2
+TICK_LENGTH_POINTS = 0.1 * 72 / 2.54
 MIN_TICKS = 3
 MAX_TICKS = 6
 RAW_COLOR = "0.45"
@@ -33,16 +33,21 @@ def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
     """
 
     figure_dir = Path(cfg.file_path_figures)
-    figure_dir.mkdir(parents=True, exist_ok=True)
+    overview_dir = figure_dir / "overview"
+    individual_stations_dir = figure_dir / "individual_stations"
+    overview_dir.mkdir(parents=True, exist_ok=True)
+    individual_stations_dir.mkdir(parents=True, exist_ok=True)
     _set_plot_style()
-    plotmaps(diagnostics, cfg, figure_dir)
-    plottrendcomparison(diagnostics, cfg, figure_dir)
-    plotquantilemae(diagnostics, cfg, figure_dir)
-    plotannualmae(diagnostics, cfg, figure_dir)
-    plotallstationsqq(diagnostics, cfg, figure_dir)
-    plotallstationsqmresiduals(diagnostics, cfg, figure_dir)
-    plotstationavailability(diagnostics, cfg, figure_dir)
-    plotstationdiagnostics(diagnostics, cfg, figure_dir)
+    plotmaps(diagnostics, cfg, overview_dir)
+    plotoverviewtimesteptimeseries(diagnostics, cfg, overview_dir)
+    plotoverviewtimeseries(diagnostics, cfg, overview_dir)
+    plottrendcomparison(diagnostics, cfg, overview_dir)
+    plotquantilemae(diagnostics, cfg, overview_dir)
+    plotannualmae(diagnostics, cfg, overview_dir)
+    plotallstationsqq(diagnostics, cfg, overview_dir)
+    plotallstationsqmresiduals(diagnostics, cfg, overview_dir)
+    plotstationavailability(diagnostics, cfg, overview_dir)
+    plotstationdiagnostics(diagnostics, cfg, individual_stations_dir)
 
 
 def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
@@ -61,7 +66,7 @@ def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Pa
         diagnostics.station_x,
         diagnostics.station_y,
         mean_grid,
-        "Long-term average",
+        "Domain temporal average",
         mean_label,
         cfg.coordinate_system,
         figure_dir / f"{cfg.clim_var_name}_long_term_average_map.png",
@@ -72,7 +77,7 @@ def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Pa
         diagnostics.station_x,
         diagnostics.station_y,
         diagnostics.bc_grid_linear_trends,
-        "Long-term trend",
+        "Domain linear trend",
         trend_label,
         cfg.coordinate_system,
         figure_dir / f"{cfg.clim_var_name}_bc_linear_trend_map.png",
@@ -90,9 +95,36 @@ def plottrendcomparison(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, fig
     )
 
 
+def plotoverviewtimeseries(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
+    fig, ax = _new_figure(7, 2, 4)
+    units = _yearly_units(cfg)
+    raw_domain_mean = np.nanmean(diagnostics.raw_grid_clim_var_yearly, axis=(0, 1))
+    bc_domain_mean = np.nanmean(diagnostics.bc_grid_clim_var_yearly, axis=(0, 1))
+    ax.plot(diagnostics.years, raw_domain_mean, color=RAW_COLOR, label="Raw")
+    ax.plot(diagnostics.years, bc_domain_mean, color=BC_COLOR, label="Bias-corrected")
+    ax.set_ylabel(f"{cfg.clim_var_long_name} ({units})")
+    ax.set_xlim(np.min(diagnostics.years), np.max(diagnostics.years))
+    ax.set_title("Domain spatial average, yearly")
+    ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), borderaxespad=0)
+    _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_domain_mean_time_series_yearly.png")
+
+
+def plotoverviewtimesteptimeseries(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
+    fig, ax = _new_figure(7, 2, 4)
+    units = _format_units(cfg.clim_var_units)
+    ax.plot(diagnostics.grid_time, diagnostics.raw_grid_domain_mean, color=RAW_COLOR, label="Raw")
+    ax.plot(diagnostics.grid_time, diagnostics.bc_grid_domain_mean, color=BC_COLOR, label="Bias-corrected")
+    ax.set_ylabel(f"{cfg.clim_var_long_name} ({units})")
+    ax.set_xlim(diagnostics.grid_time[0], diagnostics.grid_time[-1])
+    ax.set_title("Domain spatial average, time step")
+    ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), borderaxespad=0)
+    _format_date_axis(ax)
+    _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_domain_mean_time_series.png")
+
+
 def plotannualmae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     fig, ax = _new_figure(4, 2, 4)
-    _stripplot(
+    handles = _stripplot(
         ax,
         [
             diagnostics.raw_station_annual_mae,
@@ -101,13 +133,15 @@ def plotannualmae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_di
         ["Raw", "Bias-corrected"],
         [RAW_COLOR, BC_COLOR],
     )
-    ax.set_xlabel(f"MAE, annual {cfg.clim_var_long_name.lower()} ({_yearly_units(cfg)})")
+    ax.set_xlabel(f"MAE, yearly {cfg.clim_var_long_name.lower()} ({_yearly_units(cfg)})")
+    ax.set_title("All stations, yearly MAE")
+    ax.legend(handles, ["Raw", "Bias-corrected"], loc="center left", bbox_to_anchor=(1.02, 0.5), borderaxespad=0)
     _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_annual_mae_strip.png")
 
 
 def plotquantilemae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     fig, ax = _new_figure(4, 2, 4)
-    _stripplot(
+    handles = _stripplot(
         ax,
         [
             diagnostics.raw_station_quantile_mae,
@@ -117,6 +151,8 @@ def plotquantilemae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_
         [RAW_COLOR, BC_COLOR],
     )
     ax.set_xlabel(f"MAE, {cfg.clim_var_long_name.lower()} quantiles ({_format_units(cfg.clim_var_units)})")
+    ax.set_title("All stations, quantile MAE")
+    ax.legend(handles, ["Raw", "Bias-corrected"], loc="center left", bbox_to_anchor=(1.02, 0.5), borderaxespad=0)
     _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_quantile_mae_strip.png")
 
 
@@ -144,6 +180,7 @@ def _trendcomparisonfigure(
     )
     ax.set_xlabel(f"{cfg.clim_var_long_name} {trend_label}, stations ({units})")
     ax.set_ylabel(f"{cfg.clim_var_long_name} {trend_label}, gridded ({units})")
+    ax.set_title("All stations, linear trends")
 
     values = np.concatenate(
         [
@@ -202,7 +239,7 @@ def plotallstationsqq(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figur
         _add_equality_line(ax, lims)
     ax.set_xlabel(f"{cfg.clim_var_long_name}, station ({units})")
     ax.set_ylabel(f"{cfg.clim_var_long_name}, gridded ({units})")
-    ax.set_title("Quantile-quantile")
+    ax.set_title("All stations, quantile-quantile")
     if raw_handle is not None and bc_handle is not None:
         ax.legend(
             [raw_handle, bc_handle],
@@ -264,6 +301,7 @@ def plotallstationsqmresiduals(diagnostics: Diagnostics, cfg: BiasCorrectionConf
 
     ax.set_xlabel(f"{cfg.clim_var_long_name}, station ({units})")
     ax.set_ylabel(f"{cfg.clim_var_long_name} residual ({units})")
+    ax.set_title("All stations, quantile residuals")
     if raw_handle is not None and bc_handle is not None:
         ax.legend(
             [raw_handle, bc_handle],
@@ -276,9 +314,9 @@ def plotallstationsqmresiduals(diagnostics: Diagnostics, cfg: BiasCorrectionConf
 
 
 def plotstationavailability(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
-    fig, ax = _new_figure(5, 3, 4)
     station_names = _station_names(diagnostics)
     n_stations = diagnostics.station_clim_var.shape[1]
+    fig, ax = _new_figure(5, 0.5 * n_stations, 4)
 
     for i_station, column in enumerate(diagnostics.station_clim_var.columns):
         valid = ~diagnostics.station_clim_var[column].isna()
@@ -298,6 +336,7 @@ def plotstationavailability(diagnostics: Diagnostics, cfg: BiasCorrectionConfig,
     ax.set_xlim(diagnostics.station_time[0], diagnostics.station_time[-1])
     ax.set_ylim(0, n_stations + 1)
     ax.set_yticklabels([])
+    ax.set_title("Station availability")
     _format_date_axis(ax)
     _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_station_availability.png")
 
@@ -466,7 +505,11 @@ def _map_figure(
     if coordinate_system == "geographic":
         mean_lat = 0.5 * (np.nanmin(grid_y) + np.nanmax(grid_y))
         lon_scale = np.cos(np.deg2rad(mean_lat))
-    fig, ax = _new_figure(4, 4 * y_range / (x_range * lon_scale), 2)
+    map_area_cm2 = 25
+    map_ratio = x_range * lon_scale / y_range
+    plot_width_cm = np.sqrt(map_area_cm2 * map_ratio)
+    plot_height_cm = np.sqrt(map_area_cm2 / map_ratio)
+    fig, ax = _new_figure(plot_width_cm, plot_height_cm, 2)
     contour = ax.contourf(grid_x, grid_y, values, levels=100)
     ax.set_xlim(np.nanmin(grid_x), np.nanmax(grid_x))
     ax.set_ylim(np.nanmin(grid_y), np.nanmax(grid_y))
@@ -484,6 +527,7 @@ def _map_figure(
         edgecolors="black",
         marker="o",
         linewidths=BOX_LINE_WIDTH,
+        s=10,
         label="Stations",
     )
     ax.set_title(title)
@@ -540,12 +584,15 @@ def _stripplot(
     values_by_group: list[np.ndarray],
     labels: list[str],
     colors: list[str],
-) -> None:
+) -> list[plt.Artist]:
+    ax._eqtm_categorical_y = True
+    handles = []
     for i_group, values in enumerate(values_by_group):
         values = np.asarray(values, dtype=float)
         values = values[np.isfinite(values)]
         y = np.full(values.size, i_group, dtype=float) + _deterministic_jitter(values.size)
-        ax.scatter(values, y, color=colors[i_group], zorder=2)
+        handle = ax.scatter(values, y, color=colors[i_group], zorder=2)
+        handles.append(handle)
         if values.size:
             ax.plot(
                 [np.nanmedian(values), np.nanmedian(values)],
@@ -556,7 +603,9 @@ def _stripplot(
             )
     ax.set_yticks(np.arange(len(labels)))
     ax.set_yticklabels(labels)
+    ax.yaxis.set_minor_locator(mticker.NullLocator())
     ax.set_ylim(-0.5, len(labels) - 0.5)
+    return handles
 
 
 def _deterministic_jitter(n_values: int) -> np.ndarray:
@@ -608,6 +657,9 @@ def _format_axes(ax: plt.Axes) -> None:
         labelsize=FONT_SIZE,
         length=TICK_LENGTH_POINTS,
         width=BOX_LINE_WIDTH,
+        direction="in",
+        top=True,
+        right=True,
     )
     _format_numeric_ticks(ax)
     if getattr(ax, "_eqtm_colorbar", False):
@@ -654,7 +706,7 @@ def _format_date_axis(ax: plt.Axes) -> None:
 def _format_numeric_ticks(ax: plt.Axes) -> None:
     if not getattr(ax, "_eqtm_colorbar", False) and not _has_date_axis(ax, "x"):
         ax.xaxis.set_major_locator(mticker.MaxNLocator(nbins=MAX_TICKS, min_n_ticks=MIN_TICKS))
-    if not _has_date_axis(ax, "y"):
+    if not getattr(ax, "_eqtm_categorical_y", False) and not _has_date_axis(ax, "y"):
         ax.yaxis.set_major_locator(mticker.MaxNLocator(nbins=MAX_TICKS, min_n_ticks=MIN_TICKS))
 
 

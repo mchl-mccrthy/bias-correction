@@ -28,6 +28,7 @@ xlabel([clim_var_long_name ' trend, stations (' ...
     trend_units ')'])
 ylabel([clim_var_long_name ' trend, gridded (' ...
     trend_units ')'])
+title('All stations, linear trends')
 xlim(lims)
 ylim(lims)
 legend('Raw','Bias-corrected','Location','eastoutside')

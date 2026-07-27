@@ -21,6 +21,7 @@ set(axis_handle,'Position',[margin margin plot_width plot_height]);
 % Make sure font sizes are correct
 axis_handle.TitleFontSizeMultiplier = 1;
 axis_handle.LabelFontSizeMultiplier = 1;
+axis_handle.Title.FontWeight = 'bold';
 
 % Get axis handle and set font
 set(axis_handle,'FontName','Helvetica','FontSize',font_size);

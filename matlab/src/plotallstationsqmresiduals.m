@@ -41,6 +41,7 @@ for i_station = 1:n_stations
 end
 ylabel([clim_var_long_name ' residual (' clim_var_units ')'])
 xlabel([clim_var_long_name ', station (' clim_var_units ')'])
+title('All stations, quantile residuals')
 if isfinite(x_min) && isfinite(x_max) && x_min < x_max
     x_pad = 0.05 * (x_max - x_min);
     xlim([x_min - x_pad x_max + x_pad])
