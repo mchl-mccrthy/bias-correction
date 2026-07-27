@@ -27,7 +27,7 @@ MAX_COLORBAR_TICKS = 4
 
 def main() -> None:
     repo_root = Path(__file__).resolve().parents[2]
-    figure_dir = repo_root / "paper" / "figures"
+    figure_dir = repo_root / "paper" / "figures_and_tables"
     figure_dir.mkdir(parents=True, exist_ok=True)
 
     _set_plot_style()

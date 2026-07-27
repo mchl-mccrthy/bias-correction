@@ -2,7 +2,7 @@
 function plotstationdiagnostics(station_clim_var,station_coords,...
     station_time,raw_station_clim_var,bc_station_clim_var,grid_time,...
     station_clim_var_yearly,raw_station_clim_var_yearly,...
-    bc_station_clim_var_yearly,years,file_path_figures,...
+    bc_station_clim_var_yearly,years,file_path_figures_tables,...
     clim_var_name,clim_var_long_name,clim_var_units)
 
 % Loop through stations
@@ -22,7 +22,7 @@ for i_station = 1:n_stations
     title(station_name,'Interpreter','none')
     legend('Raw','Bias-corrected','Station','Location','eastoutside')
     formatfigure(gcf,7,2,4)
-    print(gcf,fullfile(file_path_figures,[station_name '_' clim_var_name ...
+    print(gcf,fullfile(file_path_figures_tables,[station_name '_' clim_var_name ...
         '_time_series.png']),'-dpng','-r300');
 
     % Get overlapping valid data
@@ -51,7 +51,7 @@ for i_station = 1:n_stations
     xlim([hist_min hist_max])
     legend('Raw','Bias-corrected','Station','Location','eastoutside')
     formatfigure(gcf,4,4,4)
-    print(gcf,fullfile(file_path_figures,[station_name '_' clim_var_name ...
+    print(gcf,fullfile(file_path_figures_tables,[station_name '_' clim_var_name ...
         '_histogram.png']),'-dpng','-r300');
 
     % Make quantile-quantile plot
@@ -73,7 +73,7 @@ for i_station = 1:n_stations
     uistack(h_eq,'bottom');
     legend('Raw','Bias-corrected','Location','eastoutside')
     formatfigure(gcf,4,4,4)
-    print(gcf,fullfile(file_path_figures,[station_name '_' clim_var_name ...
+    print(gcf,fullfile(file_path_figures_tables,[station_name '_' clim_var_name ...
         '_qq.png']),'-dpng','-r300');
 
     % Plot yearly time series
@@ -86,7 +86,7 @@ for i_station = 1:n_stations
     title(station_name,'Interpreter','none')
     legend('Raw','Bias-corrected','Station','Location','eastoutside')
     formatfigure(gcf,7,2,4)
-    print(gcf,fullfile(file_path_figures,[station_name '_' clim_var_name ...
+    print(gcf,fullfile(file_path_figures_tables,[station_name '_' clim_var_name ...
         '_time_series_yearly.png']),'-dpng','-r300');
 end
 

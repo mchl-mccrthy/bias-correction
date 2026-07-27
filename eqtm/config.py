@@ -35,7 +35,7 @@ class BiasCorrectionConfig:
     file_path_station_clim_var: str | Path
     file_path_raw_data: str | Path
     file_path_bc_data: str | Path
-    file_path_figures: str | Path
+    file_path_figures_tables: str | Path
 
 
 def validateconfig(cfg: BiasCorrectionConfig) -> None:

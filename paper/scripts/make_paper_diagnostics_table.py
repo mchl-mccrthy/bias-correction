@@ -20,7 +20,7 @@ ROW_LABELS = ["Raw", "Bias-corrected, trend mapping on", "Bias-corrected, trend 
 
 def main() -> None:
     repo_root = Path(__file__).resolve().parents[2]
-    figure_dir = repo_root / "paper" / "figures"
+    figure_dir = repo_root / "paper" / "figures_and_tables"
     figure_dir.mkdir(parents=True, exist_ok=True)
 
     tas_on = makediagnostics(config_andermatt_zuerich_tas_trends_on())

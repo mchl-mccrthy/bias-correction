@@ -29,6 +29,6 @@ cfg.file_path_station_coords = fullfile(repo_root,'input_data','andermatt_zueric
 cfg.file_path_station_clim_var = fullfile(repo_root,'input_data','andermatt_zuerich_1981_2019','station','andermatt_zuerich_pr.csv');
 cfg.file_path_raw_data = fullfile(repo_root,'input_data','andermatt_zuerich_1981_2019','gridded','pr_andermatt_zuerich_1981_2019.nc');
 cfg.file_path_bc_data = fullfile(repo_root,'output_data','andermatt_zuerich_1981_2019','gridded','pr_bc_andermatt_zuerich_1981_2019.nc');
-cfg.file_path_figures = fullfile(repo_root,'output_data','andermatt_zuerich_1981_2019','figures');
+cfg.file_path_figures_tables = fullfile(repo_root,'output_data','andermatt_zuerich_1981_2019','figures_and_tables');
 
 end

@@ -1,6 +1,6 @@
 % Plot domain-mean timestep time series of gridded data
 function plotoverviewtimesteptimeseries(raw_grid_domain_mean,...
-    bc_grid_domain_mean,grid_time,file_path_figures,clim_var_name,...
+    bc_grid_domain_mean,grid_time,file_path_figures_tables,clim_var_name,...
     clim_var_long_name,clim_var_units)
 
 % Make plot
@@ -12,7 +12,7 @@ xlim([grid_time(1) grid_time(end)])
 title('Domain spatial average, time step')
 legend({'Raw','Bias-corrected'},'Location','eastoutside')
 formatfigure(gcf,7,2,4)
-print(gcf,fullfile(file_path_figures,[clim_var_name ...
+print(gcf,fullfile(file_path_figures_tables,[clim_var_name ...
     '_domain_mean_time_series.png']),'-dpng','-r300');
 
 end

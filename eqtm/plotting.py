@@ -32,7 +32,7 @@ def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
     availability, and per-station diagnostic plots.
     """
 
-    figure_dir = Path(cfg.file_path_figures)
+    figure_dir = Path(cfg.file_path_figures_tables)
     overview_dir = figure_dir / "overview"
     individual_stations_dir = figure_dir / "individual_stations"
     overview_dir.mkdir(parents=True, exist_ok=True)

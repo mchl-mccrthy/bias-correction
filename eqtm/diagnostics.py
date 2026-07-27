@@ -82,6 +82,7 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
         raw_annual_mae,
         bc_annual_mae,
     )
+    savediagnosticsummarytable(summary_table, cfg.file_path_figures_tables, cfg.clim_var_name)
     raw_grid_yearly, grid_years = makeyearlygrid(raw.clim_var, raw.time, cfg.agg_method)
     bc_grid_yearly, _ = makeyearlygrid(bc.clim_var, raw.time, cfg.agg_method)
     bc_grid_trends = getgridlineartrends(bc_grid_yearly, grid_years)
@@ -288,6 +289,16 @@ def makesummarytable(
         ),
     ]
     return pd.DataFrame(rows)
+
+
+def savediagnosticsummarytable(
+    summary_table: pd.DataFrame,
+    file_path_figures_tables: str | Path,
+    clim_var_name: str,
+) -> None:
+    output_dir = Path(file_path_figures_tables) / "overview"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    summary_table.to_csv(output_dir / f"{clim_var_name}_diagnostics_summary.csv", index=False)
 
 
 def _summaryrow(

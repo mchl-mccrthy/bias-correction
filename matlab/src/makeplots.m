@@ -7,14 +7,14 @@ clim_var_long_name = cfg.clim_var_long_name;
 clim_var_units = cfg.clim_var_units;
 agg_method = cfg.agg_method;
 coordinate_system = cfg.coordinate_system;
-file_path_figures = cfg.file_path_figures;
+file_path_figures_tables = cfg.file_path_figures_tables;
 
 % Create figure folder if needed
-if ~exist(file_path_figures,'dir')
-    mkdir(file_path_figures)
+if ~exist(file_path_figures_tables,'dir')
+    mkdir(file_path_figures_tables)
 end
-file_path_overview = fullfile(file_path_figures,'overview');
-file_path_individual_stations = fullfile(file_path_figures,'individual_stations');
+file_path_overview = fullfile(file_path_figures_tables,'overview');
+file_path_individual_stations = fullfile(file_path_figures_tables,'individual_stations');
 if ~exist(file_path_overview,'dir')
     mkdir(file_path_overview)
 end

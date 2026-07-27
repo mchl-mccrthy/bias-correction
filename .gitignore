@@ -27,6 +27,7 @@ output_data/
 archive/
 cluster/
 paper/corel_draw/
+paper/figures_and_tables/*.csv
 
 # OS files
 .DS_Store

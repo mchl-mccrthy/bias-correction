@@ -1,6 +1,6 @@
 % Plot maps of long-term averages and linear trends
 function plotmaps(grid_x,grid_y,station_x,station_y,bc_grid_clim_var_yearly,...
-    bc_grid_linear_trends,file_path_figures,clim_var_name,...
+    bc_grid_linear_trends,file_path_figures_tables,clim_var_name,...
     clim_var_long_name,clim_var_units,agg_method,coordinate_system)
 
 % Plot map of long-term average of bias-corrected data
@@ -21,7 +21,7 @@ title('Domain temporal average')
 [plot_width,plot_height,lon_scale] = mapplotsize(grid_x,grid_y,coordinate_system);
 daspect([1/lon_scale 1 1])
 formatfigure(gcf,plot_width,plot_height,2)
-print(gcf, fullfile(file_path_figures, [clim_var_name ...
+print(gcf, fullfile(file_path_figures_tables, [clim_var_name ...
     '_long_term_average_map.png']), '-dpng','-r300');
 
 % Plot map of long-term linear trends of bias-corrected data
@@ -41,7 +41,7 @@ title('Domain linear trend')
 [plot_width,plot_height,lon_scale] = mapplotsize(grid_x,grid_y,coordinate_system);
 daspect([1/lon_scale 1 1])
 formatfigure(gcf,plot_width,plot_height,2)
-print(gcf, fullfile(file_path_figures, [clim_var_name ...
+print(gcf, fullfile(file_path_figures_tables, [clim_var_name ...
     '_bc_linear_trend_map.png']), '-dpng','-r300');
 end
 

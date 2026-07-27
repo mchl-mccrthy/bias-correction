@@ -29,5 +29,5 @@ def config_andermatt_zuerich_tas_trends_on() -> BiasCorrectionConfig:
         file_path_station_clim_var=repo_root / "input_data" / "andermatt_zuerich_1981_2019" / "station" / "andermatt_zuerich_tas.csv",
         file_path_raw_data=repo_root / "input_data" / "andermatt_zuerich_1981_2019" / "gridded" / "tas_andermatt_zuerich_1981_2019.nc",
         file_path_bc_data=repo_root / "output_data" / "andermatt_zuerich_1981_2019" / "trends_on" / "gridded" / "tas_bc_andermatt_zuerich_1981_2019.nc",
-        file_path_figures=repo_root / "output_data" / "andermatt_zuerich_1981_2019" / "trends_on" / "figures",
+        file_path_figures_tables=repo_root / "output_data" / "andermatt_zuerich_1981_2019" / "trends_on" / "figures_and_tables",
     )

@@ -8,6 +8,7 @@ file_path_station_coords = cfg.file_path_station_coords;
 file_path_station_clim_var = cfg.file_path_station_clim_var;
 file_path_raw_data = cfg.file_path_raw_data;
 file_path_bc_data = cfg.file_path_bc_data;
+file_path_figures_tables = cfg.file_path_figures_tables;
 
 % Check if bias-corrected data exist
 if ~isfile(file_path_bc_data)
@@ -68,6 +69,14 @@ summary_table = makesummarytable(...
     bc_station_linear_trends,raw_station_quantile_mae,...
     bc_station_quantile_mae,raw_station_annual_mae,...
     bc_station_annual_mae);
+
+% Save summary table of station-level diagnostics
+file_path_overview = fullfile(file_path_figures_tables,'overview');
+if ~exist(file_path_overview,'dir')
+    mkdir(file_path_overview)
+end
+writetable(summary_table,fullfile(file_path_overview,...
+    [clim_var_name '_diagnostics_summary.csv']))
 
 % Make yearly versions of the gridded raw and bias-corrected data
 [raw_grid_clim_var_yearly,grid_years] = makeyearlygrid( ...

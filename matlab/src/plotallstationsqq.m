@@ -1,6 +1,6 @@
 % Make quantile-quantile plot for all stations
 function plotallstationsqq(station_clim_var,raw_station_clim_var,...
-    bc_station_clim_var,station_time,grid_time,file_path_figures,...
+    bc_station_clim_var,station_time,grid_time,file_path_figures_tables,...
     clim_var_name,clim_var_long_name,clim_var_units)
 
 % Make plot
@@ -49,7 +49,7 @@ if ~isempty(h_raw)
     legend([h_raw h_bc],{'Raw','Bias-corrected'},'Location','eastoutside')
 end
 formatfigure(gcf,4,4,4)
-print(gcf,fullfile(file_path_figures, [clim_var_name ...
+print(gcf,fullfile(file_path_figures_tables, [clim_var_name ...
     '_all_stations_qq.png']), '-dpng','-r300');
 
 end

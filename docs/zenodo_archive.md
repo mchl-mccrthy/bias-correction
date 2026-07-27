@@ -21,12 +21,14 @@ EQTM-v1.0.0/
 |-- output_data/
 |   `-- andermatt_zuerich_1981_2019/
 |       |-- trends_off/
-|       |   |-- figures/
+|       |   |-- figures_and_tables/
 |       |   `-- gridded/
 |       `-- trends_on/
-|           |-- figures/
+|           |-- figures_and_tables/
 |           `-- gridded/
 |-- paper/
+|   |-- figures_and_tables/
+|   `-- scripts/
 |-- README.md
 |-- pyproject.toml
 |-- LICENSE
@@ -45,9 +47,9 @@ EQTM-v1.0.0/
 - Write bias-corrected gridded outputs to
   `output_data/andermatt_zuerich_1981_2019/trends_on/gridded/` and
   `output_data/andermatt_zuerich_1981_2019/trends_off/gridded/`.
-- Write diagnostic figures to
-  `output_data/andermatt_zuerich_1981_2019/trends_on/figures/` and
-  `output_data/andermatt_zuerich_1981_2019/trends_off/figures/`.
+- Write diagnostic figures and tables to
+  `output_data/andermatt_zuerich_1981_2019/trends_on/figures_and_tables/` and
+  `output_data/andermatt_zuerich_1981_2019/trends_off/figures_and_tables/`.
 - Include scripts used to create the paper figures.
 - Include either generated reference outputs or instructions for recreating
   them from the input data.

@@ -1,6 +1,6 @@
 % Plot station availability
 function plotstationavailability(station_clim_var,station_coords,...
-    station_time,file_path_figures,clim_var_name)
+    station_time,file_path_figures_tables,clim_var_name)
 
 % Make plot
 figure()
@@ -20,7 +20,7 @@ ylim([0 n_stations+1])
 yticklabels([])
 title('Station availability')
 formatfigure(gcf,5,plot_height,4)
-print(gcf, fullfile(file_path_figures, [clim_var_name ...
+print(gcf, fullfile(file_path_figures_tables, [clim_var_name ...
     '_station_availability.png']), '-dpng','-r300');
 
 end

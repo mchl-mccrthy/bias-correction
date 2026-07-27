@@ -147,11 +147,14 @@ bias_correction/
 |-- output_data/       # Generated outputs, ignored by GitHub
 |   `-- andermatt_zuerich_1981_2019/
 |       |-- trends_off/
-|       |   |-- figures/
+|       |   |-- figures_and_tables/
 |       |   `-- gridded/
 |       `-- trends_on/
-|           |-- figures/
+|           |-- figures_and_tables/
 |           `-- gridded/
+|-- paper/
+|   |-- figures_and_tables/
+|   `-- scripts/
 |-- scripts/
 |-- CITATION.cff
 |-- README.md
