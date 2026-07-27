@@ -15,7 +15,7 @@ from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuer
 def main() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     boundary_path = _find_boundary_file(repo_root / "input_data" / "boundaries")
-    figure_dir = repo_root / "paper_figures" / "figures"
+    figure_dir = repo_root / "paper" / "figures"
     figure_dir.mkdir(parents=True, exist_ok=True)
 
     _set_plot_style()

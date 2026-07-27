@@ -26,7 +26,7 @@ EQTM-v1.0.0/
 |       `-- trends_on/
 |           |-- figures/
 |           `-- gridded/
-|-- paper_figures/
+|-- paper/
 |-- README.md
 |-- pyproject.toml
 |-- LICENSE

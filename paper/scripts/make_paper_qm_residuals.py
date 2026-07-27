@@ -7,7 +7,7 @@ import numpy as np
 from eqtm import makediagnostics
 from eqtm.config import BiasCorrectionConfig
 from eqtm.plotting import _format_units, _new_figure, _save_figure, _set_plot_style
-from paper_figures.scripts.make_paper_qq import OFF_COLOR, ON_COLOR, RAW_COLOR, _station_quantiles
+from paper.scripts.make_paper_qq import OFF_COLOR, ON_COLOR, RAW_COLOR, _station_quantiles
 from scripts.config_andermatt_zuerich_pr_trends_off import config_andermatt_zuerich_pr_trends_off
 from scripts.config_andermatt_zuerich_pr_trends_on import config_andermatt_zuerich_pr_trends_on
 from scripts.config_andermatt_zuerich_tas_trends_off import config_andermatt_zuerich_tas_trends_off
@@ -16,7 +16,7 @@ from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuer
 
 def main() -> None:
     repo_root = Path(__file__).resolve().parents[2]
-    figure_dir = repo_root / "paper_figures" / "figures"
+    figure_dir = repo_root / "paper" / "figures"
     figure_dir.mkdir(parents=True, exist_ok=True)
 
     _set_plot_style()
