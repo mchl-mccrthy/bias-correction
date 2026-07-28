@@ -1,26 +1,26 @@
 # EQTM v0.2.0
 
-A workflow for bias correction of historical gridded climate data using station observations, empirical quantile mapping, and optional station trend mapping.
+A software for bias correcting historical gridded climate data using station observations via empirical quantile mapping, with optional trend mapping.
 
 **Author:** Michael McCarthy
 
 ## Features
 
 - Empirical quantile mapping
-- Monthly, seasonal, or whole-period corrections
-- Additive or multiplicative bias correction
 - Optional station trend mapping
-- Spatial interpolation of station-based corrections using inverse-distance weighting (IDW)
+- Additive or multiplicative bias correction
+- Monthly, seasonal, or whole-period bias correction
+- Spatial interpolation of station-based biases and trends using inverse-distance weighting (IDW)
 - Optional parallel processing
 - NetCDF input and output
-- Diagnostic maps, trend comparisons, and quantile-quantile plots
+- Diagnostic figures and tables
 
 ## Implementation
 There are two implementations of this workflow: one MATLAB and one Python. The Python implementation is the main implementation. It was ported from the original MATLAB implementation, against which it was validated. Validation results are documented in `docs/validation.md`.
 
 ## Reproducible archive
 
-The GitHub repository is intended for source-code development and does not track
+This repository is intended for source-code development and does not track
 large input or output data files. The frozen version associated with a paper
 will be archived on Zenodo as a single reproducible package containing the
 source code, configuration files, input data, and scripts used to produce the
@@ -33,7 +33,7 @@ The intended archive layout is described in `docs/zenodo_archive.md`.
 The workflow has three stages:
 1. Bias-correct raw gridded climate data using station observations.
 2. Calculate diagnostics from the station, raw gridded and bias-corrected gridded climate data.
-3. Make diagnostic plots.
+3. Make diagnostic plots and tables.
 
 Example runners are provided in `matlab/run_eqtm.m` and
 `scripts/run_eqtm.py`.
