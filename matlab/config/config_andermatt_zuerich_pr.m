@@ -7,7 +7,7 @@ repo_root = fileparts(fileparts(config_path));
 % Variable settings
 cfg.clim_var_name = 'pr';
 cfg.clim_var_long_name = 'Precipitation';
-cfg.clim_var_units = 'mm';
+cfg.clim_var_units = 'mm day^{-1}';
 cfg.qmf_period = 'monthly'; % 'whole', 'seasonal', or 'monthly'
 cfg.bc_type = 'multiplicative'; % 'additive' or 'multiplicative'
 cfg.trend_method = 'station'; % 'station' or 'none'
@@ -15,7 +15,7 @@ cfg.trend_window = 365*5; % Moving mean window in time steps
 cfg.agg_method = 'sum'; % 'mean' or 'sum'
 cfg.write_output = true;
 cfg.n_quantiles = 1001; % Number of quantiles for QMFs
-cfg.idw_power = 2; % Inverse distance weighting distance exponent
+cfg.idw_power = 1; % Inverse distance weighting distance exponent
 cfg.idw_method = 'elevation_aware'; % 'horizontal' or 'elevation_aware'
 cfg.idw_alpha = 10; % 100 m vertical = 1000 m horizontal (1000/100 = 10)
 cfg.multiplicative_epsilon = 0.1; % Offset for multiplicative detrending/retrending

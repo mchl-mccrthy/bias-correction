@@ -15,7 +15,7 @@ cfg.trend_window = 365*5; % Moving mean window in time steps
 cfg.agg_method = 'mean'; % 'mean' or 'sum'
 cfg.write_output = true;
 cfg.n_quantiles = 1001; % Number of quantiles for QMFs
-cfg.idw_power = 2; % Inverse distance weighting distance exponent
+cfg.idw_power = 1; % Inverse distance weighting distance exponent
 cfg.idw_method = 'elevation_aware'; % 'horizontal' or 'elevation_aware'
 cfg.idw_alpha = 10; % 100 m vertical = 1 km horizontal
 cfg.multiplicative_epsilon = 0.1; % Offset for multiplicative detrending/retrending

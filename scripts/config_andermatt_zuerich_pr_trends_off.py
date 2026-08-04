@@ -9,7 +9,7 @@ def config_andermatt_zuerich_pr_trends_off() -> BiasCorrectionConfig:
     return BiasCorrectionConfig(
         clim_var_name="pr",
         clim_var_long_name="Precipitation",
-        clim_var_units="mm",
+        clim_var_units="mm day^{-1}",
         qmf_period="monthly",
         bc_type="multiplicative",
         trend_method="none",
@@ -17,7 +17,7 @@ def config_andermatt_zuerich_pr_trends_off() -> BiasCorrectionConfig:
         agg_method="sum",
         write_output=True,
         n_quantiles=1001,
-        idw_power=2,
+        idw_power=1,
         idw_method="elevation_aware",
         idw_alpha=10,
         multiplicative_epsilon=0.1,
