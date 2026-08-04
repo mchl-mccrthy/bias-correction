@@ -101,13 +101,12 @@ Workflow settings are defined in the example configuration files in
 | `write_output` | Write the corrected NetCDF file |
 | `n_quantiles` | Number of empirical quantiles |
 | `idw_power` | Inverse-distance weighting exponent |
+| `idw_alpha` | Elevation scaling for IDW distances; `0` uses horizontal distances only |
 | `multiplicative_epsilon` | Offset used for multiplicative detrending/retrending |
 | `use_parallel` | Enable parallel processing |
 | `n_workers` | Number of parallel workers (`[]` uses the MATLAB default) |
 | `keep_grid_biases` | Keep interpolated quantile-mapping bias grids in results |
 | `coordinate_system` | Coordinate type for IDW distances (`geographic` or `projected`) |
-| `idw_method` | Use normal or elevation-aware IDW distances (`horizontal` or `elevation_aware`) |
-| `idw_alpha` | Scaling parameter for elevation-aware IDW |
 
 ## Data requirements
 
@@ -120,16 +119,18 @@ The workflow assumes:
 - Station observations cover the same period as the gridded dataset.
 - Missing station observations are represented by `NaN`.
 - The climate variable name is consistent between the NetCDF and station datasets.
-- For variables using `agg_method = "sum"`, `clim_var_units` should describe
-  the amount per timestep, not a rate. Annual diagnostic values are labelled as
-  `clim_var_units year^-1`, and trends in those annual totals are labelled as
-  `clim_var_units year^-2`.
+- For variables using `agg_method = "sum"`, terminal inverse timestep units
+  such as `day^-1` are removed before yearly diagnostic units are added.
+  For example, `mm day^-1` is labelled as `mm year^-1` for yearly sums and
+  `mm year^-2` for trends in yearly sums.
 
 ## Notes
 
 - When station trend corrections are unavailable, the trend correction is set to a neutral value so the raw gridded trend is retained.
 - For geographic coordinates, IDW distances are calculated using great-circle distance. For projected coordinates, they are calculated using Euclidean distance.
-- For IDW with elevation-aware distances, projected coordinates and elevation are assumed to be in metres.
+- IDW distances include elevation when `idw_alpha > 0`. Set `idw_alpha = 0`
+  for horizontal-distance IDW. For `idw_alpha > 0`, projected coordinates and
+  elevation are assumed to be in metres.
 - Quantile and yearly MAE diagnostics compare station values with gridded
   values extracted at station locations.
 

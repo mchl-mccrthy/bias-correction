@@ -24,7 +24,6 @@ class BiasCorrectionConfig:
     write_output: bool
     n_quantiles: int
     idw_power: float
-    idw_method: str
     idw_alpha: float
     use_parallel: bool
     n_workers: int | None
@@ -46,7 +45,6 @@ def validateconfig(cfg: BiasCorrectionConfig) -> None:
     _must_be_one_of(cfg.bc_type, {"additive", "multiplicative"}, "bc_type")
     _must_be_one_of(cfg.agg_method, {"mean", "sum"}, "agg_method")
     _must_be_one_of(cfg.coordinate_system, {"geographic", "projected"}, "coordinate_system")
-    _must_be_one_of(cfg.idw_method, {"horizontal", "elevation_aware"}, "idw_method")
 
     if cfg.trend_window <= 0:
         raise ValueError("cfg.trend_window must be positive.")
@@ -54,8 +52,8 @@ def validateconfig(cfg: BiasCorrectionConfig) -> None:
         raise ValueError("cfg.n_quantiles must be greater than 1.")
     if cfg.idw_power <= 0:
         raise ValueError("cfg.idw_power must be positive.")
-    if cfg.idw_alpha <= 0:
-        raise ValueError("cfg.idw_alpha must be positive.")
+    if cfg.idw_alpha < 0:
+        raise ValueError("cfg.idw_alpha must be non-negative.")
     if cfg.multiplicative_epsilon < 0:
         raise ValueError("cfg.multiplicative_epsilon must be non-negative.")
     if cfg.n_workers is not None and cfg.n_workers <= 0:

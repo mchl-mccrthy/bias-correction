@@ -18,7 +18,6 @@ def _cfg(units: str, agg_method: str) -> BiasCorrectionConfig:
         write_output=False,
         n_quantiles=101,
         idw_power=2,
-        idw_method="horizontal",
         idw_alpha=10,
         multiplicative_epsilon=0.1,
         use_parallel=False,

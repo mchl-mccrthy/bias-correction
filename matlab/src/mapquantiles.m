@@ -1,6 +1,6 @@
 function [bc_grid_clim_var,grid_biases] = mapquantiles(raw_grid_clim_var,...
     station_x,station_y,station_z,qmfs,raw_x,raw_y,raw_z,bc_type,qmf_period,...
-    raw_time,idw_power,use_parallel,coordinate_system,idw_method,idw_alpha)
+    raw_time,idw_power,use_parallel,coordinate_system,idw_alpha)
 
 % Get quantiles
 station_quantiles = qmfs.station_quantiles;
@@ -33,7 +33,7 @@ grid_x = raw_x(:);
 grid_y = raw_y(:);
 grid_z = raw_z(:);
 D_all = getdistances(grid_x,grid_y,station_x,station_y,...
-    coordinate_system,grid_z,station_z,idw_method,idw_alpha);
+    coordinate_system,grid_z,station_z,idw_alpha);
 
 % Precompute nearest grid cell for each station
 [station_rows,station_cols] = indexofclosest2( ...

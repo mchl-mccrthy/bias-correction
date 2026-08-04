@@ -11,8 +11,7 @@ def getdistances(
     coordinate_system: str,
     z1: np.ndarray | None = None,
     z2: np.ndarray | None = None,
-    idw_method: str = "horizontal",
-    idw_alpha: float = 10.0,
+    idw_alpha: float = 0.0,
 ) -> np.ndarray:
     if coordinate_system == "projected":
         d = np.sqrt((np.ravel(x1)[:, None] - np.ravel(x2)[None, :]) ** 2 +
@@ -30,15 +29,13 @@ def getdistances(
     else:
         raise ValueError("coordinate_system must be 'projected' or 'geographic'.")
 
-    if idw_method == "elevation_aware":
+    if idw_alpha > 0:
         if z1 is None or z2 is None:
             raise ValueError(
-                "cfg.idw_method = elevation_aware requires elevation in both grid and station data."
+                "cfg.idw_alpha > 0 requires elevation in both grid and station data."
             )
         dz = np.ravel(z1)[:, None] - np.ravel(z2)[None, :]
         d = np.sqrt(d**2 + (idw_alpha * dz) ** 2)
-    elif idw_method != "horizontal":
-        raise ValueError("idw_method must be 'horizontal' or 'elevation_aware'.")
 
     d[d == 0] = np.finfo(float).eps
     return d

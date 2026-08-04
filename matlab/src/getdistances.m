@@ -1,6 +1,5 @@
 % Get pairwise distances between two coordinate sets
-function D = getdistances(x1,y1,x2,y2,coordinate_system,...
-    z1,z2,idw_method,idw_alpha)
+function D = getdistances(x1,y1,x2,y2,coordinate_system,z1,z2,idw_alpha)
 
 if strcmp(coordinate_system,'projected')
 
@@ -20,10 +19,10 @@ elseif strcmp(coordinate_system,'geographic')
     D = 2*earth_radius_m*asin(sqrt(a));
 end
 
-% Calculate elevation-aware distances if necessary
-if strcmp(idw_method,'elevation_aware')
+% Calculate elevation-aware distances if requested
+if idw_alpha > 0
     if isempty(z1) || isempty(z2)
-        error('cfg.idw_method = elevation_aware requires elevation in both grid and station data.')
+        error('cfg.idw_alpha > 0 requires elevation in both grid and station data.')
     end
 
     dz = z1(:)-z2(:)';

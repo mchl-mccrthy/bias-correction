@@ -18,7 +18,6 @@ def config_andermatt_zuerich_pr() -> BiasCorrectionConfig:
         write_output=True,
         n_quantiles=1001,
         idw_power=1,
-        idw_method="elevation_aware",
         idw_alpha=10,
         multiplicative_epsilon=0.1,
         use_parallel=False,

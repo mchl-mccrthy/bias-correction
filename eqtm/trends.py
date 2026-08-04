@@ -45,7 +45,6 @@ def interptrends(
     bc_type: str,
     idw_power: float,
     coordinate_system: str,
-    idw_method: str,
     idw_alpha: float,
 ) -> np.ndarray:
     n_timesteps = station_trends.shape[0]
@@ -59,7 +58,6 @@ def interptrends(
         coordinate_system,
         None if grid_z is None else grid_z.ravel(),
         station_z,
-        idw_method,
         idw_alpha,
     )
 

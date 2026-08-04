@@ -29,7 +29,7 @@ Both tests used:
 - identical station coordinate files
 - identical configuration settings
 - monthly empirical quantile mapping
-- elevation-aware inverse-distance weighting
+- inverse-distance weighting with elevation scaling
 - station trend mapping enabled
 
 The Python implementation uses Hazen empirical quantiles:

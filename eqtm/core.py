@@ -91,7 +91,6 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
         raw.time,
         cfg.idw_power,
         cfg.coordinate_system,
-        cfg.idw_method,
         cfg.idw_alpha,
         keep_grid_biases=cfg.keep_grid_biases,
     )
@@ -110,7 +109,6 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
             cfg.bc_type,
             cfg.idw_power,
             cfg.coordinate_system,
-            cfg.idw_method,
             cfg.idw_alpha,
         )
         del raw_grid_trends
@@ -145,7 +143,6 @@ def mapquantiles(
     raw_time,
     idw_power: float,
     coordinate_system: str,
-    idw_method: str,
     idw_alpha: float,
     keep_grid_biases: bool = False,
 ) -> tuple[np.ndarray, np.ndarray | None]:
@@ -177,7 +174,6 @@ def mapquantiles(
         coordinate_system,
         None if raw_z is None else raw_z.ravel(),
         station_z,
-        idw_method,
         idw_alpha,
     )
     rows, cols = indexofclosest2(station_x, station_y, raw_x, raw_y)

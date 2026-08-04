@@ -49,3 +49,31 @@ verifyEqual(testCase,trendunits('kg m^{-2} day^{-1}','sum'),...
 
 end
 
+% Zero alpha gives horizontal distances without requiring elevation
+function testZeroAlphaDistance(testCase)
+
+D = getdistances(3,4,0,0,'projected',[],[],0);
+verifyEqual(testCase,D,5,'AbsTol',1e-12)
+
+end
+
+% Positive alpha combines horizontal and elevation distances
+function testPositiveAlphaDistance(testCase)
+
+D = getdistances(3,4,0,0,'projected',1,0,10);
+verifyEqual(testCase,D,sqrt(125),'AbsTol',1e-12)
+
+end
+
+% Positive alpha requires elevation data
+function testPositiveAlphaRequiresElevation(testCase)
+
+did_error = false;
+try
+    getdistances(3,4,0,0,'projected',[],[],10);
+catch
+    did_error = true;
+end
+verifyTrue(testCase,did_error)
+
+end
