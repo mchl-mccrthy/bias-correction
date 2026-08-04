@@ -5,11 +5,7 @@ function plottrendcomparison(station_linear_trends,...
     agg_method)
 
 % Get trend units
-if strcmp(agg_method,'sum')
-    trend_units = [clim_var_units ' year^{-2}'];
-else
-    trend_units = [clim_var_units ' year^{-1}'];
-end
+trend_units = trendunits(clim_var_units,agg_method);
 
 % Make plot
 figure()

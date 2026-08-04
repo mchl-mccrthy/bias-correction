@@ -8,11 +8,7 @@ figure()
 contourf(grid_x,grid_y,mean(bc_grid_clim_var_yearly,3),100, ...
     'LineColor','none')
 c = colorbar;
-if strcmp(agg_method,'sum')
-    c.Label.String = [clim_var_long_name ' (' clim_var_units ' year^{-1})'];
-elseif strcmp(agg_method,'mean')
-    c.Label.String = [clim_var_long_name ' (' clim_var_units ')'];
-end
+c.Label.String = [clim_var_long_name ' (' yearlyunits(clim_var_units,agg_method) ')'];
 hold on
 h_stations = scatter(station_x,station_y,10,'o', ...
     'MarkerFaceColor','w','MarkerEdgeColor','k');
@@ -28,11 +24,7 @@ print(gcf, fullfile(file_path_figures_tables, [clim_var_name ...
 figure()
 contourf(grid_x,grid_y,bc_grid_linear_trends,100,'LineColor','none')
 c = colorbar;
-if strcmp(agg_method,'sum')
-    c.Label.String = [clim_var_long_name ' trend (' clim_var_units ' year^{-2})'];
-elseif strcmp(agg_method,'mean')
-    c.Label.String = [clim_var_long_name ' trend (' clim_var_units ' year^{-1})'];
-end
+c.Label.String = [clim_var_long_name ' trend (' trendunits(clim_var_units,agg_method) ')'];
 hold on
 h_stations = scatter(station_x,station_y,10,'o', ...
     'MarkerFaceColor','w','MarkerEdgeColor','k');

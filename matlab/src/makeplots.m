@@ -4,7 +4,7 @@ function makeplots(diagnostics,cfg)
 % Unpack config
 clim_var_name = cfg.clim_var_name;
 clim_var_long_name = cfg.clim_var_long_name;
-clim_var_units = cfg.clim_var_units;
+clim_var_units = formatunits(cfg.clim_var_units);
 agg_method = cfg.agg_method;
 coordinate_system = cfg.coordinate_system;
 file_path_figures_tables = cfg.file_path_figures_tables;

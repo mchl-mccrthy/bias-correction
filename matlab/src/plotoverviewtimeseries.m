@@ -3,12 +3,8 @@ function plotoverviewtimeseries(raw_grid_clim_var_yearly,...
     bc_grid_clim_var_yearly,years,file_path_figures_tables,clim_var_name,...
     clim_var_long_name,clim_var_units,agg_method)
 
-% Get annual units
-if strcmp(agg_method,'sum')
-    annual_units = [clim_var_units ' year^{-1}'];
-else
-    annual_units = clim_var_units;
-end
+% Get yearly units
+annual_units = yearlyunits(clim_var_units,agg_method);
 
 % Calculate domain means
 raw_domain_mean = squeeze(mean(raw_grid_clim_var_yearly,[1 2],'omitnan'));

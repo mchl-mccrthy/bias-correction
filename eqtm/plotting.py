@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import matplotlib.dates as mdates
@@ -52,12 +53,9 @@ def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
 
 def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     mean_grid = np.nanmean(diagnostics.bc_grid_clim_var_yearly, axis=2)
-    units = _format_units(cfg.clim_var_units)
+    units = _yearly_units(cfg)
     trend_units = _trend_units(cfg)
-    if cfg.agg_method == "sum":
-        mean_label = f"{cfg.clim_var_long_name} ({units} year$^{{-1}}$)"
-    else:
-        mean_label = f"{cfg.clim_var_long_name} ({units})"
+    mean_label = f"{cfg.clim_var_long_name} ({units})"
     trend_label = f"{cfg.clim_var_long_name} trend ({trend_units})"
 
     _map_figure(
@@ -549,21 +547,44 @@ def _station_names(diagnostics: Diagnostics) -> list[str]:
 
 
 def _format_units(units: str) -> str:
-    return units.replace("degC", "\N{DEGREE SIGN}C")
+    formatted = str(units).strip()
+    formatted = formatted.replace("\\circC", "\N{DEGREE SIGN}C")
+    formatted = formatted.replace("degC", "\N{DEGREE SIGN}C")
+    formatted = re.sub(r"\^(-?\d+)", r"^{\1}", formatted)
+    formatted = re.sub(r"(?<!\$)\^\{(-?\d+)\}(?!\$)", r"$^{\1}$", formatted)
+    formatted = re.sub(r"\b([A-Za-z]+)-(\d+)\b", r"\1$^{-\2}$", formatted)
+    return formatted
 
 
 def _yearly_units(cfg: BiasCorrectionConfig) -> str:
-    units = _format_units(cfg.clim_var_units)
     if cfg.agg_method == "sum":
-        return f"{units} year$^{{-1}}$"
-    return units
+        units = _format_units(_remove_terminal_inverse_timestep(cfg.clim_var_units))
+        return _append_unit_factor(units, "year$^{-1}$")
+    return _format_units(cfg.clim_var_units)
 
 
 def _trend_units(cfg: BiasCorrectionConfig) -> str:
-    units = _format_units(cfg.clim_var_units)
     if cfg.agg_method == "sum":
-        return f"{units} year$^{{-2}}$"
-    return f"{units} year$^{{-1}}$"
+        units = _format_units(_remove_terminal_inverse_timestep(cfg.clim_var_units))
+        return _append_unit_factor(units, "year$^{-2}$")
+    units = _format_units(cfg.clim_var_units)
+    return _append_unit_factor(units, "year$^{-1}$")
+
+
+def _remove_terminal_inverse_timestep(units: str) -> str:
+    pattern = (
+        r"(?:^|\s+)"
+        r"(?:day|days|d|hour|hours|hr|hrs|h)"
+        r"(?:-1|\^-?1|\^\{-?1\}|\$\^\{-?1\}\$)"
+        r"\s*$"
+    )
+    return re.sub(pattern, "", str(units).strip(), flags=re.IGNORECASE)
+
+
+def _append_unit_factor(units: str, factor: str) -> str:
+    if units:
+        return f"{units} {factor}"
+    return factor
 
 
 def _add_equality_line(ax: plt.Axes, lims: list[float] | tuple[float, float]) -> None:

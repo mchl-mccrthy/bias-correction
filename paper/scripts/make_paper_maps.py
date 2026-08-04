@@ -15,8 +15,9 @@ from eqtm.plotting import (
     FONT_SIZE,
     MIN_TICKS,
     TICK_LENGTH_POINTS,
-    _format_units,
     _set_plot_style,
+    _trend_units,
+    _yearly_units,
 )
 from scripts.config_andermatt_zuerich_pr_trends_on import config_andermatt_zuerich_pr_trends_on
 from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuerich_tas_trends_on
@@ -75,17 +76,11 @@ def _paper_map(
 
 
 def _mean_label(cfg: BiasCorrectionConfig) -> str:
-    units = _format_units(cfg.clim_var_units)
-    if cfg.agg_method == "sum":
-        return f"{cfg.clim_var_long_name} ({units} year$^{{-1}}$)"
-    return f"{cfg.clim_var_long_name} ({units})"
+    return f"{cfg.clim_var_long_name} ({_yearly_units(cfg)})"
 
 
 def _trend_label(cfg: BiasCorrectionConfig) -> str:
-    units = _format_units(cfg.clim_var_units)
-    if cfg.agg_method == "sum":
-        return f"{cfg.clim_var_long_name} trend ({units} year$^{{-2}}$)"
-    return f"{cfg.clim_var_long_name} trend ({units} year$^{{-1}}$)"
+    return f"{cfg.clim_var_long_name} trend ({_trend_units(cfg)})"
 
 
 def _map_figure(

@@ -2,12 +2,8 @@
 function plotannualmae(raw_annual_mae,bc_annual_mae,file_path_figures_tables,...
     clim_var_name,clim_var_long_name,clim_var_units,agg_method)
 
-% Get annual units
-if strcmp(agg_method,'sum')
-    annual_units = [clim_var_units ' year^{-1}'];
-else
-    annual_units = clim_var_units;
-end
+% Get yearly units
+annual_units = yearlyunits(clim_var_units,agg_method);
 clim_var_long_name_lower = lower(clim_var_long_name);
 
 % Make plot
