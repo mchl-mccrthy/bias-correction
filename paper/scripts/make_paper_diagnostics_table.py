@@ -8,10 +8,10 @@ from eqtm import makediagnostics
 from eqtm.config import BiasCorrectionConfig
 from eqtm.diagnostics import Diagnostics
 from paper.scripts.make_paper_annual_mae import _check_matching_diagnostics
-from scripts.config_andermatt_zuerich_pr_trends_off import config_andermatt_zuerich_pr_trends_off
-from scripts.config_andermatt_zuerich_pr_trends_on import config_andermatt_zuerich_pr_trends_on
-from scripts.config_andermatt_zuerich_tas_trends_off import config_andermatt_zuerich_tas_trends_off
-from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuerich_tas_trends_on
+from paper.scripts.config_switzerland_pr_trends_off import config_switzerland_pr_trends_off
+from paper.scripts.config_switzerland_pr_trends_on import config_switzerland_pr_trends_on
+from paper.scripts.config_switzerland_tas_trends_off import config_switzerland_tas_trends_off
+from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_tas_trends_on
 
 
 METRIC_COLUMNS = ["MAE quantiles", "MAE yearly", "r2 trends"]
@@ -23,16 +23,16 @@ def main() -> None:
     figure_dir = repo_root / "paper" / "figures_and_tables"
     figure_dir.mkdir(parents=True, exist_ok=True)
 
-    tas_on = makediagnostics(config_andermatt_zuerich_tas_trends_on())
-    tas_off = makediagnostics(config_andermatt_zuerich_tas_trends_off())
-    pr_on = makediagnostics(config_andermatt_zuerich_pr_trends_on())
-    pr_off = makediagnostics(config_andermatt_zuerich_pr_trends_off())
+    tas_on = makediagnostics(config_switzerland_tas_trends_on())
+    tas_off = makediagnostics(config_switzerland_tas_trends_off())
+    pr_on = makediagnostics(config_switzerland_pr_trends_on())
+    pr_off = makediagnostics(config_switzerland_pr_trends_off())
 
     table = _paper_diagnostics_table(
-        config_andermatt_zuerich_tas_trends_on(),
+        config_switzerland_tas_trends_on(),
         tas_on,
         tas_off,
-        config_andermatt_zuerich_pr_trends_on(),
+        config_switzerland_pr_trends_on(),
         pr_on,
         pr_off,
     )

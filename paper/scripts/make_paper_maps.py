@@ -19,8 +19,8 @@ from eqtm.plotting import (
     _trend_units,
     _yearly_units,
 )
-from scripts.config_andermatt_zuerich_pr_trends_on import config_andermatt_zuerich_pr_trends_on
-from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuerich_tas_trends_on
+from paper.scripts.config_switzerland_pr_trends_on import config_switzerland_pr_trends_on
+from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_tas_trends_on
 
 
 MAX_COLORBAR_TICKS = 4
@@ -34,10 +34,10 @@ def main() -> None:
     _set_plot_style()
 
     map_specs = [
-        (config_andermatt_zuerich_tas_trends_on(), "mean"),
-        (config_andermatt_zuerich_pr_trends_on(), "mean"),
-        (config_andermatt_zuerich_tas_trends_on(), "trend"),
-        (config_andermatt_zuerich_pr_trends_on(), "trend"),
+        (config_switzerland_tas_trends_on(), "mean"),
+        (config_switzerland_pr_trends_on(), "mean"),
+        (config_switzerland_tas_trends_on(), "trend"),
+        (config_switzerland_pr_trends_on(), "trend"),
     ]
 
     diagnostics_cache: dict[str, Diagnostics] = {}

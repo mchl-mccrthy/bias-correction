@@ -15,11 +15,11 @@ EQTM-v1.0.0/
 |-- docs/
 |-- input_data/
 |   |-- boundaries/
-|   `-- andermatt_zuerich_1981_2019/
+|   `-- switzerland_1981_2019/
 |       |-- gridded/
 |       `-- station/
 |-- output_data/
-|   `-- andermatt_zuerich_1981_2019/
+|   `-- switzerland_1981_2019/
 |       |-- trends_off/
 |       |   |-- figures_and_tables/
 |       |   `-- gridded/
@@ -38,18 +38,20 @@ EQTM-v1.0.0/
 ## Archive requirements
 
 - Include the exact source code version used in the paper.
-- Include the Andermatt-Zurich input data used for the published examples.
+- Include the Switzerland-wide input data used for the paper results.
+- Keep the Andermatt-Zurich dataset as the lightweight example in the software
+  repository.
 - Include the Natural Earth Switzerland boundary file used for the locator map.
-- Include the configuration files used to run the examples.
+- Include the configuration files used to run the Switzerland paper workflow.
 - Use relative paths in all archived configuration files.
-- Place gridded inputs in `input_data/andermatt_zuerich_1981_2019/gridded/`
-  and station inputs in `input_data/andermatt_zuerich_1981_2019/station/`.
+- Place gridded inputs in `input_data/switzerland_1981_2019/gridded/`
+  and station inputs in `input_data/switzerland_1981_2019/station/`.
 - Write bias-corrected gridded outputs to
-  `output_data/andermatt_zuerich_1981_2019/trends_on/gridded/` and
-  `output_data/andermatt_zuerich_1981_2019/trends_off/gridded/`.
+  `output_data/switzerland_1981_2019/trends_on/gridded/` and
+  `output_data/switzerland_1981_2019/trends_off/gridded/`.
 - Write diagnostic figures and tables to
-  `output_data/andermatt_zuerich_1981_2019/trends_on/figures_and_tables/` and
-  `output_data/andermatt_zuerich_1981_2019/trends_off/figures_and_tables/`.
+  `output_data/switzerland_1981_2019/trends_on/figures_and_tables/` and
+  `output_data/switzerland_1981_2019/trends_off/figures_and_tables/`.
 - Include scripts used to create the paper figures.
 - Include either generated reference outputs or instructions for recreating
   them from the input data.
@@ -81,7 +83,7 @@ These files can still be included in the final Zenodo archive.
 2. Confirm that the Python paper experiments runner works from the archive root:
 
    ```powershell
-   python -m scripts.run_paper_experiments
+   python -m paper.scripts.run_eqtm_paper
    ```
 
 3. Confirm that the MATLAB runner works from the archive root:

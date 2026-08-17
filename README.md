@@ -65,14 +65,15 @@ The example runner can then be run from the repository root:
 ```powershell
 python -m scripts.run_eqtm
 ```
-It loads a configuration file from `scripts/`, runs the bias correction, computes 
-diagnostics and plots figures.
+It loads an Andermatt-Zurich example configuration file from `scripts/`, runs
+the bias correction, computes diagnostics and plots figures.
 
-To reproduce the paper experiments with temperature and precipitation, with
-and without station trend mapping, run:
+The Switzerland-wide paper experiments use separate configurations in
+`paper/scripts/`. They require substantially more memory than the lightweight
+example and are intended to be run on a compute node:
 
 ```powershell
-python -m scripts.run_paper_experiments
+python -m paper.scripts.run_eqtm_paper
 ```
 
 ### MATLAB

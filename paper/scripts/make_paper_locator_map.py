@@ -9,7 +9,7 @@ import numpy as np
 import xarray as xr
 
 from eqtm.plotting import BOX_LINE_WIDTH, CM_TO_IN, FONT_SIZE, _set_plot_style
-from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuerich_tas_trends_on
+from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_tas_trends_on
 
 
 def main() -> None:
@@ -21,7 +21,7 @@ def main() -> None:
     _set_plot_style()
 
     switzerland = _load_switzerland_boundary(boundary_path)
-    study_extent = _study_area_extent(config_andermatt_zuerich_tas_trends_on().file_path_raw_data)
+    study_extent = _study_area_extent(config_switzerland_tas_trends_on().file_path_raw_data)
     _locator_map(switzerland, study_extent, figure_dir / "switzerland_locator_map.png")
 
 

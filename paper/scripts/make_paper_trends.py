@@ -17,10 +17,10 @@ from eqtm.plotting import (
     _trend_units,
 )
 from paper.scripts.make_paper_qq import OFF_COLOR, ON_COLOR, RAW_COLOR
-from scripts.config_andermatt_zuerich_pr_trends_off import config_andermatt_zuerich_pr_trends_off
-from scripts.config_andermatt_zuerich_pr_trends_on import config_andermatt_zuerich_pr_trends_on
-from scripts.config_andermatt_zuerich_tas_trends_off import config_andermatt_zuerich_tas_trends_off
-from scripts.config_andermatt_zuerich_tas_trends_on import config_andermatt_zuerich_tas_trends_on
+from paper.scripts.config_switzerland_pr_trends_off import config_switzerland_pr_trends_off
+from paper.scripts.config_switzerland_pr_trends_on import config_switzerland_pr_trends_on
+from paper.scripts.config_switzerland_tas_trends_off import config_switzerland_tas_trends_off
+from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_tas_trends_on
 
 
 def main() -> None:
@@ -31,13 +31,13 @@ def main() -> None:
     _set_plot_style()
 
     _paper_trends(
-        config_andermatt_zuerich_tas_trends_on(),
-        config_andermatt_zuerich_tas_trends_off(),
+        config_switzerland_tas_trends_on(),
+        config_switzerland_tas_trends_off(),
         figure_dir,
     )
     _paper_trends(
-        config_andermatt_zuerich_pr_trends_on(),
-        config_andermatt_zuerich_pr_trends_off(),
+        config_switzerland_pr_trends_on(),
+        config_switzerland_pr_trends_off(),
         figure_dir,
     )
 

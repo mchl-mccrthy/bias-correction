@@ -16,7 +16,7 @@ def config_andermatt_zuerich_tas() -> BiasCorrectionConfig:
         trend_window=365 * 5,
         agg_method="mean",
         write_output=True,
-        n_quantiles=1001,
+        n_quantiles=201,
         idw_power=1,
         idw_alpha=10,
         multiplicative_epsilon=0.1,
