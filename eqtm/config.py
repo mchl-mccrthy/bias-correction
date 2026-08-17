@@ -9,7 +9,7 @@ class BiasCorrectionConfig:
     """Configuration for an EQTM bias-correction workflow.
 
     The configuration stores variable metadata, quantile-mapping options,
-    trend-method settings, IDW interpolation settings, and file paths
+    trend-mapping settings, IDW interpolation settings, and file paths
     used by `biascorrect`, `makediagnostics`, and `makeplots`.
     """
 
@@ -18,7 +18,7 @@ class BiasCorrectionConfig:
     clim_var_units: str
     qmf_period: str
     bc_type: str
-    trend_method: str
+    trend_mapping: bool
     trend_window: int
     agg_method: str
     write_output: bool
@@ -40,12 +40,13 @@ class BiasCorrectionConfig:
 def validateconfig(cfg: BiasCorrectionConfig) -> None:
     """Validate user-facing configuration options and required input files."""
 
-    _must_be_one_of(cfg.trend_method, {"none", "station"}, "trend_method")
     _must_be_one_of(cfg.qmf_period, {"whole", "seasonal", "monthly"}, "qmf_period")
     _must_be_one_of(cfg.bc_type, {"additive", "multiplicative"}, "bc_type")
     _must_be_one_of(cfg.agg_method, {"mean", "sum"}, "agg_method")
     _must_be_one_of(cfg.coordinate_system, {"geographic", "projected"}, "coordinate_system")
 
+    if not isinstance(cfg.trend_mapping, bool):
+        raise ValueError("cfg.trend_mapping must be a boolean.")
     if cfg.trend_window <= 0:
         raise ValueError("cfg.trend_window must be positive.")
     if cfg.n_quantiles <= 1:

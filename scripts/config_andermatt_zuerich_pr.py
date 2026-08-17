@@ -12,7 +12,7 @@ def config_andermatt_zuerich_pr() -> BiasCorrectionConfig:
         clim_var_units="mm day^{-1}",
         qmf_period="monthly",
         bc_type="multiplicative",
-        trend_method="station",
+        trend_mapping=True,
         trend_window=365 * 5,
         agg_method="sum",
         write_output=True,

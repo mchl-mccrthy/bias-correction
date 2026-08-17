@@ -7,7 +7,7 @@ A software for bias correcting historical gridded climate data using station obs
 ## Features
 
 - Empirical quantile mapping
-- Optional station trend mapping
+- Optional trend mapping
 - Additive or multiplicative bias correction
 - Monthly, seasonal, or whole-period bias correction
 - Spatial interpolation of station-based biases and trends using inverse-distance weighting (IDW)
@@ -96,7 +96,7 @@ Workflow settings are defined in the example configuration files in
 | `clim_var_name` | Climate variable name in both the NetCDF and station files |
 | `qmf_period` | Quantile mapping period (`whole`, `seasonal`, or `monthly`) |
 | `bc_type` | Bias-correction type (`additive` or `multiplicative`) |
-| `trend_method` | Trend treatment (`none` or `station`) |
+| `trend_mapping` | Enable or disable trend mapping (`true` or `false`) |
 | `trend_window` | Moving-average window length used for trend estimation |
 | `agg_method` | Annual aggregation method (`mean` or `sum`) |
 | `write_output` | Write the corrected NetCDF file |

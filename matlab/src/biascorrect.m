@@ -11,7 +11,7 @@ validateconfig(cfg)
 clim_var_name = cfg.clim_var_name;
 qmf_period = cfg.qmf_period;
 bc_type = cfg.bc_type;
-trend_method = char(cfg.trend_method);
+trend_mapping = cfg.trend_mapping;
 trend_window = cfg.trend_window;
 write_output = cfg.write_output;
 n_quantiles = cfg.n_quantiles;
@@ -47,7 +47,7 @@ end
     file_path_raw_data,clim_var_name);
 
 % Get trends in raw and station data
-if strcmp(trend_method,'station')
+if trend_mapping
     raw_grid_trends...
         = gettrends(...
         raw_grid_clim_var,3,trend_window);
@@ -57,7 +57,7 @@ if strcmp(trend_method,'station')
 end
 
 % Detrend raw and station data
-if strcmp(trend_method,'station')
+if trend_mapping
     raw_grid_clim_var...
         = detrendclimdata(...
         raw_grid_clim_var,raw_grid_trends,bc_type,multiplicative_epsilon);
@@ -88,7 +88,7 @@ else
 end
 
 % Interpolate station trends to grid
-if strcmp(trend_method,'station')  
+if trend_mapping
     station_grid_trends...
         = interptrends(...
         station_trends,station_x,station_y,station_z,grid_x,grid_y,grid_z,...
@@ -100,7 +100,7 @@ end
 clear raw_grid_clim_var
 
 % Retrend bias corrected data
-if strcmp(trend_method,'station')
+if trend_mapping
     bc_grid_clim_var...
         = retrendclimdata(...
         bc_grid_clim_var,station_grid_trends,bc_type,multiplicative_epsilon);
@@ -115,7 +115,7 @@ clear station_grid_trends
 % Put bias corrected data in netcdf file
 if write_output
     savebcdata(...
-        bc_grid_clim_var,file_path_raw_data,file_path_bc_data,clim_var_name)
+        bc_grid_clim_var,file_path_raw_data,file_path_bc_data,clim_var_name,cfg)
 end
 
 % Return useful outputs

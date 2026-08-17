@@ -12,7 +12,7 @@ def config_andermatt_zuerich_tas() -> BiasCorrectionConfig:
         clim_var_units="degC",
         qmf_period="monthly",
         bc_type="additive",
-        trend_method="station",
+        trend_mapping=True,
         trend_window=365 * 5,
         agg_method="mean",
         write_output=True,

@@ -12,7 +12,7 @@ def _cfg(units: str, agg_method: str) -> BiasCorrectionConfig:
         clim_var_units=units,
         qmf_period="monthly",
         bc_type="additive",
-        trend_method="station",
+        trend_mapping=True,
         trend_window=365,
         agg_method=agg_method,
         write_output=False,

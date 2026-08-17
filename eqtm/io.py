@@ -3,11 +3,18 @@ from __future__ import annotations
 import re
 import shutil
 from dataclasses import dataclass
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 import xarray as xr
+
+if TYPE_CHECKING:
+    from .config import BiasCorrectionConfig
+
+EQTM_REFERENCE = "https://github.com/mchl-mccrthy/bias-correction"
 
 
 @dataclass
@@ -167,6 +174,7 @@ def savebcdata(
     file_path_raw_data: str | Path,
     file_path_bc_data: str | Path,
     clim_var_name: str,
+    cfg: "BiasCorrectionConfig",
 ) -> None:
     file_path_bc_data = Path(file_path_bc_data)
     file_path_bc_data.parent.mkdir(parents=True, exist_ok=True)
@@ -197,14 +205,46 @@ def savebcdata(
 
     ds[clim_var_name] = internal.transpose(*original_dims)
 
-    ds[clim_var_name].attrs["bias_correction"] = "empirical quantile mapping"
-    ds.attrs["history"] = f"replaced {clim_var_name} with bias-corrected data (EQM)"
+    ds[clim_var_name].attrs["bias_correction"] = "EQTM: empirical quantile and trend mapping"
+    ds[clim_var_name].attrs["eqtm_version"] = _eqtm_version()
+    ds[clim_var_name].attrs["eqtm_reference"] = EQTM_REFERENCE
+    ds[clim_var_name].attrs["eqtm_parameters"] = _eqtm_parameters(cfg)
+    ds.attrs["history"] = f"replaced {clim_var_name} with bias-corrected data (EQTM)"
 
     tmp_path = file_path_bc_data.with_suffix(file_path_bc_data.suffix + ".tmp")
     if tmp_path.exists():
         tmp_path.unlink()
     ds.to_netcdf(tmp_path)
     tmp_path.replace(file_path_bc_data)
+
+
+def _eqtm_version() -> str:
+    try:
+        return version("eqtm")
+    except PackageNotFoundError:
+        return "unknown"
+
+
+def _eqtm_parameters(cfg: "BiasCorrectionConfig") -> str:
+    parameters = {
+        "bc_type": cfg.bc_type,
+        "qmf_period": cfg.qmf_period,
+        "trend_mapping": cfg.trend_mapping,
+        "trend_window": cfg.trend_window,
+        "agg_method": cfg.agg_method,
+        "n_quantiles": cfg.n_quantiles,
+        "idw_power": cfg.idw_power,
+        "idw_alpha": cfg.idw_alpha,
+        "coordinate_system": cfg.coordinate_system,
+        "multiplicative_epsilon": cfg.multiplicative_epsilon,
+    }
+    return "; ".join(f"{key}={_metadata_value(value)}" for key, value in parameters.items())
+
+
+def _metadata_value(value: object) -> str:
+    if isinstance(value, bool):
+        return str(value).lower()
+    return str(value)
 
 
 def _find_xy_names(ds: xr.Dataset) -> tuple[str, str]:

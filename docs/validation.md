@@ -30,7 +30,7 @@ Both tests used:
 - identical configuration settings
 - monthly empirical quantile mapping
 - inverse-distance weighting with elevation scaling
-- station trend mapping enabled
+- trend mapping enabled
 
 The Python implementation uses Hazen empirical quantiles:
 
@@ -62,7 +62,7 @@ The following summary statistics were calculated from absolute differences:
 
 ### Temperature (`tas`)
 
-For `tas`, with additive bias correction and station trend mapping enabled:
+For `tas`, with additive bias correction and trend mapping enabled:
 
 | Statistic | Absolute difference |
 |---|---:|
@@ -84,7 +84,7 @@ difference.
 
 ### Precipitation (`pr`)
 
-For `pr`, with multiplicative bias correction and station trend mapping enabled:
+For `pr`, with multiplicative bias correction and trend mapping enabled:
 
 | Statistic | Absolute difference |
 |---|---:|

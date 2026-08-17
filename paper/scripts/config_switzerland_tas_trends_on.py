@@ -1,18 +1,14 @@
-from pathlib import Path
-
 from eqtm import BiasCorrectionConfig
 
 
 def config_switzerland_tas_trends_on() -> BiasCorrectionConfig:
-    repo_root = Path(__file__).resolve().parents[2]
-
     return BiasCorrectionConfig(
         clim_var_name="tas",
-        clim_var_long_name="Temperature",
-        clim_var_units="degC",
+        clim_var_long_name="Mean temperature",
+        clim_var_units="K",
         qmf_period="monthly",
         bc_type="additive",
-        trend_method="station",
+        trend_mapping=True,
         trend_window=365 * 5,
         agg_method="mean",
         write_output=True,
@@ -20,13 +16,13 @@ def config_switzerland_tas_trends_on() -> BiasCorrectionConfig:
         idw_power=1,
         idw_alpha=10,
         multiplicative_epsilon=0.1,
-        use_parallel=False,
-        n_workers=None,
+        use_parallel=True,
+        n_workers=10,
         keep_grid_biases=False,
         coordinate_system="geographic",
-        file_path_station_coords=repo_root / "input_data" / "switzerland_1981_2019" / "station" / "switzerland_coordinates.csv",
-        file_path_station_clim_var=repo_root / "input_data" / "switzerland_1981_2019" / "station" / "switzerland_tas.csv",
-        file_path_raw_data=repo_root / "input_data" / "switzerland_1981_2019" / "gridded" / "tas_switzerland_1981_2019.nc",
-        file_path_bc_data=repo_root / "output_data" / "switzerland_1981_2019" / "trends_on" / "gridded" / "tas_bc_switzerland_1981_2019.nc",
-        file_path_figures_tables=repo_root / "output_data" / "switzerland_1981_2019" / "trends_on" / "figures_and_tables",
+        file_path_station_coords="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/stations/Switzerland_coordinates.csv",
+        file_path_station_clim_var="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/stations/Switzerland_tas.csv",
+        file_path_raw_data="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/chelsa/tas_Switzerland_1981_2019.nc",
+        file_path_bc_data="/storage/mccarthy/climate_pipeline/data/Switzerland/processed/key_variables/historic/reanalysis/trends_on/tas_bc_Switzerland_1981_2019.nc",
+        file_path_figures_tables="/storage/mccarthy/climate_pipeline/data/Switzerland/processed/key_variables/historic/reanalysis/trends_on/figures",
     )

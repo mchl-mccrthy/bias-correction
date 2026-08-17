@@ -33,7 +33,7 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
     ----------
     cfg
         Workflow configuration containing input paths, correction options,
-        trend settings, interpolation settings, and output paths.
+    trend-mapping settings, interpolation settings, and output paths.
 
     Returns
     -------
@@ -44,14 +44,13 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
 
     print("Bias correcting climate data")
     validateconfig(cfg)
-    trend_method = cfg.trend_method
 
     station = loadstationdata(cfg.file_path_station_clim_var, cfg.file_path_station_coords)
     raw = loadgriddata(cfg.file_path_raw_data, cfg.clim_var_name)
     raw_grid_clim_var = raw.clim_var.copy()
     station_clim_var = station.clim_var.copy()
 
-    if trend_method == "station":
+    if cfg.trend_mapping:
         raw_grid_trends = gettrends(raw_grid_clim_var, axis=2, window=cfg.trend_window)
         station_trends = gettrends(station_clim_var.to_numpy(dtype=float), axis=0, window=cfg.trend_window)
         raw_grid_clim_var = detrendclimdata(
@@ -96,7 +95,7 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
     )
     del raw_grid_clim_var
 
-    if trend_method == "station":
+    if cfg.trend_mapping:
         station_grid_trends = interptrends(
             station_trends,
             station.x,
@@ -118,7 +117,7 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
         del station_grid_trends
 
     if cfg.write_output:
-        savebcdata(bc_grid_clim_var, cfg.file_path_raw_data, cfg.file_path_bc_data, cfg.clim_var_name)
+        savebcdata(bc_grid_clim_var, cfg.file_path_raw_data, cfg.file_path_bc_data, cfg.clim_var_name, cfg)
 
     print("Bias correction completed")
     return BiasCorrectionResults(
