@@ -92,7 +92,6 @@ def loadstationdata(
 ) -> StationData:
     station_clim_var = pd.read_csv(file_path_station_clim_var)
     station_coords = pd.read_csv(file_path_station_coords)
-    station_x, station_y, station_z = loadstationcoords(station_coords)
 
     station_time = pd.to_datetime(
         {
@@ -102,6 +101,8 @@ def loadstationdata(
         }
     )
     station_clim_var = station_clim_var.drop(columns=["year", "month", "day"])
+    station_coords = matchstationcoords(station_coords, station_clim_var.columns)
+    station_x, station_y, station_z = loadstationcoords(station_coords)
 
     if len(station_x) != station_clim_var.shape[1]:
         raise ValueError("Number of station coordinates must match number of station data columns.")
@@ -114,6 +115,26 @@ def loadstationdata(
         z=station_z,
         time=pd.DatetimeIndex(station_time),
     )
+
+
+def matchstationcoords(station_coords: pd.DataFrame, station_names: pd.Index) -> pd.DataFrame:
+    """Return station coordinates ordered to match station climate columns."""
+    if "station" not in station_coords.columns:
+        raise ValueError("Station coordinate file must contain a station column.")
+
+    coord_names = station_coords["station"].astype(str)
+    duplicated = coord_names[coord_names.duplicated()].unique()
+    if len(duplicated) > 0:
+        raise ValueError(f"Station coordinate file contains duplicate stations: {', '.join(duplicated)}")
+
+    requested = [str(station_name) for station_name in station_names]
+    missing = [station_name for station_name in requested if station_name not in set(coord_names)]
+    if missing:
+        raise ValueError(f"Station coordinates missing for: {', '.join(missing)}")
+
+    ordered_coords = station_coords.assign(_eqtm_station_name=coord_names)
+    ordered_coords = ordered_coords.set_index("_eqtm_station_name", drop=False).loc[requested]
+    return ordered_coords.drop(columns="_eqtm_station_name").reset_index(drop=True)
 
 
 def loadstationcoords(station_coords: pd.DataFrame) -> tuple[np.ndarray, np.ndarray, np.ndarray | None]:

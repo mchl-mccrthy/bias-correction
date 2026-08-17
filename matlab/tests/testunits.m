@@ -77,3 +77,53 @@ end
 verifyTrue(testCase,did_error)
 
 end
+
+% Station coordinates are matched to climate-data station columns
+function testStationCoordinatesMatchedToClimateColumns(testCase)
+
+tmp_dir = tempname;
+mkdir(tmp_dir)
+cleanup = onCleanup(@() rmdir(tmp_dir,'s'));
+
+station_clim = table(2000,1,1,1,2,...
+    'VariableNames',{'year','month','day','A','B'});
+station_coords = table(["Unused";"B";"A"],[0;20;10],[0;200;100],[0;2;1],...
+    'VariableNames',{'station','lat','lon','z'});
+
+file_path_station_clim_var = fullfile(tmp_dir,'station_clim.csv');
+file_path_station_coords = fullfile(tmp_dir,'station_coords.csv');
+writetable(station_clim,file_path_station_clim_var)
+writetable(station_coords,file_path_station_coords)
+
+[station_clim_var,station_coords_out,station_x,station_y,station_z,~] = ...
+    loadstationdata(file_path_station_clim_var,file_path_station_coords);
+
+verifyEqual(testCase,station_clim_var.Properties.VariableNames,{'A','B'})
+verifyEqual(testCase,string(station_coords_out.station)',["A" "B"])
+verifyEqual(testCase,station_x',[100 200])
+verifyEqual(testCase,station_y',[10 20])
+verifyEqual(testCase,station_z',[1 2])
+
+end
+
+% Missing station coordinates throw a clear error
+function testMissingStationCoordinatesError(testCase)
+
+tmp_dir = tempname;
+mkdir(tmp_dir)
+cleanup = onCleanup(@() rmdir(tmp_dir,'s'));
+
+station_clim = table(2000,1,1,1,2,...
+    'VariableNames',{'year','month','day','A','B'});
+station_coords = table("A",10,100,...
+    'VariableNames',{'station','lat','lon'});
+
+file_path_station_clim_var = fullfile(tmp_dir,'station_clim.csv');
+file_path_station_coords = fullfile(tmp_dir,'station_coords.csv');
+writetable(station_clim,file_path_station_clim_var)
+writetable(station_coords,file_path_station_coords)
+
+verifyError(testCase,@() loadstationdata(file_path_station_clim_var,...
+    file_path_station_coords),'EQTM:loadstationdata:StationMissing')
+
+end

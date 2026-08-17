@@ -118,6 +118,9 @@ The workflow assumes:
   - `time`
 - Station observations cover the same period as the gridded dataset.
 - Missing station observations are represented by `NaN`.
+- Station climate-data columns define the stations used in a run. The station
+  coordinate file must contain a `station` column with matching names; extra
+  stations in the coordinate file are ignored.
 - The climate variable name is consistent between the NetCDF and station datasets.
 - For variables using `agg_method = "sum"`, terminal inverse timestep units
   such as `day^-1` are removed before yearly diagnostic units are added.
