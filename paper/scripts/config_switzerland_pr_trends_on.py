@@ -20,9 +20,9 @@ def config_switzerland_pr_trends_on() -> BiasCorrectionConfig:
         n_workers=10,
         keep_grid_biases=False,
         coordinate_system="geographic",
-        file_path_station_coords="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/stations/Switzerland_coordinates.csv",
-        file_path_station_clim_var="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/stations/Switzerland_pr.csv",
-        file_path_raw_data="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/chelsa/pr_Switzerland_1981_2019.nc",
-        file_path_bc_data="/storage/mccarthy/climate_pipeline/data/Switzerland/processed/key_variables/historic/reanalysis/trends_on/pr_bc_Switzerland_1981_2019.nc",
+        file_path_station_coords="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/stations/switzerland_coordinates.csv",
+        file_path_station_clim_var="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/stations/switzerland_pr.csv",
+        file_path_raw_data="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/chelsa/pr_switzerland_1981_2019.nc",
+        file_path_bc_data="/storage/mccarthy/climate_pipeline/data/Switzerland/processed/key_variables/historic/reanalysis/trends_on/pr_bc_switzerland_1981_2019.nc",
         file_path_figures_tables="/storage/mccarthy/climate_pipeline/data/Switzerland/processed/key_variables/historic/reanalysis/trends_on/figures",
     )
