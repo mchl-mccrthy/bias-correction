@@ -45,6 +45,7 @@ def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
     plottrendcomparison(diagnostics, cfg, overview_dir)
     plotquantilemae(diagnostics, cfg, overview_dir)
     plotannualmae(diagnostics, cfg, overview_dir)
+    plottrendmae(diagnostics, cfg, overview_dir)
     plotallstationsqq(diagnostics, cfg, overview_dir)
     plotallstationsqmresiduals(diagnostics, cfg, overview_dir)
     plotstationavailability(diagnostics, cfg, overview_dir)
@@ -152,6 +153,25 @@ def plotquantilemae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_
     ax.set_title("All stations, quantile MAE")
     ax.legend(handles, ["Raw", "Bias-corrected"], loc="center left", bbox_to_anchor=(1.02, 0.5), borderaxespad=0)
     _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_quantile_mae_strip.png")
+
+
+def plottrendmae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
+    fig, ax = _new_figure(4, 2, 4)
+    raw_trend_ae = np.abs(diagnostics.raw_station_linear_trends - diagnostics.station_linear_trends)
+    bc_trend_ae = np.abs(diagnostics.bc_station_linear_trends - diagnostics.station_linear_trends)
+    handles = _stripplot(
+        ax,
+        [
+            raw_trend_ae,
+            bc_trend_ae,
+        ],
+        ["Raw", "Bias-corrected"],
+        [RAW_COLOR, BC_COLOR],
+    )
+    ax.set_xlabel(f"Absolute error, linear trends ({_trend_units(cfg)})")
+    ax.set_title("All stations, linear trend absolute error")
+    ax.legend(handles, ["Raw", "Bias-corrected"], loc="center left", bbox_to_anchor=(1.02, 0.5), borderaxespad=0)
+    _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_trend_mae_strip.png")
 
 
 def _trendcomparisonfigure(

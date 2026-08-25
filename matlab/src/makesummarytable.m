@@ -10,28 +10,28 @@ mae_quantiles = [mean(raw_quantile_mae,'omitnan'); ...
     mean(bc_quantile_mae,'omitnan')];
 mae_annual = [mean(raw_annual_mae,'omitnan'); ...
     mean(bc_annual_mae,'omitnan')];
-r2_trends = [trendr2(station_trends,raw_station_trends); ...
-    trendr2(station_trends,bc_station_trends)];
+mae_linear_trends = [trendmae(station_trends,raw_station_trends); ...
+    trendmae(station_trends,bc_station_trends)];
 
 % Assemble table
-summary_table = table(variable,dataset,mae_quantiles,mae_annual,r2_trends,...
+summary_table = table(variable,dataset,mae_quantiles,mae_annual,...
+    mae_linear_trends,...
     'VariableNames',{'Variable','Dataset','MAE_quantiles','MAE_yearly',...
-    'r2_trends'});
+    'MAE_linear_trends'});
 
 end
 
-% Calculate r2 between station and gridded trends at station locations
-function r2 = trendr2(station_trends,model_trends)
+% Calculate MAE between station and gridded trends at station locations
+function mae = trendmae(station_trends,model_trends)
 
 % Keep finite values
 valid = isfinite(station_trends) & isfinite(model_trends);
 
-% Calculate r2
-if sum(valid) < 2
-    r2 = NaN;
+% Calculate MAE
+if ~any(valid)
+    mae = NaN;
 else
-    r = corr(station_trends(valid)',model_trends(valid)');
-    r2 = r^2;
+    mae = mean(abs(model_trends(valid)-station_trends(valid)),'omitnan');
 end
 
 end

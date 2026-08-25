@@ -29,6 +29,9 @@ cluster/
 paper/corel_draw/
 paper/figures_and_tables/*.csv
 
+# Files
+to-do_list.txt
+
 # OS files
 .DS_Store
 Thumbs.db

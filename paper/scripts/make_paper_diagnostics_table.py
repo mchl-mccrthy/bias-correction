@@ -14,7 +14,7 @@ from paper.scripts.config_switzerland_tas_trends_off import config_switzerland_t
 from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_tas_trends_on
 
 
-METRIC_COLUMNS = ["MAE quantiles", "MAE yearly", "r2 trends"]
+METRIC_COLUMNS = ["MAE quantiles", "MAE yearly", "MAE linear trends"]
 ROW_LABELS = ["Raw", "Bias-corrected, trend mapping on", "Bias-corrected, trend mapping off"]
 
 

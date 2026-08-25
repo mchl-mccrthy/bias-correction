@@ -314,16 +314,8 @@ def _summaryrow(
         "Dataset": dataset,
         "MAE quantiles": np.nanmean(quantile_mae),
         "MAE yearly": np.nanmean(annual_mae),
-        "r2 trends": _r2(station_trends, model_trends),
+        "MAE linear trends": np.nanmean(np.abs(model_trends - station_trends)),
     }
-
-
-def _r2(x: np.ndarray, y: np.ndarray) -> float:
-    valid = np.isfinite(x) & np.isfinite(y)
-    if np.sum(valid) < 2:
-        return np.nan
-    corr = np.corrcoef(x[valid], y[valid])[0, 1]
-    return float(corr**2)
 
 
 def getoverlappingstationdata(
