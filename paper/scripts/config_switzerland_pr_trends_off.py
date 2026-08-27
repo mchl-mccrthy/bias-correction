@@ -12,7 +12,7 @@ def config_switzerland_pr_trends_off() -> BiasCorrectionConfig:
         trend_window=365 * 5,
         agg_method="sum",
         write_output=True,
-        n_quantiles=201,
+        n_quantiles=1001,
         idw_power=1,
         idw_alpha=10,
         multiplicative_epsilon=0.1,
