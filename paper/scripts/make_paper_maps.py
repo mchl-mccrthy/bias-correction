@@ -9,7 +9,6 @@ import matplotlib.colors as mcolors
 import numpy as np
 import shapely
 
-from eqtm import makediagnostics
 from eqtm.config import BiasCorrectionConfig
 from eqtm.diagnostics import Diagnostics
 from eqtm.plotting import (
@@ -22,6 +21,7 @@ from eqtm.plotting import (
     _trend_units,
     _yearly_units,
 )
+from paper.scripts.diagnostics_cache import makediagnostics_cached as makediagnostics
 from paper.scripts.make_paper_locator_map import _find_boundary_file, _load_switzerland_boundary
 from paper.scripts.config_switzerland_pr_trends_on import config_switzerland_pr_trends_on
 from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_tas_trends_on
