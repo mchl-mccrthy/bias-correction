@@ -34,7 +34,15 @@ COLORBAR_WIDTH_CM = 0.25
 COLORBAR_GAP_CM = 0.35
 STATION_MARKER_SIZE = 10
 CENTERED_CMAP = "RdBu_r"
-TEMPERATURE_CMAP = "RdBu_r"
+TEMPERATURE_COLORS = [
+    "#08306b",
+    "#2171b5",
+    "#6baed6",
+    "#f7f7f7",
+    "#fcbba1",
+    "#fb6a4a",
+    "#a50f15",
+]
 PRECIPITATION_MEAN_COLORS = [
     "#f6f7d7",
     "#d6efb3",
@@ -210,6 +218,11 @@ def _mask_outside_switzerland(
 
 
 def _map_cmap(clim_var_name: str, map_type: str) -> mcolors.Colormap:
+    if clim_var_name == "tas":
+        return mcolors.LinearSegmentedColormap.from_list(
+            "report_temperature",
+            TEMPERATURE_COLORS,
+        )
     if clim_var_name == "pr" and map_type == "mean":
         return mcolors.LinearSegmentedColormap.from_list(
             "report_precipitation_mean",
@@ -222,7 +235,7 @@ def _map_cmap(clim_var_name: str, map_type: str) -> mcolors.Colormap:
         )
     if _is_centered_map(clim_var_name, map_type):
         return plt.get_cmap(CENTERED_CMAP)
-    return plt.get_cmap(TEMPERATURE_CMAP)
+    return plt.get_cmap(CENTERED_CMAP)
 
 
 def _map_norm(values: np.ndarray, clim_var_name: str, map_type: str) -> mcolors.Normalize:
