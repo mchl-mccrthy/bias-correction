@@ -34,8 +34,25 @@ COLORBAR_WIDTH_CM = 0.25
 COLORBAR_GAP_CM = 0.35
 STATION_MARKER_SIZE = 10
 CENTERED_CMAP = "RdBu_r"
-PRECIPITATION_CMAP = "turbo"
 TEMPERATURE_CMAP = "RdBu_r"
+PRECIPITATION_MEAN_COLORS = [
+    "#f6f7d7",
+    "#d6efb3",
+    "#94dea2",
+    "#4fc7a7",
+    "#1f9fc3",
+    "#1460b2",
+    "#3b0f70",
+]
+PRECIPITATION_TREND_COLORS = [
+    "#8c510a",
+    "#bf812d",
+    "#dfc27d",
+    "#f6f6f6",
+    "#80cdc1",
+    "#35978f",
+    "#01665e",
+]
 
 
 def main() -> None:
@@ -193,10 +210,18 @@ def _mask_outside_switzerland(
 
 
 def _map_cmap(clim_var_name: str, map_type: str) -> mcolors.Colormap:
+    if clim_var_name == "pr" and map_type == "mean":
+        return mcolors.LinearSegmentedColormap.from_list(
+            "report_precipitation_mean",
+            PRECIPITATION_MEAN_COLORS,
+        )
+    if clim_var_name == "pr" and map_type == "trend":
+        return mcolors.LinearSegmentedColormap.from_list(
+            "report_precipitation_trend",
+            PRECIPITATION_TREND_COLORS,
+        )
     if _is_centered_map(clim_var_name, map_type):
         return plt.get_cmap(CENTERED_CMAP)
-    if clim_var_name == "pr":
-        return plt.get_cmap(PRECIPITATION_CMAP)
     return plt.get_cmap(TEMPERATURE_CMAP)
 
 
