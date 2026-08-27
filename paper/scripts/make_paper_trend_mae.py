@@ -47,7 +47,7 @@ def _paper_trend_mae(
     bc_on_trend_ae = np.abs(diagnostics_on.bc_station_linear_trends - diagnostics_on.station_linear_trends)
     bc_off_trend_ae = np.abs(diagnostics_off.bc_station_linear_trends - diagnostics_off.station_linear_trends)
 
-    fig, ax = _new_figure(4, 2, 4)
+    fig, ax = _new_figure(4, 2, 5)
     _stripplot(
         ax,
         [

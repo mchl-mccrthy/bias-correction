@@ -41,7 +41,7 @@ def _paper_quantile_mae(
     diagnostics_off = makediagnostics(cfg_off)
     _check_matching_diagnostics(diagnostics_on, diagnostics_off)
 
-    fig, ax = _new_figure(4, 2, 4)
+    fig, ax = _new_figure(4, 2, 5)
     _stripplot(
         ax,
         [
