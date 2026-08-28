@@ -41,7 +41,7 @@ EQTM-v1.0.0/
 - Include the Switzerland-wide input data used for the paper results.
 - Keep the Andermatt-Zurich dataset as the lightweight example in the software
   repository.
-- Include the Natural Earth Switzerland boundary file used for the locator map.
+- Include the Natural Earth Switzerland boundary file used to mask and outline the paper maps.
 - Include the configuration files used to run the Switzerland paper workflow.
 - Use relative paths in all archived configuration files.
 - Place gridded inputs in `input_data/switzerland_1981_2019/gridded/`

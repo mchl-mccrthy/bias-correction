@@ -22,7 +22,6 @@ from eqtm.plotting import (
     _yearly_units,
 )
 from paper.scripts.diagnostics_cache import makediagnostics_cached as makediagnostics
-from paper.scripts.make_paper_locator_map import _find_boundary_file, _load_switzerland_boundary
 from paper.scripts.config_switzerland_pr_trends_on import config_switzerland_pr_trends_on
 from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_tas_trends_on
 
@@ -82,6 +81,36 @@ def main() -> None:
     for cfg, map_type in map_specs:
         diagnostics = diagnostics_cache.setdefault(cfg.clim_var_name, makediagnostics(cfg))
         _paper_map(diagnostics, cfg, map_type, switzerland, figure_dir)
+
+
+def _find_boundary_file(boundary_dir: Path) -> Path:
+    preferred = boundary_dir / "switzerland_boundary.geojson"
+    if preferred.is_file():
+        return preferred
+
+    candidates = sorted(boundary_dir.rglob("*.shp"))
+    if candidates:
+        return candidates[0]
+
+    raise FileNotFoundError(
+        "No boundary file found. Expected input_data/boundaries/switzerland_boundary.geojson "
+        "or a Natural Earth shapefile under input_data/boundaries/."
+    )
+
+
+def _load_switzerland_boundary(boundary_path: Path) -> gpd.GeoDataFrame:
+    boundaries = gpd.read_file(boundary_path)
+    if boundaries.crs is None:
+        boundaries = boundaries.set_crs("EPSG:4326")
+    boundaries = boundaries.to_crs("EPSG:4326")
+
+    for column in ("ADMIN", "NAME", "NAME_EN", "SOVEREIGNT"):
+        if column in boundaries.columns:
+            match = boundaries[column].astype(str).str.lower() == "switzerland"
+            if match.any():
+                return boundaries.loc[match]
+
+    return boundaries
 
 
 def _paper_map(

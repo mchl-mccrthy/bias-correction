@@ -20,6 +20,7 @@ BOX_LINE_WIDTH = 0.5
 TICK_LENGTH_POINTS = 0.1 * 72 / 2.54
 MIN_TICKS = 3
 MAX_TICKS = 6
+TREND_SCATTER_MAX_TICKS = 5
 MARKER_SIZE = 10
 RAW_COLOR = "0.45"
 BC_COLOR = "red"
@@ -202,6 +203,7 @@ def _trendcomparisonfigure(
     ax.set_xlabel(f"{cfg.clim_var_long_name} {trend_label}, stations ({units})")
     ax.set_ylabel(f"{cfg.clim_var_long_name} {trend_label}, gridded ({units})")
     ax.set_title("All stations, linear trends")
+    ax._eqtm_max_ticks = TREND_SCATTER_MAX_TICKS
 
     values = np.concatenate(
         [
@@ -748,10 +750,11 @@ def _format_date_axis(ax: plt.Axes) -> None:
 
 
 def _format_numeric_ticks(ax: plt.Axes) -> None:
+    max_ticks = getattr(ax, "_eqtm_max_ticks", MAX_TICKS)
     if not getattr(ax, "_eqtm_colorbar", False) and not _has_date_axis(ax, "x"):
-        ax.xaxis.set_major_locator(mticker.MaxNLocator(nbins=MAX_TICKS, min_n_ticks=MIN_TICKS))
+        ax.xaxis.set_major_locator(mticker.MaxNLocator(nbins=max_ticks, min_n_ticks=MIN_TICKS))
     if not getattr(ax, "_eqtm_categorical_y", False) and not _has_date_axis(ax, "y"):
-        ax.yaxis.set_major_locator(mticker.MaxNLocator(nbins=MAX_TICKS, min_n_ticks=MIN_TICKS))
+        ax.yaxis.set_major_locator(mticker.MaxNLocator(nbins=max_ticks, min_n_ticks=MIN_TICKS))
 
 
 def _has_date_axis(ax: plt.Axes, axis_name: str) -> bool:

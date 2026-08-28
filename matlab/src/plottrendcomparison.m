@@ -27,6 +27,9 @@ ylabel([clim_var_long_name ' trend, gridded (' ...
 title('All stations, linear trends')
 xlim(lims)
 ylim(lims)
+tick_values = linspace(lims(1),lims(2),5);
+xticks(tick_values)
+yticks(tick_values)
 legend('Raw','Bias-corrected','Location','eastoutside')
 formatfigure(gcf,4,4,4)
 print(gcf,fullfile(file_path_figures_tables,[clim_var_name ...
