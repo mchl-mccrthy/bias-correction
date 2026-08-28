@@ -168,7 +168,7 @@ def _map_figure(
         levels=levels,
         cmap=cmap,
         norm=norm,
-        extend="both",
+        extend="neither",
     )
     switzerland.boundary.plot(ax=ax, color="black", linewidth=BOX_LINE_WIDTH)
     ax.scatter(
@@ -197,7 +197,7 @@ def _map_figure(
     cbar_width = COLORBAR_WIDTH_CM / fig_width_cm
     cax = fig.add_axes([cbar_left, cbar_bottom, cbar_width, cbar_height])
     cbar = fig.colorbar(contour, cax=cax, orientation="vertical")
-    cbar.ax.yaxis.set_major_locator(mticker.MaxNLocator(nbins=MAX_COLORBAR_TICKS, min_n_ticks=MIN_TICKS))
+    cbar.set_ticks(_colorbar_ticks(norm))
     cbar.set_label(colorbar_label, fontsize=FONT_SIZE)
     cbar.ax.tick_params(labelsize=FONT_SIZE, length=TICK_LENGTH_POINTS, width=BOX_LINE_WIDTH)
     cbar.outline.set_linewidth(BOX_LINE_WIDTH)
@@ -253,11 +253,33 @@ def _map_norm(values: np.ndarray, clim_var_name: str, map_type: str) -> mcolors.
     vmax = float(np.nanmax(finite))
     if vmin == vmax:
         vmax = vmin + 1
+    vmin, vmax = _nice_color_limits(vmin, vmax)
     return mcolors.Normalize(vmin=vmin, vmax=vmax)
 
 
 def _map_levels(values: np.ndarray, norm: mcolors.Normalize) -> np.ndarray:
     return np.linspace(float(norm.vmin), float(norm.vmax), 101)
+
+
+def _nice_color_limits(vmin: float, vmax: float) -> tuple[float, float]:
+    ticks = mticker.MaxNLocator(nbins=MAX_COLORBAR_TICKS, min_n_ticks=MIN_TICKS).tick_values(vmin, vmax)
+    ticks = ticks[np.isfinite(ticks)]
+    ticks = ticks[(ticks <= vmin) | np.isclose(ticks, vmin) | (ticks >= vmax) | np.isclose(ticks, vmax)]
+    if len(ticks) >= 2:
+        return float(ticks[0]), float(ticks[-1])
+    return vmin, vmax
+
+
+def _colorbar_ticks(norm: mcolors.Normalize) -> np.ndarray:
+    ticks = mticker.MaxNLocator(nbins=MAX_COLORBAR_TICKS, min_n_ticks=MIN_TICKS).tick_values(
+        float(norm.vmin),
+        float(norm.vmax),
+    )
+    ticks = ticks[np.isfinite(ticks)]
+    ticks = ticks[(ticks >= norm.vmin) & (ticks <= norm.vmax)]
+    if len(ticks) >= MIN_TICKS:
+        return ticks
+    return np.linspace(float(norm.vmin), float(norm.vmax), MIN_TICKS)
 
 
 def _is_centered_map(clim_var_name: str, map_type: str) -> bool:
