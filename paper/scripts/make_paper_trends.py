@@ -8,6 +8,7 @@ import numpy as np
 from eqtm.config import BiasCorrectionConfig
 from eqtm.diagnostics import Diagnostics
 from eqtm.plotting import (
+    MARKER_SIZE,
     _add_equality_line,
     _new_figure,
     _padded_equal_lims,
@@ -57,18 +58,21 @@ def _paper_trends(
         diagnostics_on.station_linear_trends,
         diagnostics_on.raw_station_linear_trends,
         color=RAW_COLOR,
+        s=MARKER_SIZE,
         label="Raw",
     )
     bc_on = ax.scatter(
         diagnostics_on.station_linear_trends,
         diagnostics_on.bc_station_linear_trends,
         color=ON_COLOR,
+        s=MARKER_SIZE,
         label="Bias-corrected, trend mapping on",
     )
     bc_off = ax.scatter(
         diagnostics_on.station_linear_trends,
         diagnostics_off.bc_station_linear_trends,
         color=OFF_COLOR,
+        s=MARKER_SIZE,
         label="Bias-corrected, trend mapping off",
     )
 

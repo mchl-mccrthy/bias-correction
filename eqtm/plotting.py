@@ -20,6 +20,7 @@ BOX_LINE_WIDTH = 0.5
 TICK_LENGTH_POINTS = 0.1 * 72 / 2.54
 MIN_TICKS = 3
 MAX_TICKS = 6
+MARKER_SIZE = 10
 RAW_COLOR = "0.45"
 BC_COLOR = "red"
 STATION_COLOR = "black"
@@ -188,12 +189,14 @@ def _trendcomparisonfigure(
         station_trends,
         raw_station_trends,
         color=RAW_COLOR,
+        s=MARKER_SIZE,
         label="Raw",
     )
     ax.scatter(
         station_trends,
         bc_station_trends,
         color=BC_COLOR,
+        s=MARKER_SIZE,
         label="Bias-corrected",
     )
     ax.set_xlabel(f"{cfg.clim_var_long_name} {trend_label}, stations ({units})")
@@ -342,7 +345,7 @@ def plotstationavailability(diagnostics: Diagnostics, cfg: BiasCorrectionConfig,
             diagnostics.station_time[valid],
             np.full(valid.sum(), i_station + 1),
             color="blue",
-            s=6,
+            s=MARKER_SIZE,
         )
         ax.text(
             diagnostics.station_time[-1] + pd.DateOffset(years=1),
@@ -545,7 +548,7 @@ def _map_figure(
         edgecolors="black",
         marker="o",
         linewidths=BOX_LINE_WIDTH,
-        s=10,
+        s=MARKER_SIZE,
         label="Stations",
     )
     ax.set_title(title)
@@ -632,7 +635,7 @@ def _stripplot(
         values = np.asarray(values, dtype=float)
         values = values[np.isfinite(values)]
         y = np.full(values.size, i_group, dtype=float) + _deterministic_jitter(values.size)
-        handle = ax.scatter(values, y, color=colors[i_group], zorder=2)
+        handle = ax.scatter(values, y, color=colors[i_group], s=MARKER_SIZE, zorder=2)
         handles.append(handle)
         if values.size:
             ax.plot(
