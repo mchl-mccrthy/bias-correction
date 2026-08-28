@@ -27,7 +27,7 @@ from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_ta
 
 
 MAX_COLORBAR_TICKS = 4
-PLOT_WIDTH_CM = 7.5
+PLOT_WIDTH_CM = 6.5
 MARGIN_CM = 2
 COLORBAR_WIDTH_CM = 0.25
 COLORBAR_GAP_CM = 0.35
