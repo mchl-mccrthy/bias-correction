@@ -9,7 +9,6 @@ from eqtm.config import BiasCorrectionConfig
 from eqtm.diagnostics import Diagnostics
 from eqtm.plotting import (
     MARKER_SIZE,
-    TREND_SCATTER_MAX_TICKS,
     _add_equality_line,
     _new_figure,
     _padded_equal_lims,
@@ -95,7 +94,6 @@ def _paper_trends(
 
     ax.set_xlabel(f"{cfg_on.clim_var_long_name} trend, stations ({units})")
     ax.set_ylabel(f"{cfg_on.clim_var_long_name} trend, gridded ({units})")
-    ax._eqtm_max_ticks = TREND_SCATTER_MAX_TICKS
     ax.legend(
         [raw, bc_on, bc_off],
         [

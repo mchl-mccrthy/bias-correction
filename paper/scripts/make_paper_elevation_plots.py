@@ -9,7 +9,6 @@ from eqtm.config import BiasCorrectionConfig
 from eqtm.diagnostics import Diagnostics
 from eqtm.io import loadgridcoords, loadstationdata
 from eqtm.plotting import (
-    LINE_WIDTH,
     MARKER_SIZE,
     _new_figure,
     _save_figure,
@@ -27,8 +26,7 @@ from paper.scripts.make_paper_maps import (
 )
 
 
-ELEVATION_BAND_SIZE = 250
-GRID_COLOR = "#2b8cbe"
+GRID_COLOR = "0.65"
 GRID_MARKER_SIZE = 0.8
 GRID_ALPHA = 0.10
 
@@ -119,8 +117,6 @@ def _elevation_plot(
 ) -> None:
     grid_values = _mask_outside_switzerland(grid_x, grid_y, grid_values, switzerland)
     grid_z = _mask_outside_switzerland(grid_x, grid_y, grid_z, switzerland)
-    band_centres, band_means = _elevation_band_stats(grid_values, grid_z)
-
     fig, ax = _new_figure(3, 3, 4)
     valid_grid = np.isfinite(grid_values) & np.isfinite(grid_z)
     ax.scatter(
@@ -131,15 +127,6 @@ def _elevation_plot(
         alpha=GRID_ALPHA,
         linewidths=0,
         zorder=0,
-    )
-
-    valid_bands = np.isfinite(band_centres) & np.isfinite(band_means)
-    ax.plot(
-        band_means[valid_bands],
-        band_centres[valid_bands],
-        color=GRID_COLOR,
-        linewidth=LINE_WIDTH,
-        zorder=2,
     )
 
     valid_stations = np.isfinite(station_values) & np.isfinite(station_z)
@@ -156,30 +143,6 @@ def _elevation_plot(
     ax.set_xlabel(x_label)
     ax.set_ylabel("Elevation (m)")
     _save_figure(fig, path)
-
-
-def _elevation_band_stats(grid_values: np.ndarray, grid_z: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    values = np.asarray(grid_values, dtype=float)
-    elevations = np.asarray(grid_z, dtype=float)
-    valid = np.isfinite(values) & np.isfinite(elevations)
-    if not np.any(valid):
-        raise ValueError("No finite grid values with matching elevation values.")
-
-    min_z = np.floor(np.nanmin(elevations[valid]) / ELEVATION_BAND_SIZE) * ELEVATION_BAND_SIZE
-    max_z = np.ceil(np.nanmax(elevations[valid]) / ELEVATION_BAND_SIZE) * ELEVATION_BAND_SIZE
-    edges = np.arange(min_z, max_z + ELEVATION_BAND_SIZE, ELEVATION_BAND_SIZE)
-    centres = edges[:-1] + 0.5 * ELEVATION_BAND_SIZE
-    means = np.full(centres.shape, np.nan)
-
-    for i_band, (lower, upper) in enumerate(zip(edges[:-1], edges[1:])):
-        if i_band == len(centres) - 1:
-            in_band = valid & (elevations >= lower) & (elevations <= upper)
-        else:
-            in_band = valid & (elevations >= lower) & (elevations < upper)
-        if np.any(in_band):
-            means[i_band] = np.nanmean(values[in_band])
-
-    return centres, means
 
 
 def _set_limits(

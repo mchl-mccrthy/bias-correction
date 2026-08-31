@@ -19,8 +19,7 @@ LINE_WIDTH = 1
 BOX_LINE_WIDTH = 0.5
 TICK_LENGTH_POINTS = 0.1 * 72 / 2.54
 MIN_TICKS = 3
-MAX_TICKS = 6
-TREND_SCATTER_MAX_TICKS = 5
+MAX_TICKS = 5
 MARKER_SIZE = 10
 RAW_COLOR = "0.45"
 BC_COLOR = "red"
@@ -170,7 +169,7 @@ def plottrendmae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir
         ["Raw", "Bias-corrected"],
         [RAW_COLOR, BC_COLOR],
     )
-    ax.set_xlabel(f"Absolute error, linear trends ({_trend_units(cfg)})")
+    ax.set_xlabel(f"AE, {cfg.clim_var_long_name.lower()} trend ({_trend_units(cfg)})")
     ax.set_title("All stations, linear trend absolute error")
     ax.legend(handles, ["Raw", "Bias-corrected"], loc="center left", bbox_to_anchor=(1.02, 0.5), borderaxespad=0)
     _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_trend_mae_strip.png")
@@ -203,7 +202,6 @@ def _trendcomparisonfigure(
     ax.set_xlabel(f"{cfg.clim_var_long_name} {trend_label}, stations ({units})")
     ax.set_ylabel(f"{cfg.clim_var_long_name} {trend_label}, gridded ({units})")
     ax.set_title("All stations, linear trends")
-    ax._eqtm_max_ticks = TREND_SCATTER_MAX_TICKS
 
     values = np.concatenate(
         [

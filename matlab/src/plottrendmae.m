@@ -1,7 +1,7 @@
 % Make strip plot of linear trend mean absolute errors
 function plottrendmae(station_linear_trends,raw_station_linear_trends,...
     bc_station_linear_trends,file_path_figures_tables,clim_var_name,...
-    clim_var_units,agg_method)
+    clim_var_long_name,clim_var_units,agg_method)
 
 % Get trend units and trend errors
 trend_units = trendunits(clim_var_units,agg_method);
@@ -16,7 +16,7 @@ h_bc = plotstripgroup(bc_trend_ae,2,'r');
 yticks([1 2])
 yticklabels({'Raw','Bias-corrected'})
 ylim([0.5 2.5])
-xlabel(['Absolute error, linear trends (' trend_units ')'])
+xlabel(['AE, ' lower(clim_var_long_name) ' trend (' trend_units ')'])
 title('All stations, linear trend absolute error')
 legend([h_raw h_bc],{'Raw','Bias-corrected'},'Location','eastoutside')
 formatfigure(gcf,4,2,4)

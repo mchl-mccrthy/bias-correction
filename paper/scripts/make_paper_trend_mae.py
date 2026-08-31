@@ -62,7 +62,7 @@ def _paper_trend_mae(
         ],
         [RAW_COLOR, ON_COLOR, OFF_COLOR],
     )
-    ax.set_xlabel(f"Absolute error, linear trends ({_trend_units(cfg_on)})")
+    ax.set_xlabel(f"AE, {cfg_on.clim_var_long_name.lower()} trend ({_trend_units(cfg_on)})")
     _save_figure(fig, figure_dir / f"{cfg_on.clim_var_name}_trend_mae_strip.png")
 
 
