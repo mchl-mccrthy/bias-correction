@@ -10,6 +10,7 @@ from paper.scripts.config_switzerland_tas_trends_off import config_switzerland_t
 from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_tas_trends_on
 from paper.scripts.make_paper_annual_mae import main as make_paper_annual_mae
 from paper.scripts.make_paper_diagnostics_table import main as make_paper_diagnostics_table
+from paper.scripts.make_paper_elevation_plots import main as make_paper_elevation_plots
 from paper.scripts.make_paper_maps import main as make_paper_maps
 from paper.scripts.make_paper_qm_residuals import main as make_paper_qm_residuals
 from paper.scripts.make_paper_qq import main as make_paper_qq
@@ -41,6 +42,7 @@ def _run_config(cfg: BiasCorrectionConfig) -> None:
 
 def _make_paper_outputs() -> None:
     make_paper_maps()
+    make_paper_elevation_plots()
     make_paper_qq()
     make_paper_qm_residuals()
     make_paper_annual_mae()

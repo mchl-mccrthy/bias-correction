@@ -4,7 +4,7 @@ from eqtm import BiasCorrectionConfig
 def config_switzerland_tas_trends_on() -> BiasCorrectionConfig:
     return BiasCorrectionConfig(
         clim_var_name="tas",
-        clim_var_long_name="Mean temperature",
+        clim_var_long_name="Temperature",
         clim_var_units="degC",
         qmf_period="monthly",
         bc_type="additive",
