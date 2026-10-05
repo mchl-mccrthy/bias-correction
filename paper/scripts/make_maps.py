@@ -77,9 +77,8 @@ def main() -> None:
         (config_switzerland_pr_trends_on(), "trend"),
     ]
 
-    diagnostics_cache: dict[str, Diagnostics] = {}
     for cfg, map_type in map_specs:
-        diagnostics = diagnostics_cache.setdefault(cfg.clim_var_name, makediagnostics(cfg))
+        diagnostics = makediagnostics(cfg)
         _paper_map(diagnostics, cfg, map_type, switzerland, figure_dir)
 
 

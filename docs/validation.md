@@ -60,6 +60,34 @@ The following summary statistics were calculated from absolute differences:
 
 ## Results
 
+### Repeating the comparison for Switzerland
+
+`python -m paper.scripts.run_paper_all` checks that MATLAB can start, runs
+the four Python paper configurations, and then runs their MATLAB counterparts
+before cross-validation and paper plotting. MATLAB must be on `PATH`; the
+MATLAB Parallel Computing Toolbox is needed when parallel processing is enabled.
+Slurm is not required by the scripts.
+
+To compare existing Python paper outputs independently, run:
+
+```bash
+python -m paper.scripts.compare_matlab_python
+```
+
+The MATLAB configurations are generated from the Python configurations. The
+comparison loads one full output pair at a time and checks coordinates, times,
+shapes, and missing-value masks. Shared missing cells are excluded. The CSV
+reports mean and maximum absolute differences and the x/y coordinates and time
+of the first maximum for tas and pr, with trend mapping on and off.
+
+The table is saved in `paper/figures_and_tables/matlab_python_comparison.csv`
+and in `matlab_python_comparison/` alongside the experiment's `trends_on/`
+and `trends_off/` output folders. Each run retains its JSON configuration and
+MATLAB log there. Its temporary MATLAB NetCDF is deleted only after comparison
+results have been saved; failed runs retain their files for inspection.
+Standalone comparisons assume the Python outputs match the current configs
+and code. The historical results below are not replaced automatically.
+
 ### Temperature (`tas`)
 
 For `tas`, with additive bias correction and trend mapping enabled:

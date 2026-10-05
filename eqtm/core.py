@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
+import os
 
 import numpy as np
 
@@ -9,6 +11,9 @@ from .io import loadgriddata, loadstationdata, savebcdata
 from .qmf import QMFs, getqmfs, period_index
 from .spatial import getdistances, indexofclosest2
 from .trends import detrendclimdata, gettrends, interptrends, retrendclimdata
+
+
+_PARALLEL_MAP_STATE = None
 
 
 @dataclass
@@ -91,6 +96,8 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
         cfg.idw_power,
         cfg.coordinate_system,
         cfg.idw_alpha,
+        use_parallel=cfg.use_parallel,
+        n_workers=cfg.n_workers,
         keep_grid_biases=cfg.keep_grid_biases,
     )
     del raw_grid_clim_var
@@ -143,6 +150,8 @@ def mapquantiles(
     idw_power: float,
     coordinate_system: str,
     idw_alpha: float,
+    use_parallel: bool = False,
+    n_workers: int | None = None,
     keep_grid_biases: bool = False,
 ) -> tuple[np.ndarray, np.ndarray | None]:
     """Map station quantile corrections to every grid cell and timestep.
@@ -150,17 +159,11 @@ def mapquantiles(
     Station-level empirical quantile corrections are converted to timestep
     corrections and interpolated across the grid using inverse-distance
     weighting. Corrections are additive or multiplicative depending on
-    `bc_type`.
+    `bc_type`. When parallel processing is enabled, timesteps are distributed
+    among separate worker processes, equivalent to MATLAB's `parfor` loop.
     """
 
-    if bc_type == "multiplicative":
-        with np.errstate(divide="ignore", invalid="ignore"):
-            biases = qmfs.station_quantiles / qmfs.raw_quantiles
-        biases[~np.isfinite(biases)] = 0
-    elif bc_type == "additive":
-        biases = qmfs.station_quantiles - qmfs.raw_quantiles
-    else:
-        raise ValueError("bc_type must be 'additive' or 'multiplicative'.")
+    biases = getquantilebiases(qmfs.station_quantiles, qmfs.raw_quantiles, bc_type)
 
     bc_grid_clim_var = np.full_like(raw_grid_clim_var, np.nan)
     grid_biases = np.full_like(raw_grid_clim_var, np.nan) if keep_grid_biases else None
@@ -178,24 +181,119 @@ def mapquantiles(
     rows, cols = indexofclosest2(station_x, station_y, raw_x, raw_y)
     station_lin_inds = np.ravel_multi_index((rows, cols), raw_x.shape)
 
-    for i_time, time_value in enumerate(raw_time):
-        bc_timestep, bias_timestep = mapquantilestimestep(
+    def process_timestep(i_time: int) -> tuple[np.ndarray, np.ndarray]:
+        return mapquantilestimestep(
             raw_grid_clim_var[:, :, i_time],
             station_lin_inds,
             qmfs.raw_quantiles,
             biases,
-            time_value,
+            raw_time[i_time],
             qmf_period,
             distances,
             raw_x,
             bc_type,
             idw_power,
         )
-        bc_grid_clim_var[:, :, i_time] = bc_timestep
-        if keep_grid_biases and grid_biases is not None:
-            grid_biases[:, :, i_time] = bias_timestep
+
+    n_timesteps = raw_grid_clim_var.shape[2]
+    if use_parallel:
+        state = (
+            raw_grid_clim_var,
+            station_lin_inds,
+            qmfs.raw_quantiles,
+            biases,
+            raw_time,
+            qmf_period,
+            distances,
+            raw_x,
+            bc_type,
+            idw_power,
+            keep_grid_biases,
+        )
+        worker_count = min(n_workers or _availableworkers(), n_timesteps)
+        chunksize = max(1, min(16, n_timesteps // (worker_count * 8)))
+        with ProcessPoolExecutor(
+            max_workers=worker_count,
+            initializer=_initializemapworker,
+            initargs=(state,),
+        ) as executor:
+            results = executor.map(_mapquantilesworker, range(n_timesteps), chunksize=chunksize)
+            for i_time, (bc_timestep, bias_timestep) in enumerate(results):
+                bc_grid_clim_var[:, :, i_time] = bc_timestep
+                if keep_grid_biases and grid_biases is not None:
+                    grid_biases[:, :, i_time] = bias_timestep
+    else:
+        for i_time in range(n_timesteps):
+            bc_timestep, bias_timestep = process_timestep(i_time)
+            bc_grid_clim_var[:, :, i_time] = bc_timestep
+            if keep_grid_biases and grid_biases is not None:
+                grid_biases[:, :, i_time] = bias_timestep
 
     return bc_grid_clim_var, grid_biases
+
+
+def _availableworkers() -> int:
+    """Return the CPUs available to this process, respecting scheduler affinity."""
+    if hasattr(os, "sched_getaffinity"):
+        return max(1, len(os.sched_getaffinity(0)))
+    return max(1, os.cpu_count() or 1)
+
+
+def _initializemapworker(state: tuple) -> None:
+    """Store read-only mapping inputs once in each process worker."""
+    global _PARALLEL_MAP_STATE
+    _PARALLEL_MAP_STATE = state
+
+
+def _mapquantilesworker(i_time: int) -> tuple[np.ndarray, np.ndarray | None]:
+    """Map one timestep in a process worker, mirroring MATLAB's parfor loop."""
+    if _PARALLEL_MAP_STATE is None:
+        raise RuntimeError("Parallel quantile-mapping worker was not initialized.")
+    (
+        raw_grid_clim_var,
+        station_lin_inds,
+        raw_quantiles,
+        biases,
+        raw_time,
+        qmf_period,
+        distances,
+        raw_x,
+        bc_type,
+        idw_power,
+        keep_grid_biases,
+    ) = _PARALLEL_MAP_STATE
+    bc_timestep, bias_timestep = mapquantilestimestep(
+        raw_grid_clim_var[:, :, i_time],
+        station_lin_inds,
+        raw_quantiles,
+        biases,
+        raw_time[i_time],
+        qmf_period,
+        distances,
+        raw_x,
+        bc_type,
+        idw_power,
+    )
+    return bc_timestep, bias_timestep if keep_grid_biases else None
+
+
+def getquantilebiases(
+    station_quantiles: np.ndarray,
+    raw_quantiles: np.ndarray,
+    bc_type: str,
+) -> np.ndarray:
+    """Calculate additive or multiplicative station quantile corrections."""
+    if bc_type == "multiplicative":
+        with np.errstate(divide="ignore", invalid="ignore"):
+            biases = station_quantiles / raw_quantiles
+        # A zero model quantile cannot be adjusted multiplicatively. A factor
+        # of one is neutral and avoids distorting the spatial interpolation.
+        zero_denominator = (raw_quantiles == 0) & np.isfinite(station_quantiles)
+        biases[zero_denominator] = 1
+        return biases
+    if bc_type == "additive":
+        return station_quantiles - raw_quantiles
+    raise ValueError("bc_type must be 'additive' or 'multiplicative'.")
 
 
 def mapquantilestimestep(

@@ -22,12 +22,6 @@ def makediagnostics_cached(cfg: BiasCorrectionConfig) -> Diagnostics:
     return _CACHE[key]
 
 
-def clear_diagnostics_cache() -> None:
-    """Clear cached paper diagnostics."""
-
-    _CACHE.clear()
-
-
 def _config_key(cfg: BiasCorrectionConfig) -> tuple[Any, ...]:
     values = []
     for field in fields(cfg):

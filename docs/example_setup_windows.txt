@@ -1,0 +1,198 @@
+EQTM: running the Andermatt-Zurich example on Windows
+===================================================
+
+This guide runs temperature bias correction, diagnostics, and plotting in
+Python. MATLAB, Git, Conda, and a compute cluster are not needed.
+
+You will receive:
+  - The GitHub link below for the code.
+  - andermatt_zurich_1981_2020.zip containing the example input data.
+
+Allow several GB of free disk space for the environment, extracted inputs,
+and outputs. The inputs for both variables total about 1 GB before compression.
+Memory use during processing is several GB; a laptop with 16 GB RAM is a
+comfortable starting point, rather than a guaranteed minimum requirement.
+Install and download everything before the demonstration if possible.
+
+
+1. Install or check Python
+--------------------------
+
+Open Command Prompt from the Windows Start menu (search for "cmd").
+Enter:
+
+    py -3 --version
+
+EQTM requires Python 3.10 or newer. Python 3.13 is a suitable choice for
+this demonstration and has been used for local testing.
+
+If Python is missing, install the standard 64-bit Python 3.13 distribution
+from the official Windows downloads page:
+
+    https://www.python.org/downloads/windows/
+
+Then close and reopen Command Prompt and repeat the version check.
+If Python is installed but "py" is not recognised, try "python --version".
+If that reports Python 3.10 or newer, use "python" instead of "py -3"
+in the environment-creation command in step 4.
+
+
+2. Download and extract the code
+-------------------------------
+
+Open:
+
+    https://github.com/mchl-mccrthy/bias-correction
+
+Select the main branch, then Code > Download ZIP. Extract the ZIP using
+Windows "Extract All". Do not run the code from inside the ZIP.
+
+Find the extracted folder that directly contains pyproject.toml, README.md,
+eqtm, and scripts. This is the project folder. Its default name is usually
+bias-correction-main; an extra outer folder may have the same name.
+
+
+3. Put the example data in place
+-------------------------------
+
+Extract andermatt_zurich_1981_2020.zip. Inside the project folder, create a
+folder named input_data and put the extracted andermatt_zurich_1981_2020
+folder inside it. The final structure must be:
+
+    bias-correction-main/
+        pyproject.toml
+        eqtm/
+        scripts/
+            run_eqtm.py
+            config_andermatt_zurich_tas.py
+            config_andermatt_zurich_pr.py
+        input_data/
+            andermatt_zurich_1981_2020/
+                gridded/
+                    tas_andermatt_zurich_1981_2020.nc
+                    pr_andermatt_zurich_1981_2020.nc
+                station/
+                    andermatt_zurich_coordinates.csv
+                    andermatt_zurich_tas.csv
+                    andermatt_zurich_pr.csv
+
+Avoid an extra nested andermatt_zurich_1981_2020 folder. Keep the filenames
+unchanged. No path changes in the configuration files are necessary.
+Only the tas NetCDF, tas CSV, and coordinates CSV are needed for temperature.
+
+
+4. Create the environment and install EQTM (once)
+------------------------------------------------
+
+In File Explorer, open the project folder containing pyproject.toml.
+Click the address bar, type cmd, and press Enter. This opens Command Prompt
+in that folder. Use Command Prompt for all commands below.
+
+Run these commands one at a time:
+
+    dir pyproject.toml
+    py -3 -m venv .venv
+    .venv\Scripts\python.exe -m pip install --upgrade pip
+    .venv\Scripts\python.exe -m pip install -e .
+
+The final dot means "install this project". Installation downloads the
+Python dependencies automatically and requires an internet connection.
+
+These commands use the environment's Python directly, so activation is
+not necessary. Always use .venv\Scripts\python.exe in the commands below.
+
+
+5. Check the setup before running
+--------------------------------
+
+From the same Command Prompt, run:
+
+    .venv\Scripts\python.exe -c "import eqtm; print('EQTM import OK')"
+
+Then check the temperature configuration and input file locations:
+
+    .venv\Scripts\python.exe -c "from scripts.config_andermatt_zurich_tas import config_andermatt_zurich_tas; from eqtm.config import validateconfig; cfg = config_andermatt_zurich_tas(); validateconfig(cfg); print('Temperature config and input paths OK')"
+
+This checks configuration settings and file existence, not the complete
+contents of the datasets. It does not run bias correction.
+
+
+6. Run the temperature example
+-----------------------------
+
+    .venv\Scripts\python.exe -u -m scripts.run_eqtm
+
+The runner uses config_andermatt_zurich_tas.py. It runs bias correction
+with trend mapping enabled, followed by diagnostics and plotting.
+
+Leave the Command Prompt open until the command finishes and the prompt
+returns. "Bias correction completed" means the first stage has finished;
+diagnostics and plots still follow. There can be periods without new messages.
+Run time depends on the computer; allow time for a trial run before presenting.
+
+
+7. Find the results
+-------------------
+
+The workflow creates its output folders automatically:
+
+    output_data/andermatt_zurich_1981_2020/
+        gridded/
+            tas_bc_andermatt_zurich_1981_2020.nc
+        figures_and_tables/
+            overview/
+            individual_stations/
+
+Open the PNG figures in overview first. The summary CSV is also saved there.
+The NetCDF file contains the bias-corrected gridded temperature data.
+
+Repeating the run overwrites outputs with the same filenames. Keep a separate
+copy of previous outputs if you want to compare different settings.
+
+
+8. Optional: run precipitation
+-----------------------------
+
+Once temperature works, run this single command from the project folder:
+
+    .venv\Scripts\python.exe -u -c "from eqtm import biascorrect, makediagnostics, makeplots; from scripts.config_andermatt_zurich_pr import config_andermatt_zurich_pr; cfg = config_andermatt_zurich_pr(); biascorrect(cfg); makeplots(makediagnostics(cfg), cfg)"
+
+This uses the precipitation configuration without editing the temperature
+runner. It saves pr_bc_andermatt_zurich_1981_2020.nc and precipitation plots
+in the same output structure.
+
+
+9. Next time
+------------
+
+Open Command Prompt in the same project folder and run:
+
+    .venv\Scripts\python.exe -u -m scripts.run_eqtm
+
+There is no need to recreate the environment or reinstall packages.
+Do not move the project folder after creating .venv; if you do, recreate
+the environment in its new location.
+
+
+Common setup problems
+---------------------
+
+"pyproject.toml" not found or "Directory '.' is not installable":
+    You are not in the project folder. Find the folder containing
+    pyproject.toml and open Command Prompt there.
+
+"No module named eqtm":
+    Run the installation command in step 4 and use the .venv Python.
+
+"No module named scripts":
+    Run from the project folder, not from inside scripts or eqtm.
+
+"FileNotFoundError" for an input file:
+    Check the exact folder layout and filenames in step 3.
+
+Do not use paper.scripts.run_paper_all for this demonstration. That runner
+uses Switzerland-wide inputs and additionally runs MATLAB comparisons and
+cross-validation. The small example uses scripts.run_eqtm only.
+
+Background on Python virtual environments and installation:
+https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/

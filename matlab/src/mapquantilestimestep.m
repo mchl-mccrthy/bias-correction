@@ -36,8 +36,8 @@ valid = isfinite(station_biases_timestep);
 D = D_all(:,valid);
 b = station_biases_timestep(valid);
 W = D.^-idw_power;
-W = W ./ sum(W,2);
-grid_biases_timestep = W * b(:);
+W = W./sum(W,2);
+grid_biases_timestep = W*b(:);
 grid_biases_timestep = reshape(grid_biases_timestep,size(grid_x));
 
 % In case interpolation introduced sub-zero values, which shouldn't

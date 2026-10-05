@@ -73,8 +73,27 @@ The Switzerland-wide paper experiments use separate configurations in
 example and are intended to be run on a compute node:
 
 ```powershell
-python -m paper.scripts.run_eqtm_paper
+python -m paper.scripts.run_paper_all
 ```
+
+To regenerate figures and the in-sample table from existing outputs only:
+```powershell
+python -m paper.scripts.make_outputs
+```
+Individual scripts include `make_maps`, `make_elevation_plots`, `make_qq_plots`,
+`make_quantile_residual_plots`, `make_annual_mae_plots`,
+`make_quantile_mae_plots`, `make_trend_ae_plots`, `make_trend_scatter_plots`,
+and `make_diagnostics_table`. Use `python -m paper.scripts.<name>` to run one.
+`cross_validation` runs the five-fold experiments, while `compare_matlab_python`
+runs the implementation comparison. The per-variable runners are `run_eqtm_tas`
+and `run_eqtm_pr`.
+
+The in-sample and cross-validation summary CSVs retain three method rows and
+six metric columns, with units in the metric headings. The detailed
+cross-validation CSV uses separate quantile, yearly and trend unit columns
+because temperature and precipitation share the same metric columns. The
+MATLAB-Python comparison likewise reports native units in its `Units` column.
+CSV units are plain text (for example, `mm year^-2`), not plotting markup.
 
 ### MATLAB
 In MATLAB, the example runner can be run from the repository root:
@@ -104,10 +123,14 @@ Workflow settings are defined in the example configuration files in
 | `idw_power` | Inverse-distance weighting exponent |
 | `idw_alpha` | Elevation scaling for IDW distances; `0` uses horizontal distances only |
 | `multiplicative_epsilon` | Offset used for multiplicative detrending/retrending |
-| `use_parallel` | Enable parallel processing |
-| `n_workers` | Number of parallel workers (`[]` uses the MATLAB default) |
+| `use_parallel` | Enable parallel processing over time steps |
+| `n_workers` | Number of parallel workers (`None` in Python or `[]` in MATLAB uses the environment default) |
 | `keep_grid_biases` | Keep interpolated quantile-mapping bias grids in results |
 | `coordinate_system` | Coordinate type for IDW distances (`geographic` or `projected`) |
+
+Both implementations parallelise quantile mapping over independent time steps
+using separate worker processes. On Windows, run a parallel workflow from a
+script protected by `if __name__ == "__main__":`, as in the supplied runners.
 
 ## Data requirements
 
@@ -137,6 +160,22 @@ The workflow assumes:
   elevation are assumed to be in metres.
 - Quantile and yearly MAE diagnostics compare station values with gridded
   values extracted at station locations.
+- For multiplicative correction, a zero raw quantile is assigned the neutral
+  factor 1. This preserves zero values without allowing an undefined ratio to
+  distort the spatial interpolation; EQTM does not adjust wet-day occurrence.
+- `makediagnostics` writes `<variable>_diagnostics_summary.csv` in `overview/`
+  and `<station>_<variable>_diagnostics_summary.csv` in `individual_stations/`,
+  both under `file_path_figures_tables`. Each table has Raw and Bias-corrected
+  rows, with quantile/yearly errors and means and linear trends. Station tables
+  include observed and model means of yearly values over coincident valid years.
+  Overview tables instead include the domain yearly mean and the linear
+  trend fitted to the yearly spatial-average series (equal grid-cell weights).
+  Error metrics in the overview remain equal-weight averages across stations;
+  trend errors are AE per station and MAE in the overview.
+  CSV headings include plain-text units in both implementations. For precipitation
+  configured in mm/day with sum aggregation, mean yearly values and yearly MAE
+  use mm year^-1, trends and trend errors use mm year^-2, and quantile MAE uses
+  mm day^-1. Internal summary-table metric names are unchanged for paper scripts.
 
 ## Repository structure
 
@@ -145,18 +184,16 @@ bias_correction/
 |-- docs/
 |-- eqtm/
 |-- input_data/        # Included in Zenodo archive, ignored by GitHub
-|   `-- andermatt_zuerich_1981_2019/
+|   `-- andermatt_zurich_1981_2020/
 |       |-- gridded/
 |       `-- station/
 |-- matlab/
 |-- output_data/       # Generated outputs, ignored by GitHub
-|   `-- andermatt_zuerich_1981_2019/
-|       |-- trends_off/
-|       |   |-- figures_and_tables/
-|       |   `-- gridded/
-|       `-- trends_on/
-|           |-- figures_and_tables/
-|           `-- gridded/
+|   `-- andermatt_zurich_1981_2020/
+|       |-- figures_and_tables/
+|       |   |-- individual_stations/  # Per-station figures and CSV tables
+|       |   `-- overview/             # Study-wide figures and CSV tables
+|       `-- gridded/                  # Bias-corrected NetCDF files
 |-- paper/
 |   |-- figures_and_tables/
 |   `-- scripts/

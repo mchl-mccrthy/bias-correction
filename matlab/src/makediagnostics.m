@@ -63,26 +63,53 @@ bc_station_clim_var...
 raw_grid_domain_mean = squeeze(mean(raw_grid_clim_var,[1 2],'omitnan'));
 bc_grid_domain_mean = squeeze(mean(bc_grid_clim_var,[1 2],'omitnan'));
 
+% Make yearly gridded fields for domain summaries and plots.
+[raw_grid_clim_var_yearly,grid_years] = makeyearlygrid(...
+    raw_grid_clim_var,grid_time,agg_method);
+[bc_grid_clim_var_yearly,~] = makeyearlygrid(...
+    bc_grid_clim_var,grid_time,agg_method);
+
 % Make summary table of station-level diagnostics
-summary_table = makesummarytable(...
-    clim_var_name,station_linear_trends,raw_station_linear_trends,...
+[station_means,raw_means,bc_means] = getstationmeans(...
+    station_clim_var_yearly,raw_station_clim_var_yearly,bc_station_clim_var_yearly);
+summary_inputs = {station_linear_trends,raw_station_linear_trends,...
     bc_station_linear_trends,raw_station_quantile_mae,...
     bc_station_quantile_mae,raw_station_annual_mae,...
-    bc_station_annual_mae);
+    bc_station_annual_mae,station_means,raw_means,bc_means};
+summary_table = makesummarytable(clim_var_name,summary_inputs{:});
+summary_table(:,{'Observed_mean','Model_mean','Observed_linear_trend','Model_linear_trend'}) = [];
+[raw_mean,raw_trend] = getdomainsummary(raw_grid_clim_var_yearly,grid_years);
+[bc_mean,bc_trend] = getdomainsummary(bc_grid_clim_var_yearly,grid_years);
+summary_table.Domain_mean_yearly = [raw_mean;bc_mean];
+summary_table.Domain_linear_trend = [raw_trend;bc_trend];
 
 % Save summary table of station-level diagnostics
 file_path_overview = fullfile(file_path_figures_tables,'overview');
 if ~exist(file_path_overview,'dir')
     mkdir(file_path_overview)
 end
-writetable(summary_table,fullfile(file_path_overview,...
+writetable(diagnosticcsvtable(summary_table,cfg),fullfile(file_path_overview,...
     [clim_var_name '_diagnostics_summary.csv']))
 
-% Make yearly versions of the gridded raw and bias-corrected data
-[raw_grid_clim_var_yearly,grid_years] = makeyearlygrid( ...
-    raw_grid_clim_var,grid_time,agg_method);
-[bc_grid_clim_var_yearly,grid_years] = makeyearlygrid( ...
-    bc_grid_clim_var,grid_time,agg_method);
+% Save one diagnostic table per station, alongside the station figures.
+station_dir = fullfile(file_path_figures_tables,'individual_stations');
+if ~exist(station_dir,'dir')
+    mkdir(station_dir)
+end
+station_names = station_clim_var.Properties.VariableNames;
+for i_station = 1:width(station_clim_var)
+    station_inputs = cellfun(@(values) values(i_station),...
+        summary_inputs,'UniformOutput',false);
+    station_table = makesummarytable(clim_var_name,station_inputs{:});
+    station_table = renamevars(station_table,'MAE_linear_trends','AE_linear_trend');
+    station_table = renamevars(station_table,{'Observed_mean','Model_mean'},...
+        {'Observed_mean_yearly','Model_mean_yearly'});
+    station_name = station_names{i_station};
+    station_table.Station = repmat({station_name},2,1);
+    station_table = movevars(station_table,'Station','After','Variable');
+    writetable(diagnosticcsvtable(station_table,cfg),fullfile(station_dir,...
+        [station_name '_' clim_var_name '_diagnostics_summary.csv']))
+end
 
 % Get linear trends of gridded bias-corrected data
 bc_grid_linear_trends = getgridlineartrends( ...

@@ -8,6 +8,8 @@ import pandas as pd
 
 from eqtm import BiasCorrectionConfig, biascorrect
 from eqtm.diagnostics import (
+    diagnosticcsvtable,
+    diagnosticunits,
     getannualmae,
     getlineartrends,
     getquantilemae,
@@ -43,12 +45,13 @@ def main() -> None:
     cv_dir = _cvroot(config_pairs[0][0])
     cv_dir.mkdir(parents=True, exist_ok=True)
     folds = pd.DataFrame(rows)
-    folds.to_csv(cv_dir / "switzerland_cross_validation_folds.csv", index=False)
-    summary = _summarise(folds)
-    summary.to_csv(cv_dir / "switzerland_cross_validation_summary.csv", index=False)
+    configs = [pair[0] for pair in config_pairs]
+    _fold_export(folds, configs).to_csv(cv_dir / "switzerland_cross_validation_folds.csv", index=False)
+    summary = _summarise(folds, configs)
+    summary.to_csv(cv_dir / "switzerland_cross_validation_summary.csv")
     paper_dir = Path(__file__).resolve().parents[1] / "figures_and_tables"
     paper_dir.mkdir(parents=True, exist_ok=True)
-    summary.to_csv(paper_dir / "switzerland_cross_validation_summary.csv", index=False)
+    summary.to_csv(paper_dir / "switzerland_cross_validation_summary.csv")
 
 
 def _crossvalidatevariable(
@@ -213,19 +216,26 @@ def _evaluatemetrics(
     }
 
 
-def _summarise(folds: pd.DataFrame) -> pd.DataFrame:
-    rows = []
-    for (variable, method), group in folds.groupby(["Variable", "Method"], sort=False):
-        rows.append(
-            {
-                "Variable": variable,
-                "Method": method,
-                "MAE quantiles": group["MAE quantiles"].mean(),
-                "MAE yearly": group["MAE yearly"].mean(),
-                "MAE linear trends": group["MAE linear trends"].mean(),
-            }
-        )
-    return pd.DataFrame(rows)
+def _fold_export(folds: pd.DataFrame, configs: list[BiasCorrectionConfig]) -> pd.DataFrame:
+    """Keep mixed-variable rows together, with units explicit for each metric group."""
+    table = folds.rename(columns={"MAE linear trends": "AE linear trend"}).copy()
+    units = {cfg.clim_var_name: diagnosticunits(cfg) for cfg in configs}
+    for i, name in enumerate(["Quantile units", "Yearly units", "Trend units"]):
+        table[name] = table["Variable"].map({variable: values[i] for variable, values in units.items()})
+    return table
+
+
+def _summarise(folds: pd.DataFrame, configs: list[BiasCorrectionConfig]) -> pd.DataFrame:
+    metrics = ["MAE quantiles", "MAE yearly", "MAE linear trends"]
+    methods = ["Raw", "Bias-corrected, trend mapping on", "Bias-corrected, trend mapping off"]
+    means = folds.groupby(["Variable", "Method"])[metrics].mean()
+    table = pd.concat(
+        [diagnosticcsvtable(means.loc[cfg.clim_var_name].reindex(methods), cfg) for cfg in configs],
+        axis=1,
+        keys=[cfg.clim_var_long_name for cfg in configs],
+    )
+    table.index.name = None
+    return table
 
 
 def _cvroot(cfg: BiasCorrectionConfig) -> Path:

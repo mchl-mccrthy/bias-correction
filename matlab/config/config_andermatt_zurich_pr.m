@@ -1,4 +1,4 @@
-function cfg = config_andermatt_zuerich_pr()
+function cfg = config_andermatt_zurich_pr()
 
 % Repository root
 config_path = fileparts(mfilename('fullpath'));
@@ -24,10 +24,10 @@ cfg.keep_grid_biases = false;
 cfg.coordinate_system = 'geographic'; % 'geographic' or 'projected'
 
 % File paths
-cfg.file_path_station_coords = fullfile(repo_root,'input_data','andermatt_zuerich_1981_2019','station','andermatt_zuerich_coordinates.csv');
-cfg.file_path_station_clim_var = fullfile(repo_root,'input_data','andermatt_zuerich_1981_2019','station','andermatt_zuerich_pr.csv');
-cfg.file_path_raw_data = fullfile(repo_root,'input_data','andermatt_zuerich_1981_2019','gridded','pr_andermatt_zuerich_1981_2019.nc');
-cfg.file_path_bc_data = fullfile(repo_root,'output_data','andermatt_zuerich_1981_2019','gridded','pr_bc_andermatt_zuerich_1981_2019.nc');
-cfg.file_path_figures_tables = fullfile(repo_root,'output_data','andermatt_zuerich_1981_2019','figures_and_tables');
+cfg.file_path_station_coords = fullfile(repo_root,'input_data','andermatt_zurich_1981_2020','station','andermatt_zurich_coordinates.csv');
+cfg.file_path_station_clim_var = fullfile(repo_root,'input_data','andermatt_zurich_1981_2020','station','andermatt_zurich_pr.csv');
+cfg.file_path_raw_data = fullfile(repo_root,'input_data','andermatt_zurich_1981_2020','gridded','pr_andermatt_zurich_1981_2020.nc');
+cfg.file_path_bc_data = fullfile(repo_root,'output_data','andermatt_zurich_1981_2020','gridded','pr_bc_andermatt_zurich_1981_2020.nc');
+cfg.file_path_figures_tables = fullfile(repo_root,'output_data','andermatt_zurich_1981_2020','figures_and_tables');
 
 end

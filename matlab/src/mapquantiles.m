@@ -7,18 +7,7 @@ station_quantiles = qmfs.station_quantiles;
 raw_quantiles = qmfs.raw_quantiles;
 
 % Get biases
-if strcmp(bc_type,'multiplicative')
-
-    % Wrt precipitation, inf occurs if observation is more than zero and
-    % raw gridded is zero, which rarely happens in reality (e.g. McCarthy 
-    % et al (2022) Supplementary Information, Figure S4). NaN occurs when 
-    % both observation and raw gridded are zero, in which case multiplying
-    % the raw gridded by zero is appropriate.  
-    biases = station_quantiles./raw_quantiles;
-    biases(isnan(biases) | isinf(biases)) = 0;
-elseif strcmp(bc_type,'additive')
-    biases = station_quantiles-raw_quantiles;
-end
+biases = getquantilebiases(station_quantiles,raw_quantiles,bc_type);
 
 % Get size of downscaled raw gridded variable
 n_rows = size(raw_grid_clim_var,1);

@@ -57,7 +57,13 @@ def validateconfig(cfg: BiasCorrectionConfig) -> None:
         raise ValueError("cfg.idw_alpha must be non-negative.")
     if cfg.multiplicative_epsilon < 0:
         raise ValueError("cfg.multiplicative_epsilon must be non-negative.")
-    if cfg.n_workers is not None and cfg.n_workers <= 0:
+    if not isinstance(cfg.use_parallel, bool):
+        raise ValueError("cfg.use_parallel must be a boolean.")
+    if cfg.n_workers is not None and (
+        isinstance(cfg.n_workers, bool)
+        or not isinstance(cfg.n_workers, int)
+        or cfg.n_workers <= 0
+    ):
         raise ValueError("cfg.n_workers must be None or a positive integer.")
     for field_name in (
         "file_path_station_coords",

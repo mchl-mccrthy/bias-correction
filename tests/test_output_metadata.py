@@ -45,6 +45,8 @@ class TestOutputMetadata(unittest.TestCase):
         self.assertIn("n_quantiles=201", parameters)
         self.assertIn("idw_power=1", parameters)
         self.assertIn("idw_alpha=10", parameters)
+        self.assertIn("use_parallel=false", parameters)
+        self.assertIn("n_workers=None", parameters)
 
 
 if __name__ == "__main__":

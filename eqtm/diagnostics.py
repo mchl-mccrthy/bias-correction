@@ -70,10 +70,12 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
     )
     raw_quantile_mae, bc_quantile_mae = getquantilemae(station.clim_var, raw_station, bc_station)
     raw_annual_mae, bc_annual_mae = getannualmae(station_yearly, raw_station_yearly, bc_station_yearly)
+    station_means, raw_means, bc_means = getstationmeans(station_yearly, raw_station_yearly, bc_station_yearly)
     raw_grid_domain_mean = np.nanmean(raw.clim_var, axis=(0, 1))
     bc_grid_domain_mean = np.nanmean(bc.clim_var, axis=(0, 1))
-    summary_table = makesummarytable(
-        cfg.clim_var_name,
+    raw_grid_yearly, grid_years = makeyearlygrid(raw.clim_var, raw.time, cfg.agg_method)
+    bc_grid_yearly, _ = makeyearlygrid(bc.clim_var, raw.time, cfg.agg_method)
+    summary_inputs = (
         station_trends,
         raw_trends,
         bc_trends,
@@ -81,10 +83,28 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
         bc_quantile_mae,
         raw_annual_mae,
         bc_annual_mae,
+        station_means,
+        raw_means,
+        bc_means,
     )
-    savediagnosticsummarytable(summary_table, cfg.file_path_figures_tables, cfg.clim_var_name)
-    raw_grid_yearly, grid_years = makeyearlygrid(raw.clim_var, raw.time, cfg.agg_method)
-    bc_grid_yearly, _ = makeyearlygrid(bc.clim_var, raw.time, cfg.agg_method)
+    summary_table = makesummarytable(cfg.clim_var_name, *summary_inputs)
+    summary_table = summary_table.drop(columns=[
+        "Observed mean", "Model mean", "Observed linear trend", "Model linear trend",
+    ])
+    domain_stats = [getdomainsummary(grid, grid_years) for grid in (raw_grid_yearly, bc_grid_yearly)]
+    summary_table["Domain mean yearly"] = [stats[0] for stats in domain_stats]
+    summary_table["Domain linear trend"] = [stats[1] for stats in domain_stats]
+    savediagnosticsummarytable(diagnosticcsvtable(summary_table, cfg), cfg.file_path_figures_tables, cfg.clim_var_name)
+    station_dir = Path(cfg.file_path_figures_tables) / "individual_stations"
+    station_dir.mkdir(parents=True, exist_ok=True)
+    for i, station_name in enumerate(station.clim_var.columns):
+        table = makesummarytable(cfg.clim_var_name, *(values[i:i + 1] for values in summary_inputs))
+        table = table.rename(columns={"MAE linear trends": "AE linear trend",
+                                      "Observed mean": "Observed mean yearly",
+                                      "Model mean": "Model mean yearly"})
+        table.insert(1, "Station", station_name)
+        diagnosticcsvtable(table, cfg).to_csv(
+            station_dir / f"{station_name}_{cfg.clim_var_name}_diagnostics_summary.csv", index=False)
     bc_grid_trends = getgridlineartrends(bc_grid_yearly, grid_years)
 
     return Diagnostics(
@@ -260,6 +280,47 @@ def getquantilemae(
     return raw_mae, bc_mae
 
 
+def getstationmeans(
+    station: pd.DataFrame, raw: pd.DataFrame, corrected: pd.DataFrame,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Means of yearly values over coincident valid years."""
+    valid = station.notna() & raw.notna() & corrected.notna()
+    return tuple(table.where(valid).mean(axis=0).to_numpy() for table in (station, raw, corrected))
+
+
+def getdomainsummary(grid_yearly: np.ndarray, years: np.ndarray) -> tuple[float, float]:
+    """Equal-cell domain mean and slope of its yearly spatial-average series."""
+    series = np.nanmean(grid_yearly, axis=(0, 1))
+    valid = np.isfinite(series)
+    mean = float(np.mean(series[valid])) if valid.any() else np.nan
+    trend = float(np.polyfit(years[valid], series[valid], 1)[0]) if valid.sum() >= 2 else np.nan
+    return mean, trend
+
+
+def diagnosticunits(cfg: BiasCorrectionConfig) -> tuple[str, str, str]:
+    """Plain-text native, yearly and trend units shared by CSV exporters."""
+    from .plotting import _format_units, _yearly_units, _trend_units
+
+    def plain(units: str) -> str:
+        return units.replace("$", "").replace("{", "").replace("}", "")
+
+    return tuple(map(plain, (
+        _format_units(cfg.clim_var_units), _yearly_units(cfg), _trend_units(cfg),
+    )))
+
+
+def diagnosticcsvtable(table: pd.DataFrame, cfg: BiasCorrectionConfig) -> pd.DataFrame:
+    """Add plain-text units on export, leaving internal metric names stable."""
+    native, yearly, trend = diagnosticunits(cfg)
+    headings = {}
+    for column in table.columns:
+        if column in {"Variable", "Station", "Dataset"}:
+            continue
+        units = native if column == "MAE quantiles" else trend if "trend" in column else yearly
+        headings[column] = f"{column} ({units})"
+    return table.rename(columns=headings)
+
+
 def makesummarytable(
     clim_var_name: str,
     station_trends: np.ndarray,
@@ -269,6 +330,9 @@ def makesummarytable(
     bc_quantile_mae: np.ndarray,
     raw_annual_mae: np.ndarray,
     bc_annual_mae: np.ndarray,
+    station_means: np.ndarray,
+    raw_station_means: np.ndarray,
+    bc_station_means: np.ndarray,
 ) -> pd.DataFrame:
     rows = [
         _summaryrow(
@@ -278,6 +342,8 @@ def makesummarytable(
             raw_station_trends,
             raw_quantile_mae,
             raw_annual_mae,
+            station_means,
+            raw_station_means,
         ),
         _summaryrow(
             clim_var_name,
@@ -286,6 +352,8 @@ def makesummarytable(
             bc_station_trends,
             bc_quantile_mae,
             bc_annual_mae,
+            station_means,
+            bc_station_means,
         ),
     ]
     return pd.DataFrame(rows)
@@ -308,6 +376,8 @@ def _summaryrow(
     model_trends: np.ndarray,
     quantile_mae: np.ndarray,
     annual_mae: np.ndarray,
+    station_means: np.ndarray,
+    model_means: np.ndarray,
 ) -> dict[str, float | str]:
     return {
         "Variable": clim_var_name,
@@ -315,6 +385,10 @@ def _summaryrow(
         "MAE quantiles": np.nanmean(quantile_mae),
         "MAE yearly": np.nanmean(annual_mae),
         "MAE linear trends": np.nanmean(np.abs(model_trends - station_trends)),
+        "Observed mean": pd.Series(station_means).mean(),
+        "Model mean": pd.Series(model_means).mean(),
+        "Observed linear trend": pd.Series(station_trends).mean(),
+        "Model linear trend": pd.Series(model_trends).mean(),
     }
 
 

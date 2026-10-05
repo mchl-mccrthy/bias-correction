@@ -237,6 +237,8 @@ def _eqtm_parameters(cfg: "BiasCorrectionConfig") -> str:
         "idw_alpha": cfg.idw_alpha,
         "coordinate_system": cfg.coordinate_system,
         "multiplicative_epsilon": cfg.multiplicative_epsilon,
+        "use_parallel": cfg.use_parallel,
+        "n_workers": cfg.n_workers,
     }
     return "; ".join(f"{key}={_metadata_value(value)}" for key, value in parameters.items())
 

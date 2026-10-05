@@ -83,7 +83,7 @@ These files can still be included in the final Zenodo archive.
 2. Confirm that the Python paper experiments runner works from the archive root:
 
    ```powershell
-   python -m paper.scripts.run_eqtm_paper
+   python -m paper.scripts.run_paper_all
    ```
 
 3. Confirm that the MATLAB runner works from the archive root:

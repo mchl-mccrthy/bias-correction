@@ -5,9 +5,9 @@ from pathlib import Path
 import pandas as pd
 
 from eqtm.config import BiasCorrectionConfig
-from eqtm.diagnostics import Diagnostics
+from eqtm.diagnostics import Diagnostics, diagnosticcsvtable
 from paper.scripts.diagnostics_cache import makediagnostics_cached as makediagnostics
-from paper.scripts.make_paper_annual_mae import _check_matching_diagnostics
+from paper.scripts.make_annual_mae_plots import _check_matching_diagnostics
 from paper.scripts.config_switzerland_pr_trends_off import config_switzerland_pr_trends_off
 from paper.scripts.config_switzerland_pr_trends_on import config_switzerland_pr_trends_on
 from paper.scripts.config_switzerland_tas_trends_off import config_switzerland_tas_trends_off
@@ -28,7 +28,7 @@ def main() -> None:
     pr_on = makediagnostics(config_switzerland_pr_trends_on())
     pr_off = makediagnostics(config_switzerland_pr_trends_off())
 
-    table = _paper_diagnostics_table(
+    table = _diagnostics_table(
         config_switzerland_tas_trends_on(),
         tas_on,
         tas_off,
@@ -39,7 +39,7 @@ def main() -> None:
     table.to_csv(figure_dir / "diagnostics_summary.csv", float_format="%.3g")
 
 
-def _paper_diagnostics_table(
+def _diagnostics_table(
     cfg_tas: BiasCorrectionConfig,
     diagnostics_tas_on: Diagnostics,
     diagnostics_tas_off: Diagnostics,
@@ -52,8 +52,8 @@ def _paper_diagnostics_table(
 
     return pd.concat(
         [
-            _variable_summary(diagnostics_tas_on, diagnostics_tas_off),
-            _variable_summary(diagnostics_pr_on, diagnostics_pr_off),
+            diagnosticcsvtable(_variable_summary(diagnostics_tas_on, diagnostics_tas_off), cfg_tas),
+            diagnosticcsvtable(_variable_summary(diagnostics_pr_on, diagnostics_pr_off), cfg_pr),
         ],
         axis=1,
         keys=[cfg_tas.clim_var_long_name, cfg_pr.clim_var_long_name],

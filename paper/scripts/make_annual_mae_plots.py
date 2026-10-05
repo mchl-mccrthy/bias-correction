@@ -9,7 +9,7 @@ from eqtm.config import BiasCorrectionConfig
 from eqtm.diagnostics import Diagnostics
 from eqtm.plotting import _new_figure, _save_figure, _set_plot_style, _stripplot, _yearly_units
 from paper.scripts.diagnostics_cache import makediagnostics_cached as makediagnostics
-from paper.scripts.make_paper_qq import OFF_COLOR, ON_COLOR, RAW_COLOR
+from paper.scripts.make_qq_plots import OFF_COLOR, ON_COLOR, RAW_COLOR
 from paper.scripts.config_switzerland_pr_trends_off import config_switzerland_pr_trends_off
 from paper.scripts.config_switzerland_pr_trends_on import config_switzerland_pr_trends_on
 from paper.scripts.config_switzerland_tas_trends_off import config_switzerland_tas_trends_off

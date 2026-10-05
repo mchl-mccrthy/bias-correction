@@ -19,7 +19,7 @@ from eqtm.plotting import (
 from paper.scripts.config_switzerland_pr_trends_on import config_switzerland_pr_trends_on
 from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_tas_trends_on
 from paper.scripts.diagnostics_cache import makediagnostics_cached as makediagnostics
-from paper.scripts.make_paper_maps import (
+from paper.scripts.make_maps import (
     _find_boundary_file,
     _load_switzerland_boundary,
     _mask_outside_switzerland,
