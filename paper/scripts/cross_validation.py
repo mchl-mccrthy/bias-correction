@@ -241,7 +241,7 @@ def _summarise(folds: pd.DataFrame, configs: list[BiasCorrectionConfig]) -> pd.D
 
 
 def _cvroot(cfg: BiasCorrectionConfig) -> Path:
-    return Path(cfg.file_path_bc_data).parent.parent / "cross_validation"
+    return Path(cfg.file_path_figures_tables).parent.parent / "cross_validation"
 
 
 if __name__ == "__main__":

@@ -15,11 +15,12 @@ EQTM-v1.0.0/
 |-- docs/
 |-- input_data/
 |   |-- boundaries/
-|   `-- switzerland_1981_2019/
+|   `-- switzerland_1981_2020/
 |       |-- gridded/
 |       `-- station/
 |-- output_data/
-|   `-- switzerland_1981_2019/
+|   `-- switzerland_1981_2020/
+|       |-- cross_validation/
 |       |-- trends_off/
 |       |   |-- figures_and_tables/
 |       |   `-- gridded/
@@ -44,14 +45,14 @@ EQTM-v1.0.0/
 - Include the Natural Earth Switzerland boundary file used to mask and outline the paper maps.
 - Include the configuration files used to run the Switzerland paper workflow.
 - Use relative paths in all archived configuration files.
-- Place gridded inputs in `input_data/switzerland_1981_2019/gridded/`
-  and station inputs in `input_data/switzerland_1981_2019/station/`.
+- Place gridded inputs in `input_data/switzerland_1981_2020/gridded/`
+  and station inputs in `input_data/switzerland_1981_2020/station/`.
 - Write bias-corrected gridded outputs to
-  `output_data/switzerland_1981_2019/trends_on/gridded/` and
-  `output_data/switzerland_1981_2019/trends_off/gridded/`.
+  `output_data/switzerland_1981_2020/trends_on/gridded/` and
+  `output_data/switzerland_1981_2020/trends_off/gridded/`.
 - Write diagnostic figures and tables to
-  `output_data/switzerland_1981_2019/trends_on/figures_and_tables/` and
-  `output_data/switzerland_1981_2019/trends_off/figures_and_tables/`.
+  `output_data/switzerland_1981_2020/trends_on/figures_and_tables/` and
+  `output_data/switzerland_1981_2020/trends_off/figures_and_tables/`.
 - Include scripts used to create the paper figures.
 - Include either generated reference outputs or instructions for recreating
   them from the input data.

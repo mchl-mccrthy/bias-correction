@@ -1,7 +1,13 @@
+from pathlib import Path
+
 from eqtm import BiasCorrectionConfig
 
 
 def config_switzerland_tas_trends_off() -> BiasCorrectionConfig:
+    repo_root = Path(__file__).resolve().parents[2]
+    input_root = repo_root / "input_data" / "switzerland_1981_2020"
+    output_root = repo_root / "output_data" / "switzerland_1981_2020" / "trends_off"
+
     return BiasCorrectionConfig(
         clim_var_name="tas",
         clim_var_long_name="Temperature",
@@ -20,9 +26,9 @@ def config_switzerland_tas_trends_off() -> BiasCorrectionConfig:
         n_workers=10,
         keep_grid_biases=False,
         coordinate_system="geographic",
-        file_path_station_coords="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/stations/switzerland_coordinates.csv",
-        file_path_station_clim_var="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/stations/switzerland_tas.csv",
-        file_path_raw_data="/storage/mccarthy/climate_pipeline/data/Switzerland/interim/chelsa/tas_switzerland_1981_2019.nc",
-        file_path_bc_data="/storage/mccarthy/climate_pipeline/data/Switzerland/processed/key_variables/historic/reanalysis/trends_off/tas_bc_switzerland_1981_2019.nc",
-        file_path_figures_tables="/storage/mccarthy/climate_pipeline/data/Switzerland/processed/key_variables/historic/reanalysis/trends_off/figures",
+        file_path_station_coords=input_root / "station" / "switzerland_coordinates.csv",
+        file_path_station_clim_var=input_root / "station" / "switzerland_tas.csv",
+        file_path_raw_data=input_root / "gridded" / "tas_switzerland_1981_2020.nc",
+        file_path_bc_data=output_root / "gridded" / "tas_bc_switzerland_1981_2020.nc",
+        file_path_figures_tables=output_root / "figures_and_tables",
     )
