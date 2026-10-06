@@ -57,8 +57,8 @@ def main() -> None:
             path=figure_dir / f"{cfg.clim_var_name}_elevation_mean.png",
         )
         _elevation_plot(
-            grid_values=diagnostics.bc_grid_linear_trends,
-            station_values=diagnostics.station_linear_trends,
+            grid_values=diagnostics.bc_grid_theil_sen_slopes,
+            station_values=diagnostics.station_theil_sen_slopes,
             grid_x=diagnostics.grid_x,
             grid_y=diagnostics.grid_y,
             grid_z=grid_z,

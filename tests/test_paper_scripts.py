@@ -29,10 +29,10 @@ class PaperScriptTests(unittest.TestCase):
         self.assertEqual(list(table.columns), [
             ("Temperature", "MAE quantiles (\N{DEGREE SIGN}C)"),
             ("Temperature", "MAE yearly (\N{DEGREE SIGN}C)"),
-            ("Temperature", "MAE linear trends (\N{DEGREE SIGN}C year^-1)"),
+            ("Temperature", "MAE trends (\N{DEGREE SIGN}C year^-1)"),
             ("Precipitation", "MAE quantiles (mm day^-1)"),
             ("Precipitation", "MAE yearly (mm year^-1)"),
-            ("Precipitation", "MAE linear trends (mm year^-2)"),
+            ("Precipitation", "MAE trends (mm year^-2)"),
         ])
         recovered = pd.read_csv(StringIO(table.to_csv()), header=[0, 1], index_col=0)
         pd.testing.assert_frame_equal(recovered, table, check_dtype=False)
@@ -57,21 +57,23 @@ class PaperScriptTests(unittest.TestCase):
                     rows.append({"Variable": cfg.clim_var_name, "Method": method,
                                  "Station": str(fold), "Fold": fold,
                                  "MAE quantiles": fold, "MAE yearly": 2 * fold,
-                                 "MAE linear trends": 3 * fold,
-                                 "Station linear trend": -fold, "Model linear trend": 2 * fold})
+                                 "MAE trends": 3 * fold,
+                                 "Station trend": -fold, "Model trend": 2 * fold})
         folds = pd.DataFrame(rows)
         table = _summarise(folds, self.configs)
         self.check_headings(table)
         np.testing.assert_allclose(table.iloc[0].to_numpy(), [1.5, 3, 4.5] * 2)
         exported = _fold_export(folds, self.configs)
-        self.assertIn("AE linear trend", exported)
-        self.assertNotIn("MAE linear trends", exported)
+        self.assertIn("AE trend", exported)
+        self.assertNotIn("MAE trends", exported)
         for variable, expected in [("tas", ["\N{DEGREE SIGN}C", "\N{DEGREE SIGN}C", "\N{DEGREE SIGN}C year^-1"]),
                                    ("pr", ["mm day^-1", "mm year^-1", "mm year^-2"])]:
             actual = exported.loc[exported.Variable == variable,
                                   ["Quantile units", "Yearly units", "Trend units"]].iloc[0].tolist()
             self.assertEqual(actual, expected)
-        pd.testing.assert_series_equal(exported["AE linear trend"], folds["MAE linear trends"], check_names=False)
+        pd.testing.assert_series_equal(
+            exported["AE trend"], folds["MAE trends"], check_names=False
+        )
 
 
 if __name__ == "__main__":

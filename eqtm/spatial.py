@@ -3,6 +3,44 @@ from __future__ import annotations
 import numpy as np
 
 
+def spatialmean(
+    grid: np.ndarray,
+    grid_y: np.ndarray,
+    coordinate_system: str,
+    chunk_size: int = 64,
+) -> np.ndarray:
+    """Area-weighted spatial mean over the first two grid dimensions."""
+    grid = np.asarray(grid)
+    grid_y = np.asarray(grid_y)
+    if grid.shape[:2] != grid_y.shape:
+        raise ValueError("grid_y must match the first two dimensions of grid.")
+    if coordinate_system == "geographic":
+        weights = np.cos(np.deg2rad(grid_y))
+    elif coordinate_system == "projected":
+        weights = np.ones_like(grid_y, dtype=float)
+    else:
+        raise ValueError("coordinate_system must be 'projected' or 'geographic'.")
+
+    trailing_shape = grid.shape[2:]
+    flat_grid = grid.reshape(np.prod(grid.shape[:2]), -1)
+    flat_weights = weights.reshape(-1, 1)
+    out = np.full(flat_grid.shape[1], np.nan, dtype=float)
+    for start in range(0, flat_grid.shape[1], chunk_size):
+        stop = min(start + chunk_size, flat_grid.shape[1])
+        values = flat_grid[:, start:stop]
+        valid = np.isfinite(values)
+        numerator = np.sum(np.where(valid, values, 0.0) * flat_weights, axis=0)
+        denominator = np.sum(valid * flat_weights, axis=0)
+        np.divide(
+            numerator,
+            denominator,
+            out=out[start:stop],
+            where=denominator > 0,
+        )
+    result = out.reshape(trailing_shape)
+    return result.item() if result.ndim == 0 else result
+
+
 def getdistances(
     x1: np.ndarray,
     y1: np.ndarray,

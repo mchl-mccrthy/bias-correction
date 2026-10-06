@@ -8,7 +8,14 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 
-from eqtm.diagnostics import diagnosticcsvtable, getdomainsummary, getstationmeans, makediagnostics, makesummarytable
+from eqtm.diagnostics import (
+    diagnosticcsvtable,
+    getdomainsummary,
+    getstationmeans,
+    makediagnostics,
+    makesummarytable,
+    theilsenslope,
+)
 from scripts.config_andermatt_zurich_tas import config_andermatt_zurich_tas
 
 
@@ -21,7 +28,7 @@ class DiagnosticTableTests(unittest.TestCase):
         for actual, expected in zip(means, [1., 2., 1.5]):
             np.testing.assert_allclose(actual, [expected, np.nan])
 
-    def test_summary_preserves_signed_trends_and_averages_absolute_errors(self):
+    def test_summary_preserves_signed_slopes_and_averages_absolute_errors(self):
         data = [np.array(x) for x in (
             [1., 3.], [-1., 5.], [1., 3.], [2., 4.], [0., 0.],
             [3., 5.], [0., 0.], [10., 20.], [12., 24.], [10., 20.],
@@ -29,10 +36,17 @@ class DiagnosticTableTests(unittest.TestCase):
         summary = makesummarytable("tas", *data)
         self.assertEqual(summary.loc[0, "Observed mean"], 15.)
         self.assertEqual(summary.loc[0, "Model mean"], 18.)
-        self.assertEqual(summary.loc[0, "Observed linear trend"], 2.)
-        self.assertEqual(summary.loc[0, "Model linear trend"], 2.)
-        self.assertEqual(summary.loc[0, "MAE linear trends"], 2.)
-        self.assertEqual(summary.loc[1, "MAE linear trends"], 0.)
+        self.assertEqual(summary.loc[0, "Observed trend"], 2.)
+        self.assertEqual(summary.loc[0, "Model trend"], 2.)
+        self.assertEqual(summary.loc[0, "MAE trends"], 2.)
+        self.assertEqual(summary.loc[1, "MAE trends"], 0.)
+
+    def test_theil_sen_slope_is_robust_and_supports_arrays(self):
+        years = np.array([2000., 2001., 2002., 2003.])
+        values = np.array([1., 3., 105., 7.])
+        self.assertEqual(theilsenslope(years, values), 2.)
+        grid = np.stack([values, np.array([4., np.nan, 4., 4.])]).reshape(1, 2, 4)
+        np.testing.assert_allclose(theilsenslope(years, grid, axis=2), [[2., 0.]])
 
     def test_makediagnostics_writes_station_and_overview_csvs(self):
         for aggregation, units in [("mean", "degC"), ("sum", "mm day^{-1}")]:
@@ -41,8 +55,7 @@ class DiagnosticTableTests(unittest.TestCase):
 
     def test_domain_summary_missing_years(self):
         grid = np.array([[[1., np.nan, 5.]], [[3., np.nan, 7.]]])
-        with self.assertWarns(RuntimeWarning):
-            mean, trend = getdomainsummary(grid, np.array([2000, 2001, 2002]))
+        mean, trend = getdomainsummary(grid, np.array([2000, 2001, 2002]))
         self.assertEqual(mean, 4.)
         self.assertAlmostEqual(trend, 2.)
 
@@ -79,18 +92,20 @@ class DiagnosticTableTests(unittest.TestCase):
             annual = np.array([np.mean(observed[time.year == year]) if aggregation == "mean"
                                else np.sum(observed[time.year == year]) for year in [2000, 2001, 2002]])
             days = np.ones(3) if aggregation == "mean" else np.array([366, 365, 365])
-            domain_raw = 11 * annual + 7 * days
+            lat_weights = np.cos(np.deg2rad([46., 47.]))
+            lat_factor = (lat_weights[0] + 21 * lat_weights[1]) / lat_weights.sum()
+            domain_raw = lat_factor * annual + 7 * days
             np.testing.assert_allclose(overview[f"Domain mean yearly ({yearly_unit})"],
                                        [domain_raw.mean(), (domain_raw - days).mean()])
-            np.testing.assert_allclose(overview[f"Domain linear trend ({trend_unit})"],
-                                       [np.polyfit([2000, 2001, 2002], series, 1)[0]
+            np.testing.assert_allclose(overview[f"Domain trend ({trend_unit})"],
+                                       [theilsenslope([2000, 2001, 2002], series)
                                         for series in [domain_raw, domain_raw - days]])
             for name in ["ALT", "SMA"]:
                 table = pd.read_csv(root / "individual_stations" / f"{name}_tas_diagnostics_summary.csv")
                 self.assertEqual(list(table.Dataset), ["Raw", "Bias-corrected"])
                 self.assertEqual(list(table.Station), [name, name])
-                self.assertIn(f"AE linear trend ({trend_unit})", table.columns)
-                self.assertNotIn("MAE linear trends", table.columns)
+                self.assertIn(f"AE trend ({trend_unit})", table.columns)
+                self.assertNotIn("MAE trends", table.columns)
                 offset = 0 if name == "ALT" else 10
                 np.testing.assert_allclose(table[f"Observed mean yearly ({yearly_unit})"],
                                            (annual + offset * days).mean())

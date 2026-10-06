@@ -11,12 +11,14 @@ for i = 1:numel(names)
         continue
     elseif strcmp(name,'MAE_quantiles')
         units = native;
-    elseif contains(name,'trend')
+    elseif contains(lower(name),'trend') || contains(lower(name),'slope')
         units = trend;
     else
         units = yearly;
     end
-    names{i} = [strrep(name,'_',' ') ' (' units ')'];
+    display_name = strrep(name,'_',' ');
+    display_name = strrep(display_name,'Theil Sen','Theil-Sen');
+    names{i} = [display_name ' (' units ')'];
 end
 out.Properties.VariableNames = names;
 end

@@ -1,12 +1,12 @@
-% Make strip plot of linear trend mean absolute errors
-function plottrendmae(station_linear_trends,raw_station_linear_trends,...
-    bc_station_linear_trends,file_path_figures_tables,clim_var_name,...
+% Make strip plot of Theil-Sen slope mean absolute errors
+function plottrendmae(station_theil_sen_slopes,raw_station_theil_sen_slopes,...
+    bc_station_theil_sen_slopes,file_path_figures_tables,clim_var_name,...
     clim_var_long_name,clim_var_units,agg_method)
 
 % Get trend units and trend errors
 trend_units = trendunits(clim_var_units,agg_method);
-raw_trend_ae = abs(raw_station_linear_trends - station_linear_trends);
-bc_trend_ae = abs(bc_station_linear_trends - station_linear_trends);
+raw_trend_ae = abs(raw_station_theil_sen_slopes - station_theil_sen_slopes);
+bc_trend_ae = abs(bc_station_theil_sen_slopes - station_theil_sen_slopes);
 
 % Make plot
 figure()
@@ -16,8 +16,9 @@ h_bc = plotstripgroup(bc_trend_ae,2,'r');
 yticks([1 2])
 yticklabels({'Raw','Bias-corrected'})
 ylim([0.5 2.5])
-xlabel(['AE, ' lower(clim_var_long_name) ' trend (' trend_units ')'])
-title('All stations, linear trend absolute error')
+xlabel(['AE, ' lower(clim_var_long_name) ' trend (' ...
+    trend_units ')'])
+title('All stations, trend absolute error')
 legend([h_raw h_bc],{'Raw','Bias-corrected'},'Location','eastoutside')
 formatfigure(gcf,4,2,4)
 print(gcf,fullfile(file_path_figures_tables,[clim_var_name ...

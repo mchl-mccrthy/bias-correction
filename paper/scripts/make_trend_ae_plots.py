@@ -43,9 +43,15 @@ def _paper_trend_mae(
     diagnostics_off = makediagnostics(cfg_off)
     _check_matching_diagnostics(diagnostics_on, diagnostics_off)
 
-    raw_trend_ae = np.abs(diagnostics_on.raw_station_linear_trends - diagnostics_on.station_linear_trends)
-    bc_on_trend_ae = np.abs(diagnostics_on.bc_station_linear_trends - diagnostics_on.station_linear_trends)
-    bc_off_trend_ae = np.abs(diagnostics_off.bc_station_linear_trends - diagnostics_off.station_linear_trends)
+    raw_trend_ae = np.abs(
+        diagnostics_on.raw_station_theil_sen_slopes - diagnostics_on.station_theil_sen_slopes
+    )
+    bc_on_trend_ae = np.abs(
+        diagnostics_on.bc_station_theil_sen_slopes - diagnostics_on.station_theil_sen_slopes
+    )
+    bc_off_trend_ae = np.abs(
+        diagnostics_off.bc_station_theil_sen_slopes - diagnostics_off.station_theil_sen_slopes
+    )
 
     fig, ax = _new_figure(4, 2, 5)
     _stripplot(
@@ -62,7 +68,9 @@ def _paper_trend_mae(
         ],
         [RAW_COLOR, ON_COLOR, OFF_COLOR],
     )
-    ax.set_xlabel(f"AE, {cfg_on.clim_var_long_name.lower()} trend ({_trend_units(cfg_on)})")
+    ax.set_xlabel(
+        f"AE, {cfg_on.clim_var_long_name.lower()} trend ({_trend_units(cfg_on)})"
+    )
     _save_figure(fig, figure_dir / f"{cfg_on.clim_var_name}_trend_mae_strip.png")
 
 

@@ -1,4 +1,4 @@
-% Get units for yearly linear trend diagnostics
+% Get units for yearly Theil-Sen slope diagnostics
 function units_trend = trendunits(clim_var_units,agg_method)
 
 % Sum aggregation removes a terminal inverse timestep before trend units

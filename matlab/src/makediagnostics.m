@@ -9,6 +9,7 @@ file_path_station_clim_var = cfg.file_path_station_clim_var;
 file_path_raw_data = cfg.file_path_raw_data;
 file_path_bc_data = cfg.file_path_bc_data;
 file_path_figures_tables = cfg.file_path_figures_tables;
+coordinate_system = cfg.coordinate_system;
 
 % Check if bias-corrected data exist
 if ~isfile(file_path_bc_data)
@@ -42,9 +43,9 @@ bc_station_clim_var...
     station_clim_var,raw_station_clim_var,bc_station_clim_var,grid_time,...
     agg_method);
 
-% Get linear trends at stations
-[station_linear_trends,raw_station_linear_trends,bc_station_linear_trends]...
-    = getlineartrends(...
+% Get Theil-Sen slopes at stations
+[station_theil_sen_slopes,raw_station_theil_sen_slopes,...
+    bc_station_theil_sen_slopes] = gettheilsenslopes(...
     station_clim_var_yearly,raw_station_clim_var_yearly,...
     bc_station_clim_var_yearly,years);
 
@@ -60,8 +61,8 @@ bc_station_clim_var...
     bc_station_clim_var_yearly);
 
 % Get timestep domain means of gridded data
-raw_grid_domain_mean = squeeze(mean(raw_grid_clim_var,[1 2],'omitnan'));
-bc_grid_domain_mean = squeeze(mean(bc_grid_clim_var,[1 2],'omitnan'));
+raw_grid_domain_mean = spatialmean(raw_grid_clim_var,grid_y,coordinate_system);
+bc_grid_domain_mean = spatialmean(bc_grid_clim_var,grid_y,coordinate_system);
 
 % Make yearly gridded fields for domain summaries and plots.
 [raw_grid_clim_var_yearly,grid_years] = makeyearlygrid(...
@@ -72,16 +73,19 @@ bc_grid_domain_mean = squeeze(mean(bc_grid_clim_var,[1 2],'omitnan'));
 % Make summary table of station-level diagnostics
 [station_means,raw_means,bc_means] = getstationmeans(...
     station_clim_var_yearly,raw_station_clim_var_yearly,bc_station_clim_var_yearly);
-summary_inputs = {station_linear_trends,raw_station_linear_trends,...
-    bc_station_linear_trends,raw_station_quantile_mae,...
+summary_inputs = {station_theil_sen_slopes,raw_station_theil_sen_slopes,...
+    bc_station_theil_sen_slopes,raw_station_quantile_mae,...
     bc_station_quantile_mae,raw_station_annual_mae,...
     bc_station_annual_mae,station_means,raw_means,bc_means};
 summary_table = makesummarytable(clim_var_name,summary_inputs{:});
-summary_table(:,{'Observed_mean','Model_mean','Observed_linear_trend','Model_linear_trend'}) = [];
-[raw_mean,raw_trend] = getdomainsummary(raw_grid_clim_var_yearly,grid_years);
-[bc_mean,bc_trend] = getdomainsummary(bc_grid_clim_var_yearly,grid_years);
+summary_table(:,{'Observed_mean','Model_mean',...
+    'Observed_trend','Model_trend'}) = [];
+[raw_mean,raw_slope] = getdomainsummary(...
+    raw_grid_clim_var_yearly,grid_years,grid_y,coordinate_system);
+[bc_mean,bc_slope] = getdomainsummary(...
+    bc_grid_clim_var_yearly,grid_years,grid_y,coordinate_system);
 summary_table.Domain_mean_yearly = [raw_mean;bc_mean];
-summary_table.Domain_linear_trend = [raw_trend;bc_trend];
+summary_table.Domain_trend = [raw_slope;bc_slope];
 
 % Save summary table of station-level diagnostics
 file_path_overview = fullfile(file_path_figures_tables,'overview');
@@ -101,7 +105,8 @@ for i_station = 1:width(station_clim_var)
     station_inputs = cellfun(@(values) values(i_station),...
         summary_inputs,'UniformOutput',false);
     station_table = makesummarytable(clim_var_name,station_inputs{:});
-    station_table = renamevars(station_table,'MAE_linear_trends','AE_linear_trend');
+    station_table = renamevars( ...
+        station_table,'MAE_trends','AE_trend');
     station_table = renamevars(station_table,{'Observed_mean','Model_mean'},...
         {'Observed_mean_yearly','Model_mean_yearly'});
     station_name = station_names{i_station};
@@ -111,9 +116,9 @@ for i_station = 1:width(station_clim_var)
         [station_name '_' clim_var_name '_diagnostics_summary.csv']))
 end
 
-% Get linear trends of gridded bias-corrected data
-bc_grid_linear_trends = getgridlineartrends( ...
-    bc_grid_clim_var_yearly,grid_years);
+% Get Theil-Sen slopes of gridded bias-corrected data
+bc_grid_theil_sen_slopes = theilsenslope( ...
+    grid_years,bc_grid_clim_var_yearly,3);
 
 % Make struct of diagnostics
 diagnostics.station_clim_var = station_clim_var;
@@ -127,9 +132,9 @@ diagnostics.station_clim_var_yearly = station_clim_var_yearly;
 diagnostics.raw_station_clim_var_yearly = raw_station_clim_var_yearly;
 diagnostics.bc_station_clim_var_yearly = bc_station_clim_var_yearly;
 diagnostics.years = years;
-diagnostics.station_linear_trends = station_linear_trends;
-diagnostics.raw_station_linear_trends = raw_station_linear_trends;
-diagnostics.bc_station_linear_trends = bc_station_linear_trends;
+diagnostics.station_theil_sen_slopes = station_theil_sen_slopes;
+diagnostics.raw_station_theil_sen_slopes = raw_station_theil_sen_slopes;
+diagnostics.bc_station_theil_sen_slopes = bc_station_theil_sen_slopes;
 diagnostics.raw_station_quantile_mae = raw_station_quantile_mae;
 diagnostics.bc_station_quantile_mae = bc_station_quantile_mae;
 diagnostics.raw_station_annual_mae = raw_station_annual_mae;
@@ -139,7 +144,7 @@ diagnostics.raw_grid_domain_mean = raw_grid_domain_mean;
 diagnostics.bc_grid_domain_mean = bc_grid_domain_mean;
 diagnostics.raw_grid_clim_var_yearly = raw_grid_clim_var_yearly;
 diagnostics.bc_grid_clim_var_yearly = bc_grid_clim_var_yearly;
-diagnostics.bc_grid_linear_trends = bc_grid_linear_trends;
+diagnostics.bc_grid_theil_sen_slopes = bc_grid_theil_sen_slopes;
 diagnostics.grid_x = grid_x;
 diagnostics.grid_y = grid_y;
 diagnostics.grid_time = grid_time;

@@ -124,9 +124,9 @@ def _paper_map(
         colorbar_label = _mean_label(cfg)
         file_name = f"{cfg.clim_var_name}_long_term_average_map.png"
     elif map_type == "trend":
-        values = diagnostics.bc_grid_linear_trends
+        values = diagnostics.bc_grid_theil_sen_slopes
         colorbar_label = _trend_label(cfg)
-        file_name = f"{cfg.clim_var_name}_linear_trend_map.png"
+        file_name = f"{cfg.clim_var_name}_trend_map.png"
     else:
         raise ValueError("map_type must be 'mean' or 'trend'.")
 

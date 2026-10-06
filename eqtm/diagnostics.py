@@ -8,7 +8,7 @@ import pandas as pd
 
 from .config import BiasCorrectionConfig
 from .io import loadgriddata, loadstationdata
-from .spatial import indexofclosest2
+from .spatial import indexofclosest2, spatialmean
 
 
 @dataclass
@@ -26,9 +26,9 @@ class Diagnostics:
     raw_station_clim_var_yearly: pd.DataFrame
     bc_station_clim_var_yearly: pd.DataFrame
     years: np.ndarray
-    station_linear_trends: np.ndarray
-    raw_station_linear_trends: np.ndarray
-    bc_station_linear_trends: np.ndarray
+    station_theil_sen_slopes: np.ndarray
+    raw_station_theil_sen_slopes: np.ndarray
+    bc_station_theil_sen_slopes: np.ndarray
     raw_station_quantile_mae: np.ndarray
     bc_station_quantile_mae: np.ndarray
     raw_station_annual_mae: np.ndarray
@@ -38,7 +38,7 @@ class Diagnostics:
     bc_grid_domain_mean: np.ndarray
     raw_grid_clim_var_yearly: np.ndarray
     bc_grid_clim_var_yearly: np.ndarray
-    bc_grid_linear_trends: np.ndarray
+    bc_grid_theil_sen_slopes: np.ndarray
     grid_x: np.ndarray
     grid_y: np.ndarray
     grid_time: pd.DatetimeIndex
@@ -49,7 +49,7 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
 
     This function reloads the input and bias-corrected datasets, extracts raw
     and corrected grid values at station locations, creates annual station and
-    grid summaries, and estimates linear trends for diagnostic plots.
+    grid summaries, and estimates Theil-Sen slopes for diagnostic plots.
     """
 
     if not Path(cfg.file_path_bc_data).is_file():
@@ -65,20 +65,20 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
     station_yearly, raw_station_yearly, bc_station_yearly, years = makeyearlytables(
         station.clim_var, raw_station, bc_station, raw.time, cfg.agg_method
     )
-    station_trends, raw_trends, bc_trends = getlineartrends(
+    station_slopes, raw_slopes, bc_slopes = gettheilsenslopes(
         station_yearly, raw_station_yearly, bc_station_yearly, years
     )
     raw_quantile_mae, bc_quantile_mae = getquantilemae(station.clim_var, raw_station, bc_station)
     raw_annual_mae, bc_annual_mae = getannualmae(station_yearly, raw_station_yearly, bc_station_yearly)
     station_means, raw_means, bc_means = getstationmeans(station_yearly, raw_station_yearly, bc_station_yearly)
-    raw_grid_domain_mean = np.nanmean(raw.clim_var, axis=(0, 1))
-    bc_grid_domain_mean = np.nanmean(bc.clim_var, axis=(0, 1))
+    raw_grid_domain_mean = spatialmean(raw.clim_var, raw.y, cfg.coordinate_system)
+    bc_grid_domain_mean = spatialmean(bc.clim_var, raw.y, cfg.coordinate_system)
     raw_grid_yearly, grid_years = makeyearlygrid(raw.clim_var, raw.time, cfg.agg_method)
     bc_grid_yearly, _ = makeyearlygrid(bc.clim_var, raw.time, cfg.agg_method)
     summary_inputs = (
-        station_trends,
-        raw_trends,
-        bc_trends,
+        station_slopes,
+        raw_slopes,
+        bc_slopes,
         raw_quantile_mae,
         bc_quantile_mae,
         raw_annual_mae,
@@ -89,23 +89,26 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
     )
     summary_table = makesummarytable(cfg.clim_var_name, *summary_inputs)
     summary_table = summary_table.drop(columns=[
-        "Observed mean", "Model mean", "Observed linear trend", "Model linear trend",
+        "Observed mean", "Model mean", "Observed trend", "Model trend",
     ])
-    domain_stats = [getdomainsummary(grid, grid_years) for grid in (raw_grid_yearly, bc_grid_yearly)]
+    domain_stats = [
+        getdomainsummary(grid, grid_years, raw.y, cfg.coordinate_system)
+        for grid in (raw_grid_yearly, bc_grid_yearly)
+    ]
     summary_table["Domain mean yearly"] = [stats[0] for stats in domain_stats]
-    summary_table["Domain linear trend"] = [stats[1] for stats in domain_stats]
+    summary_table["Domain trend"] = [stats[1] for stats in domain_stats]
     savediagnosticsummarytable(diagnosticcsvtable(summary_table, cfg), cfg.file_path_figures_tables, cfg.clim_var_name)
     station_dir = Path(cfg.file_path_figures_tables) / "individual_stations"
     station_dir.mkdir(parents=True, exist_ok=True)
     for i, station_name in enumerate(station.clim_var.columns):
         table = makesummarytable(cfg.clim_var_name, *(values[i:i + 1] for values in summary_inputs))
-        table = table.rename(columns={"MAE linear trends": "AE linear trend",
+        table = table.rename(columns={"MAE trends": "AE trend",
                                       "Observed mean": "Observed mean yearly",
                                       "Model mean": "Model mean yearly"})
         table.insert(1, "Station", station_name)
         diagnosticcsvtable(table, cfg).to_csv(
             station_dir / f"{station_name}_{cfg.clim_var_name}_diagnostics_summary.csv", index=False)
-    bc_grid_trends = getgridlineartrends(bc_grid_yearly, grid_years)
+    bc_grid_slopes = theilsenslope(grid_years, bc_grid_yearly, axis=2)
 
     return Diagnostics(
         station.clim_var,
@@ -119,9 +122,9 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
         raw_station_yearly,
         bc_station_yearly,
         years,
-        station_trends,
-        raw_trends,
-        bc_trends,
+        station_slopes,
+        raw_slopes,
+        bc_slopes,
         raw_quantile_mae,
         bc_quantile_mae,
         raw_annual_mae,
@@ -131,7 +134,7 @@ def makediagnostics(cfg: BiasCorrectionConfig) -> Diagnostics:
         bc_grid_domain_mean,
         raw_grid_yearly,
         bc_grid_yearly,
-        bc_grid_trends,
+        bc_grid_slopes,
         raw.x,
         raw.y,
         raw.time,
@@ -205,37 +208,81 @@ def makeyearlygrid(
     return yearly, years
 
 
-def getlineartrends(
+def theilsenslope(
+    x: np.ndarray,
+    y: np.ndarray,
+    axis: int = -1,
+    chunk_size: int = 5000,
+) -> float | np.ndarray:
+    """Median pairwise slope along an axis, evaluated in bounded-memory chunks."""
+    x = np.asarray(x, dtype=float).reshape(-1)
+    y = np.asarray(y, dtype=float)
+    if axis < 0:
+        axis += y.ndim
+    if axis < 0 or axis >= y.ndim:
+        raise ValueError("axis is outside the dimensions of y.")
+    if y.shape[axis] != x.size:
+        raise ValueError("The selected y axis must have the same length as x.")
+    if chunk_size <= 0:
+        raise ValueError("chunk_size must be positive.")
+
+    moved = np.moveaxis(y, axis, -1)
+    output_shape = moved.shape[:-1]
+    flat = moved.reshape(-1, x.size)
+    finite_x = np.isfinite(x)
+    x = x[finite_x]
+    flat = flat[:, finite_x]
+    out = np.full(flat.shape[0], np.nan, dtype=float)
+    if x.size < 2:
+        result = out.reshape(output_shape)
+        return result.item() if result.ndim == 0 else result
+
+    first, second = np.triu_indices(x.size, k=1)
+    dx = x[second] - x[first]
+    distinct = dx != 0
+    first = first[distinct]
+    second = second[distinct]
+    dx = dx[distinct]
+    if dx.size:
+        for start in range(0, flat.shape[0], chunk_size):
+            stop = min(start + chunk_size, flat.shape[0])
+            block = flat[start:stop]
+            eligible = np.sum(np.isfinite(block), axis=1) >= 2
+            if not np.any(eligible):
+                continue
+            values = block[eligible]
+            pairwise = (values[:, second] - values[:, first]) / dx
+            block_out = out[start:stop]
+            has_slope = np.any(np.isfinite(pairwise), axis=1)
+            eligible_indices = np.flatnonzero(eligible)
+            block_out[eligible_indices[has_slope]] = np.nanmedian(
+                pairwise[has_slope], axis=1
+            )
+
+    result = out.reshape(output_shape)
+    return result.item() if result.ndim == 0 else result
+
+
+def gettheilsenslopes(
     station_clim_var_yearly: pd.DataFrame,
     raw_station_clim_var_yearly: pd.DataFrame,
     bc_station_clim_var_yearly: pd.DataFrame,
     years: np.ndarray,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     n_stations = station_clim_var_yearly.shape[1]
-    station_trends = np.full(n_stations, np.nan)
-    raw_trends = np.full(n_stations, np.nan)
-    bc_trends = np.full(n_stations, np.nan)
+    station_slopes = np.full(n_stations, np.nan)
+    raw_slopes = np.full(n_stations, np.nan)
+    bc_slopes = np.full(n_stations, np.nan)
     for i_station in range(n_stations):
         station_tmp = station_clim_var_yearly.iloc[:, i_station].to_numpy(dtype=float)
         raw_tmp = raw_station_clim_var_yearly.iloc[:, i_station].to_numpy(dtype=float)
         bc_tmp = bc_station_clim_var_yearly.iloc[:, i_station].to_numpy(dtype=float)
         valid = ~np.isnan(station_tmp) & ~np.isnan(raw_tmp) & ~np.isnan(bc_tmp)
         if np.sum(valid) >= 2:
-            station_trends[i_station] = np.polyfit(years[valid], station_tmp[valid], 1)[0]
-            raw_trends[i_station] = np.polyfit(years[valid], raw_tmp[valid], 1)[0]
-            bc_trends[i_station] = np.polyfit(years[valid], bc_tmp[valid], 1)[0]
-    return station_trends, raw_trends, bc_trends
-
-
-def getgridlineartrends(grid_clim_var_yearly: np.ndarray, years: np.ndarray) -> np.ndarray:
-    out = np.full(grid_clim_var_yearly.shape[:2], np.nan)
-    for i_row in range(grid_clim_var_yearly.shape[0]):
-        for i_col in range(grid_clim_var_yearly.shape[1]):
-            grid_tmp = grid_clim_var_yearly[i_row, i_col, :]
-            valid = ~np.isnan(grid_tmp)
-            if np.sum(valid) >= 2:
-                out[i_row, i_col] = np.polyfit(years[valid], grid_tmp[valid], 1)[0]
-    return out
+            station_slopes[i_station] = theilsenslope(years[valid], station_tmp[valid])
+            raw_slopes[i_station] = theilsenslope(years[valid], raw_tmp[valid])
+            bc_slopes[i_station] = theilsenslope(years[valid], bc_tmp[valid])
+    return station_slopes, raw_slopes, bc_slopes
 
 
 def getannualmae(
@@ -288,13 +335,20 @@ def getstationmeans(
     return tuple(table.where(valid).mean(axis=0).to_numpy() for table in (station, raw, corrected))
 
 
-def getdomainsummary(grid_yearly: np.ndarray, years: np.ndarray) -> tuple[float, float]:
-    """Equal-cell domain mean and slope of its yearly spatial-average series."""
-    series = np.nanmean(grid_yearly, axis=(0, 1))
+def getdomainsummary(
+    grid_yearly: np.ndarray,
+    years: np.ndarray,
+    grid_y: np.ndarray | None = None,
+    coordinate_system: str = "projected",
+) -> tuple[float, float]:
+    """Mean and slope of the yearly area-weighted spatial-average series."""
+    if grid_y is None:
+        grid_y = np.zeros(grid_yearly.shape[:2])
+    series = spatialmean(grid_yearly, grid_y, coordinate_system)
     valid = np.isfinite(series)
     mean = float(np.mean(series[valid])) if valid.any() else np.nan
-    trend = float(np.polyfit(years[valid], series[valid], 1)[0]) if valid.sum() >= 2 else np.nan
-    return mean, trend
+    slope = theilsenslope(years[valid], series[valid]) if valid.sum() >= 2 else np.nan
+    return mean, slope
 
 
 def diagnosticunits(cfg: BiasCorrectionConfig) -> tuple[str, str, str]:
@@ -316,7 +370,7 @@ def diagnosticcsvtable(table: pd.DataFrame, cfg: BiasCorrectionConfig) -> pd.Dat
     for column in table.columns:
         if column in {"Variable", "Station", "Dataset"}:
             continue
-        units = native if column == "MAE quantiles" else trend if "trend" in column else yearly
+        units = native if column == "MAE quantiles" else trend if any(word in column.lower() for word in ("trend", "slope")) else yearly
         headings[column] = f"{column} ({units})"
     return table.rename(columns=headings)
 
@@ -384,11 +438,11 @@ def _summaryrow(
         "Dataset": dataset,
         "MAE quantiles": np.nanmean(quantile_mae),
         "MAE yearly": np.nanmean(annual_mae),
-        "MAE linear trends": np.nanmean(np.abs(model_trends - station_trends)),
+        "MAE trends": np.nanmean(np.abs(model_trends - station_trends)),
         "Observed mean": pd.Series(station_means).mean(),
         "Model mean": pd.Series(model_means).mean(),
-        "Observed linear trend": pd.Series(station_trends).mean(),
-        "Model linear trend": pd.Series(model_trends).mean(),
+        "Observed trend": pd.Series(station_trends).mean(),
+        "Model trend": pd.Series(model_trends).mean(),
     }
 
 

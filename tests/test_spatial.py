@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from eqtm.spatial import getdistances
+from eqtm.spatial import getdistances, spatialmean
 
 
 class TestDistances(unittest.TestCase):
@@ -53,6 +53,25 @@ class TestDistances(unittest.TestCase):
                 "projected",
                 idw_alpha=10,
             )
+
+
+class TestSpatialMean(unittest.TestCase):
+    def test_geographic_grid_uses_latitude_area_weights(self) -> None:
+        grid_y = np.array([[0., 0.], [60., 60.]])
+        grid = np.array([[0., 0.], [10., 10.]])
+
+        self.assertAlmostEqual(spatialmean(grid, grid_y, "geographic"), 10 / 3)
+        self.assertAlmostEqual(spatialmean(grid, grid_y, "projected"), 5.)
+
+    def test_weights_are_renormalized_around_missing_cells(self) -> None:
+        grid_y = np.array([[0., 0.], [60., 60.]])
+        grid = np.array([[[0., np.nan], [0., np.nan]],
+                         [[10., 10.], [10., 10.]]])
+
+        np.testing.assert_allclose(
+            spatialmean(grid, grid_y, "geographic"),
+            [10 / 3, 10.],
+        )
 
 
 if __name__ == "__main__":

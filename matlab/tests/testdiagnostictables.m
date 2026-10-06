@@ -12,25 +12,34 @@ verifyEqual(testCase,raw_mean,[2 NaN]);
 verifyEqual(testCase,bc_mean,[1.5 NaN]);
 end
 
-function testOverviewMeansAndTrends(testCase)
+function testOverviewMeansAndSlopes(testCase)
 summary = makesummarytable('tas',[1 3],[-1 5],[1 3],...
     [2 4],[0 0],[3 5],[0 0],[10 20],[12 24],[10 20]);
 verifyEqual(testCase,summary.Observed_mean,[15;15]);
 verifyEqual(testCase,summary.Model_mean,[18;15]);
-verifyEqual(testCase,summary.Observed_linear_trend,[2;2]);
-verifyEqual(testCase,summary.Model_linear_trend,[2;2]);
-verifyEqual(testCase,summary.MAE_linear_trends,[2;0]);
+verifyEqual(testCase,summary.Observed_trend,[2;2]);
+verifyEqual(testCase,summary.Model_trend,[2;2]);
+verifyEqual(testCase,summary.MAE_trends,[2;0]);
+end
+
+function testTheilSenSlopeIsRobustAndSupportsArrays(testCase)
+years = [2000 2001 2002 2003];
+values = [1 3 105 7];
+verifyEqual(testCase,theilsenslope(years,values),2,'AbsTol',1e-12);
+grid = reshape([values;4 NaN 4 4],1,2,4);
+verifyEqual(testCase,theilsenslope(years,grid,3),[2 0],'AbsTol',1e-12);
 end
 
 function testDiagnosticCsvFiles(testCase)
 folder = tempname;
 mkdir(folder)
-cleanup = onCleanup(@() rmdir(folder,'s')); %#ok<NASGU>
+cleanup = onCleanup(@() rmdir(folder,'s'));
 time = (datetime(2000,1,1):datetime(2002,12,31))';
 values = year(time)-1999;
 cfg.clim_var_name = 'tas';
 cfg.clim_var_units = 'degC';
 cfg.agg_method = 'mean';
+cfg.coordinate_system = 'geographic';
 cfg.file_path_raw_data = fullfile(folder,'raw.nc');
 cfg.file_path_bc_data = fullfile(folder,'bc.nc');
 cfg.file_path_station_coords = fullfile(folder,'coords.csv');
@@ -57,8 +66,11 @@ for k = 1:2
 end
 diagnostics = makediagnostics(cfg);
 overview = readtable(fullfile(folder,'overview','tas_diagnostics_summary.csv'),'VariableNamingRule','preserve');
-verifyEqual(testCase,overview{:,6},[24;23],'AbsTol',1e-10);
-verifyEqual(testCase,overview{:,7},[11;11],'AbsTol',1e-10);
+lat_weights = cosd([46 47]);
+lat_factor = (lat_weights(1)+21*lat_weights(2))/sum(lat_weights);
+verifyEqual(testCase,overview{:,6},[2*lat_factor+2;2*lat_factor+1],...
+    'AbsTol',1e-10);
+verifyEqual(testCase,overview{:,7},[lat_factor;lat_factor],'AbsTol',1e-10);
 verifyEqual(testCase,overview{:,6},diagnostics.summary_table.Domain_mean_yearly,'AbsTol',1e-10);
 verifyFalse(testCase,any(contains(overview.Properties.VariableNames,'Observed')));
 for name = {'ALT','SMA'}
@@ -66,19 +78,20 @@ for name = {'ALT','SMA'}
         [name{1} '_tas_diagnostics_summary.csv']),'VariableNamingRule','preserve');
     verifyEqual(testCase,station.Dataset,{'Raw';'Bias-corrected'});
     verifyEqual(testCase,station.Station,repmat(name,2,1));
-    verifyTrue(testCase,ismember(['AE linear trend (' char(176) 'C year^-1)'],station.Properties.VariableNames));
+    verifyTrue(testCase,ismember(['AE trend (' char(176) 'C year^-1)'],station.Properties.VariableNames));
     verifyEqual(testCase,station{:,10},[1;1],'AbsTol',1e-10);
 end
 cfg.agg_method = 'sum';
 cfg.clim_var_units = 'mm day^{-1}';
-diagnostics = makediagnostics(cfg);
+makediagnostics(cfg);
 overview = readtable(fullfile(folder,'overview','tas_diagnostics_summary.csv'),'VariableNamingRule','preserve');
 verifyTrue(testCase,ismember('Domain mean yearly (mm year^-1)',overview.Properties.VariableNames));
-verifyTrue(testCase,ismember('Domain linear trend (mm year^-2)',overview.Properties.VariableNames));
+verifyTrue(testCase,ismember('Domain trend (mm year^-2)',overview.Properties.VariableNames));
 station = readtable(fullfile(folder,'individual_stations','ALT_tas_diagnostics_summary.csv'),...
     'VariableNamingRule','preserve');
 verifyTrue(testCase,ismember('MAE quantiles (mm day^-1)',station.Properties.VariableNames));
 verifyEqual(testCase,station.('Observed mean yearly (mm year^-1)'),repmat(mean([366 730 1095]),2,1),'AbsTol',1e-10);
-verifyEqual(testCase,overview{:,6},[mean(11*[366 730 1095]+2*[366 365 365]);...
-    mean(11*[366 730 1095]+[366 365 365])],'AbsTol',1e-10);
+verifyEqual(testCase,overview{:,6},...
+    [mean(lat_factor*[366 730 1095]+2*[366 365 365]);...
+    mean(lat_factor*[366 730 1095]+[366 365 365])],'AbsTol',1e-10);
 end

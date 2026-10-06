@@ -11,6 +11,7 @@ import pandas as pd
 
 from .config import BiasCorrectionConfig
 from .diagnostics import Diagnostics, getoverlappingstationdata
+from .spatial import spatialmean
 
 
 CM_TO_IN = 1 / 2.54
@@ -29,7 +30,7 @@ STATION_COLOR = "black"
 def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
     """Create diagnostic figures for an EQTM workflow run.
 
-    Figures include maps of long-term mean and trend fields, station trend
+    Figures include maps of long-term mean and Theil-Sen slope fields, station slope
     comparisons, all-station quantile-quantile and residual plots, station
     availability, and per-station diagnostic plots.
     """
@@ -56,9 +57,9 @@ def makeplots(diagnostics: Diagnostics, cfg: BiasCorrectionConfig) -> None:
 def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     mean_grid = np.nanmean(diagnostics.bc_grid_clim_var_yearly, axis=2)
     units = _yearly_units(cfg)
-    trend_units = _trend_units(cfg)
+    slope_units = _trend_units(cfg)
     mean_label = f"{cfg.clim_var_long_name} ({units})"
-    trend_label = f"{cfg.clim_var_long_name} trend ({trend_units})"
+    slope_label = f"{cfg.clim_var_long_name} trend ({slope_units})"
 
     _map_figure(
         diagnostics.grid_x,
@@ -76,30 +77,34 @@ def plotmaps(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Pa
         diagnostics.grid_y,
         diagnostics.station_x,
         diagnostics.station_y,
-        diagnostics.bc_grid_linear_trends,
-        "Domain linear trend",
-        trend_label,
+        diagnostics.bc_grid_theil_sen_slopes,
+        "Domain trend",
+        slope_label,
         cfg.coordinate_system,
-        figure_dir / f"{cfg.clim_var_name}_bc_linear_trend_map.png",
+        figure_dir / f"{cfg.clim_var_name}_bc_trend_map.png",
     )
 
 
 def plottrendcomparison(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     _trendcomparisonfigure(
-        diagnostics.station_linear_trends,
-        diagnostics.raw_station_linear_trends,
-        diagnostics.bc_station_linear_trends,
+        diagnostics.station_theil_sen_slopes,
+        diagnostics.raw_station_theil_sen_slopes,
+        diagnostics.bc_station_theil_sen_slopes,
         cfg,
         "trend",
-        figure_dir / f"{cfg.clim_var_name}_linear_trends_scatter.png",
+        figure_dir / f"{cfg.clim_var_name}_trends_scatter.png",
     )
 
 
 def plotoverviewtimeseries(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     fig, ax = _new_figure(7, 2, 4)
     units = _yearly_units(cfg)
-    raw_domain_mean = np.nanmean(diagnostics.raw_grid_clim_var_yearly, axis=(0, 1))
-    bc_domain_mean = np.nanmean(diagnostics.bc_grid_clim_var_yearly, axis=(0, 1))
+    raw_domain_mean = spatialmean(
+        diagnostics.raw_grid_clim_var_yearly, diagnostics.grid_y, cfg.coordinate_system
+    )
+    bc_domain_mean = spatialmean(
+        diagnostics.bc_grid_clim_var_yearly, diagnostics.grid_y, cfg.coordinate_system
+    )
     ax.plot(diagnostics.years, raw_domain_mean, color=RAW_COLOR, label="Raw")
     ax.plot(diagnostics.years, bc_domain_mean, color=BC_COLOR, label="Bias-corrected")
     ax.set_ylabel(f"{cfg.clim_var_long_name} ({units})")
@@ -158,8 +163,8 @@ def plotquantilemae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_
 
 def plottrendmae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir: Path) -> None:
     fig, ax = _new_figure(4, 2, 4)
-    raw_trend_ae = np.abs(diagnostics.raw_station_linear_trends - diagnostics.station_linear_trends)
-    bc_trend_ae = np.abs(diagnostics.bc_station_linear_trends - diagnostics.station_linear_trends)
+    raw_trend_ae = np.abs(diagnostics.raw_station_theil_sen_slopes - diagnostics.station_theil_sen_slopes)
+    bc_trend_ae = np.abs(diagnostics.bc_station_theil_sen_slopes - diagnostics.station_theil_sen_slopes)
     handles = _stripplot(
         ax,
         [
@@ -170,7 +175,7 @@ def plottrendmae(diagnostics: Diagnostics, cfg: BiasCorrectionConfig, figure_dir
         [RAW_COLOR, BC_COLOR],
     )
     ax.set_xlabel(f"AE, {cfg.clim_var_long_name.lower()} trend ({_trend_units(cfg)})")
-    ax.set_title("All stations, linear trend absolute error")
+    ax.set_title("All stations, trend absolute error")
     ax.legend(handles, ["Raw", "Bias-corrected"], loc="center left", bbox_to_anchor=(1.02, 0.5), borderaxespad=0)
     _save_figure(fig, figure_dir / f"{cfg.clim_var_name}_trend_mae_strip.png")
 
@@ -201,7 +206,7 @@ def _trendcomparisonfigure(
     )
     ax.set_xlabel(f"{cfg.clim_var_long_name} {trend_label}, stations ({units})")
     ax.set_ylabel(f"{cfg.clim_var_long_name} {trend_label}, gridded ({units})")
-    ax.set_title("All stations, linear trends")
+    ax.set_title("All stations, trends")
 
     values = np.concatenate(
         [

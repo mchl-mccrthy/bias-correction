@@ -1,11 +1,11 @@
-% Mean and linear trend of the equal-cell yearly domain-average series.
-function [domain_mean,domain_trend] = getdomainsummary(grid_yearly,years)
-series = squeeze(mean(grid_yearly,[1 2],'omitnan'));
+% Mean and Theil-Sen slope of the yearly area-weighted domain-average series.
+function [domain_mean,domain_slope] = getdomainsummary(...
+    grid_yearly,years,grid_y,coordinate_system)
+series = spatialmean(grid_yearly,grid_y,coordinate_system);
 valid = isfinite(series);
 domain_mean = mean(series(valid),'omitnan');
-domain_trend = NaN;
+domain_slope = NaN;
 if sum(valid) >= 2
-    coefficients = polyfit(years(valid),series(valid),1);
-    domain_trend = coefficients(1);
+    domain_slope = theilsenslope(years(valid),series(valid));
 end
 end

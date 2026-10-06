@@ -121,7 +121,8 @@ end
 % Return useful outputs
 results.write_output = cfg.write_output;
 results.file_path_bc_data = file_path_bc_data;
-results.mean_bc_grid_clim_var = nanmean(bc_grid_clim_var,'all');
+results.mean_bc_grid_clim_var = mean(...
+    spatialmean(bc_grid_clim_var,grid_y,coordinate_system),'omitnan');
 if keep_grid_biases
     results.grid_biases = grid_biases;
 end

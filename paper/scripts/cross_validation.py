@@ -11,7 +11,7 @@ from eqtm.diagnostics import (
     diagnosticcsvtable,
     diagnosticunits,
     getannualmae,
-    getlineartrends,
+    gettheilsenslopes,
     getquantilemae,
     gridtostations,
     makeyearlytables,
@@ -199,7 +199,9 @@ def _evaluatemetrics(
         time,
         agg_method,
     )
-    station_trend, _, model_trend = getlineartrends(station_yearly, raw_yearly, model_yearly, years)
+    station_slope, _, model_slope = gettheilsenslopes(
+        station_yearly, raw_yearly, model_yearly, years
+    )
     _, model_quantile_mae = getquantilemae(station_values, raw_values, model_values)
     _, model_yearly_mae = getannualmae(station_yearly, raw_yearly, model_yearly)
 
@@ -210,15 +212,15 @@ def _evaluatemetrics(
         "Station": station_name,
         "MAE quantiles": model_quantile_mae[0],
         "MAE yearly": model_yearly_mae[0],
-        "Station linear trend": station_trend[0],
-        "Model linear trend": model_trend[0],
-        "MAE linear trends": abs(model_trend[0] - station_trend[0]),
+        "Station trend": station_slope[0],
+        "Model trend": model_slope[0],
+        "MAE trends": abs(model_slope[0] - station_slope[0]),
     }
 
 
 def _fold_export(folds: pd.DataFrame, configs: list[BiasCorrectionConfig]) -> pd.DataFrame:
     """Keep mixed-variable rows together, with units explicit for each metric group."""
-    table = folds.rename(columns={"MAE linear trends": "AE linear trend"}).copy()
+    table = folds.rename(columns={"MAE trends": "AE trend"}).copy()
     units = {cfg.clim_var_name: diagnosticunits(cfg) for cfg in configs}
     for i, name in enumerate(["Quantile units", "Yearly units", "Trend units"]):
         table[name] = table["Variable"].map({variable: values[i] for variable, values in units.items()})
@@ -226,7 +228,7 @@ def _fold_export(folds: pd.DataFrame, configs: list[BiasCorrectionConfig]) -> pd
 
 
 def _summarise(folds: pd.DataFrame, configs: list[BiasCorrectionConfig]) -> pd.DataFrame:
-    metrics = ["MAE quantiles", "MAE yearly", "MAE linear trends"]
+    metrics = ["MAE quantiles", "MAE yearly", "MAE trends"]
     methods = ["Raw", "Bias-corrected, trend mapping on", "Bias-corrected, trend mapping off"]
     means = folds.groupby(["Variable", "Method"])[metrics].mean()
     table = pd.concat(

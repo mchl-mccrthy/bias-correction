@@ -1,14 +1,16 @@
 % Plot domain-mean annual time series of gridded data
 function plotoverviewtimeseries(raw_grid_clim_var_yearly,...
     bc_grid_clim_var_yearly,years,file_path_figures_tables,clim_var_name,...
-    clim_var_long_name,clim_var_units,agg_method)
+    clim_var_long_name,clim_var_units,agg_method,grid_y,coordinate_system)
 
 % Get yearly units
 annual_units = yearlyunits(clim_var_units,agg_method);
 
 % Calculate domain means
-raw_domain_mean = squeeze(mean(raw_grid_clim_var_yearly,[1 2],'omitnan'));
-bc_domain_mean = squeeze(mean(bc_grid_clim_var_yearly,[1 2],'omitnan'));
+raw_domain_mean = spatialmean(...
+    raw_grid_clim_var_yearly,grid_y,coordinate_system);
+bc_domain_mean = spatialmean(...
+    bc_grid_clim_var_yearly,grid_y,coordinate_system);
 
 % Make plot
 figure()

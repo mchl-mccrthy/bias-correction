@@ -9,7 +9,7 @@ import numpy as np
 from .config import BiasCorrectionConfig, validateconfig
 from .io import loadgriddata, loadstationdata, savebcdata
 from .qmf import QMFs, getqmfs, period_index
-from .spatial import getdistances, indexofclosest2
+from .spatial import getdistances, indexofclosest2, spatialmean
 from .trends import detrendclimdata, gettrends, interptrends, retrendclimdata
 
 
@@ -130,7 +130,9 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
     return BiasCorrectionResults(
         write_output=cfg.write_output,
         file_path_bc_data=str(cfg.file_path_bc_data),
-        mean_bc_grid_clim_var=float(np.nanmean(bc_grid_clim_var)),
+        mean_bc_grid_clim_var=float(
+            np.nanmean(spatialmean(bc_grid_clim_var, grid_y, cfg.coordinate_system))
+        ),
         grid_biases=grid_biases,
     )
 

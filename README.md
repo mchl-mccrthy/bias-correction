@@ -166,10 +166,12 @@ The workflow assumes:
 - `makediagnostics` writes `<variable>_diagnostics_summary.csv` in `overview/`
   and `<station>_<variable>_diagnostics_summary.csv` in `individual_stations/`,
   both under `file_path_figures_tables`. Each table has Raw and Bias-corrected
-  rows, with quantile/yearly errors and means and linear trends. Station tables
+  rows, with quantile/yearly errors, means, and Theil-Sen slopes. Station tables
   include observed and model means of yearly values over coincident valid years.
   Overview tables instead include the domain yearly mean and the linear
-  trend fitted to the yearly spatial-average series (equal grid-cell weights).
+  trend fitted to the yearly spatial-average series. Geographic grids use
+  cell-area weights proportional to the cosine of latitude; projected grids
+  use equal cell weights.
   Error metrics in the overview remain equal-weight averages across stations;
   trend errors are AE per station and MAE in the overview.
   CSV headings include plain-text units in both implementations. For precipitation
