@@ -131,7 +131,7 @@ def biascorrect(cfg: BiasCorrectionConfig) -> BiasCorrectionResults:
         write_output=cfg.write_output,
         file_path_bc_data=str(cfg.file_path_bc_data),
         mean_bc_grid_clim_var=float(
-            np.nanmean(spatialmean(bc_grid_clim_var, grid_y, cfg.coordinate_system))
+            np.nanmean(spatialmean(bc_grid_clim_var, raw.y, cfg.coordinate_system))
         ),
         grid_biases=grid_biases,
     )
