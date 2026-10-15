@@ -319,10 +319,9 @@ def mapquantilestimestep(
     station_biases = np.full(n_stations, np.nan)
     for i_station in range(n_stations):
         raw_q = raw_quantiles[:, i_station, i_period]
-        if np.sum(~np.isnan(raw_q)) > 0:
-            diff = np.abs(raw_station[i_station] - raw_q)
-            quantile_index = np.nanargmin(diff)
-            station_biases[i_station] = biases[quantile_index, i_station, i_period]
+        station_biases[i_station] = interpolatequantilebias(
+            raw_station[i_station], raw_q, biases[:, i_station, i_period]
+        )
 
     valid = np.isfinite(station_biases)
     d = distances[:, valid]
@@ -337,3 +336,41 @@ def mapquantilestimestep(
     else:
         bc_timestep = grid_biases + raw_grid_clim_var_timestep
     return bc_timestep, grid_biases
+
+
+def interpolatequantilebias(
+    raw_value: float,
+    raw_quantiles: np.ndarray,
+    quantile_biases: np.ndarray,
+) -> float:
+    """Interpolate a correction between adjacent empirical raw quantiles."""
+    if not np.isfinite(raw_value):
+        return np.nan
+
+    raw_quantiles = np.asarray(raw_quantiles).reshape(-1)
+    quantile_biases = np.asarray(quantile_biases).reshape(-1)
+    valid = np.isfinite(raw_quantiles) & np.isfinite(quantile_biases)
+    if not np.any(valid):
+        return np.nan
+
+    x = raw_quantiles[valid]
+    corrections = quantile_biases[valid]
+
+    # Empirical quantiles can repeat, particularly for zero precipitation.
+    # Retaining the first correction preserves the existing lower-quantile
+    # convention while giving interpolation distinct support points.
+    keep = np.concatenate(([True], np.diff(x) != 0))
+    x = x[keep]
+    corrections = corrections[keep]
+
+    if len(x) == 1 or raw_value <= x[0]:
+        return float(corrections[0])
+    if raw_value >= x[-1]:
+        return float(corrections[-1])
+
+    upper = int(np.searchsorted(x, raw_value, side="left"))
+    if x[upper] == raw_value:
+        return float(corrections[upper])
+    lower = upper - 1
+    fraction = (raw_value - x[lower]) / (x[upper] - x[lower])
+    return float(corrections[lower] + fraction * (corrections[upper] - corrections[lower]))

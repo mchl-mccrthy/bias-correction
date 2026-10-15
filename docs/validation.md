@@ -86,43 +86,30 @@ and `trends_off/` output folders. Each run retains its JSON configuration and
 MATLAB log there. Its temporary MATLAB NetCDF is deleted only after comparison
 results have been saved; failed runs retain their files for inspection.
 Standalone comparisons assume the Python outputs match the current configs
-and code. The historical results below are not replaced automatically.
+and code.
 
 ### Temperature (`tas`)
 
-For `tas`, with additive bias correction and trend mapping enabled:
+For the Andermatt-Zurich example, using linearly interpolated quantile
+corrections:
 
-| Statistic | Absolute difference |
-|---|---:|
-| Maximum | 0.009621 degC |
-| Mean | 0.000000 degC |
-| Median | 0.000000 degC |
-| 90th percentile | 0.000001 degC |
-| 95th percentile | 0.000001 degC |
-| 99th percentile | 0.000002 degC |
-| 99.9th percentile | 0.000002 degC |
+| Trend mapping | Mean absolute difference | Maximum absolute difference |
+|---|---:|---:|
+| On | 0.000013 degC | 0.005649 degC |
+| Off | 0.000011 degC | 0.000111 degC |
 
-The maximum difference occurred at one grid cell and timestep. Further
-inspection showed that this was caused by a near-tie in nearest-quantile
-selection after detrending. Two adjacent detrended raw quantiles were almost
-equally close to the target value, leading MATLAB and Python to select adjacent
-quantile corrections. The resulting difference was approximately 0.0096 degC.
-This is a numerical tie-breaking effect rather than a methodological
-difference.
+Interpolation avoids discontinuous changes between adjacent quantile
+corrections when MATLAB and Python represent packed NetCDF values at slightly
+different floating-point precision.
 
 ### Precipitation (`pr`)
 
-For `pr`, with multiplicative bias correction and trend mapping enabled:
+For the same example:
 
-| Statistic | Absolute difference |
-|---|---:|
-| Maximum | 0.000470 |
-| Mean | 0.000000 |
-| Median | 0.000000 |
-| 90th percentile | 0.000000 |
-| 95th percentile | 0.000001 |
-| 99th percentile | 0.000002 |
-| 99.9th percentile | 0.000005 |
+| Trend mapping | Mean absolute difference | Maximum absolute difference |
+|---|---:|---:|
+| On | 0.000000163 mm day^-1 | 0.000290 mm day^-1 |
+| Off | 0.000000111 mm day^-1 | 0.000046 mm day^-1 |
 
 The precipitation differences were negligible and consistent with numerical
 precision effects.
@@ -132,7 +119,7 @@ precision effects.
 The Python and MATLAB implementations produce numerically equivalent results
 for both additive and multiplicative workflows. Remaining
 differences are negligible for practical use and arise from floating-point
-precision and near-tie quantile selection.
+precision in numerical operations.
 
 The Python implementation is therefore considered validated against the MATLAB
 reference implementation for the tested configurations.
@@ -143,6 +130,6 @@ Validation should be tied to the exact archived code version used for the
 paper. Update this section after committing and tagging the publication
 release.
 
-- Validation date: 2026-07-16
-- Current repository commit at time of drafting: `d4703eb`
+- Validation date: 2026-10-15
+- Current repository commit at time of drafting: to be updated after commit
 - Publication release: to be updated

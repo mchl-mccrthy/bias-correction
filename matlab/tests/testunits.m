@@ -78,6 +78,24 @@ verifyTrue(testCase,did_error)
 
 end
 
+% Quantile corrections are interpolated between adjacent raw quantiles
+function testQuantileBiasInterpolation(testCase)
+
+verifyEqual(testCase,interpolatequantilebias(5,[0;10;20],[1;3;9]),2)
+verifyEqual(testCase,interpolatequantilebias(10,[0;10;20],[1;3;9]),3)
+
+end
+
+% Quantile interpolation clamps tails and retains the first duplicate
+function testQuantileBiasInterpolationEndpointsAndDuplicates(testCase)
+
+verifyEqual(testCase,interpolatequantilebias(-1,[0;10],[2;4]),2)
+verifyEqual(testCase,interpolatequantilebias(11,[0;10],[2;4]),4)
+verifyEqual(testCase,interpolatequantilebias(0,[0;0;10],[1;4;5]),1)
+verifyEqual(testCase,interpolatequantilebias(5,[0;0;10],[1;4;5]),3)
+
+end
+
 % Station coordinates are matched to climate-data station columns
 function testStationCoordinatesMatchedToClimateColumns(testCase)
 

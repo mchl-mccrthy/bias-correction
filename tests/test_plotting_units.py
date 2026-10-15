@@ -2,7 +2,7 @@ from pathlib import Path
 import unittest
 
 from eqtm.config import BiasCorrectionConfig
-from eqtm.plotting import _format_units, _trend_units, _yearly_units
+from eqtm.plotting import _format_units, _trend_units, _wrap_axis_label, _yearly_units
 
 
 def _cfg(units: str, agg_method: str) -> BiasCorrectionConfig:
@@ -33,6 +33,16 @@ def _cfg(units: str, agg_method: str) -> BiasCorrectionConfig:
 
 
 class TestPlottingUnits(unittest.TestCase):
+    def test_axis_labels_wrap_at_word_boundaries(self) -> None:
+        self.assertEqual(
+            _wrap_axis_label("Bias-corrected temperature trend, stations", width=30),
+            "Bias-corrected temperature\ntrend, stations",
+        )
+
+    def test_short_axis_labels_and_existing_line_breaks_are_unchanged(self) -> None:
+        self.assertEqual(_wrap_axis_label("Elevation (m)"), "Elevation (m)")
+        self.assertEqual(_wrap_axis_label("First line\nSecond line"), "First line\nSecond line")
+
     def test_mean_units_keep_native_units_and_add_trend_year(self) -> None:
         cfg = _cfg("K", "mean")
 

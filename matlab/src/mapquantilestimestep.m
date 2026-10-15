@@ -17,18 +17,14 @@ elseif strcmp(qmf_period,'monthly')
     i_period = month(raw_time_timestep);
 end
 
-% Get biases for those stations. Here it does not matter if biases are
-% multiplicative or additive
+% Get interpolated biases for those stations. Here it does not matter if
+% biases are multiplicative or additive.
 station_biases_timestep = nan(1,n_stations);
 for i_station = 1:n_stations
-    if sum(~isnan(raw_quantiles(:,i_station,i_period))) > 0
-        [~,quantile_index] = ...
-            min(abs(raw_station_clim_var_timestep(i_station)-...
-            squeeze(raw_quantiles(:,i_station,i_period))),...
-            [],1,'includenan');
-        station_biases_timestep(i_station) = biases(quantile_index,...
-            i_station,i_period);
-    end
+    station_biases_timestep(i_station) = interpolatequantilebias(...
+        raw_station_clim_var_timestep(i_station),...
+        raw_quantiles(:,i_station,i_period),...
+        biases(:,i_station,i_period));
 end
 
 % Interpolate biases to grid  

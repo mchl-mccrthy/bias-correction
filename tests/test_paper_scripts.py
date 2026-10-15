@@ -11,6 +11,11 @@ from paper.scripts.config_switzerland_tas_trends_on import config_switzerland_ta
 from paper.scripts.config_switzerland_pr_trends_on import config_switzerland_pr_trends_on
 from paper.scripts.cross_validation import _fold_export, _summarise
 from paper.scripts.make_diagnostics_table import _diagnostics_table, METRIC_COLUMNS, ROW_LABELS
+from paper.scripts.make_seasonal_trend_mae_plots import (
+    _seasonaltrendunits,
+    _trendmae,
+    makeseasonaltables,
+)
 
 
 class PaperScriptTests(unittest.TestCase):
@@ -74,6 +79,56 @@ class PaperScriptTests(unittest.TestCase):
         pd.testing.assert_series_equal(
             exported["AE trend"], folds["MAE trends"], check_names=False
         )
+
+    def test_djf_aggregation_assigns_december_to_following_year(self):
+        time = pd.date_range("1999-12-01", "2001-02-28", freq="D")
+        tables = [
+            pd.DataFrame({"A": np.full(len(time), value)}, index=np.arange(len(time)))
+            for value in (1.0, 2.0, 3.0, 4.0)
+        ]
+        years, seasonal = makeseasonaltables(*tables, time, "DJF", "sum")
+        np.testing.assert_array_equal(years, [2000, 2001])
+        np.testing.assert_allclose(seasonal[0]["A"], [91, 90])
+        np.testing.assert_allclose(seasonal[3]["A"], [364, 360])
+
+    def test_partial_seasons_and_incomplete_stations_are_excluded(self):
+        time = pd.date_range("2000-03-15", "2001-05-31", freq="D")
+        station = pd.DataFrame({"A": np.ones(len(time))})
+        station.loc[(time.year == 2001) & (time.month == 4), "A"] = np.nan
+        models = [pd.DataFrame({"A": np.full(len(time), value)}) for value in (2.0, 3.0, 4.0)]
+        years, seasonal = makeseasonaltables(station, *models, time, "MAM", "mean")
+        np.testing.assert_array_equal(years, [2000, 2001])
+        self.assertTrue(seasonal[0]["A"].isna().all())
+
+    def test_seasonal_trend_units(self):
+        self.assertEqual(
+            _seasonaltrendunits(self.configs[0]),
+            "\N{DEGREE SIGN}C year$^{-1}$",
+        )
+        self.assertEqual(
+            _seasonaltrendunits(self.configs[1]),
+            "mm season$^{-1}$ year$^{-1}$",
+        )
+
+    def test_incomplete_season_uses_coincident_days_and_scales_sums(self):
+        time = pd.date_range("2001-03-01", "2001-05-31", freq="D")
+        station = pd.DataFrame({"A": np.ones(len(time))})
+        station.iloc[:5] = np.nan
+        raw = pd.DataFrame({"A": np.full(len(time), 2.0)})
+        bc_on = pd.DataFrame({"A": np.full(len(time), 3.0)})
+        bc_off = pd.DataFrame({"A": np.full(len(time), 4.0)})
+        _, seasonal = makeseasonaltables(
+            station, raw, bc_on, bc_off, time, "MAM", "sum"
+        )
+        np.testing.assert_allclose(
+            [table.iloc[0, 0] for table in seasonal],
+            [92.0, 184.0, 276.0, 368.0],
+        )
+
+    def test_seasonal_trend_mae_uses_common_finite_stations(self):
+        observed = np.array([1.0, 2.0, np.nan])
+        modelled = np.array([2.0, 4.0, 100.0])
+        self.assertEqual(_trendmae(observed, modelled), 1.5)
 
 
 if __name__ == "__main__":

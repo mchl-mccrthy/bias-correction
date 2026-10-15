@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import textwrap
 from pathlib import Path
 
 import matplotlib.dates as mdates
@@ -21,6 +22,7 @@ BOX_LINE_WIDTH = 0.5
 TICK_LENGTH_POINTS = 0.1 * 72 / 2.54
 MIN_TICKS = 3
 MAX_TICKS = 5
+AXIS_LABEL_WRAP_WIDTH = 30
 MARKER_SIZE = 10
 RAW_COLOR = "0.45"
 BC_COLOR = "red"
@@ -700,6 +702,9 @@ def _format_axes(ax: plt.Axes) -> None:
     ax.title.set_fontweight("bold")
     ax.xaxis.label.set_fontsize(FONT_SIZE)
     ax.yaxis.label.set_fontsize(FONT_SIZE)
+    if not getattr(ax, "_eqtm_colorbar", False):
+        ax.set_xlabel(_wrap_axis_label(ax.get_xlabel()))
+        ax.set_ylabel(_wrap_axis_label(ax.get_ylabel()))
     ax.tick_params(
         axis="both",
         which="both",
@@ -732,6 +737,18 @@ def _format_axes(ax: plt.Axes) -> None:
         for handle in legend.legend_handles:
             if hasattr(handle, "set_linewidth"):
                 handle.set_linewidth(LINE_WIDTH)
+
+
+def _wrap_axis_label(label: str, width: int = AXIS_LABEL_WRAP_WIDTH) -> str:
+    """Soft-wrap an axis label at word boundaries without splitting notation."""
+    if not label or "\n" in label:
+        return label
+    return textwrap.fill(
+        label,
+        width=width,
+        break_long_words=False,
+        break_on_hyphens=False,
+    )
 
 
 def _format_figure(fig: plt.Figure) -> None:

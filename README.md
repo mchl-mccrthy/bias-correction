@@ -160,6 +160,10 @@ The workflow assumes:
   elevation are assumed to be in metres.
 - Quantile and yearly MAE diagnostics compare station values with gridded
   values extracted at station locations.
+- Time-specific station corrections are linearly interpolated between
+  corrections at adjacent empirical raw-grid quantiles. Values outside the
+  fitted range use the nearest endpoint correction; repeated raw quantiles
+  retain the correction at their first occurrence.
 - For multiplicative correction, a zero raw quantile is assigned the neutral
   factor 1. This preserves zero values without allowing an undefined ratio to
   distort the spatial interpolation; EQTM does not adjust wet-day occurrence.
